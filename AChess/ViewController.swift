@@ -14,6 +14,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 
     @IBOutlet var sceneView: ARSCNView!
     var isPlayerBoardinited = false
+    var playerBoardNode = createPlayerBoard()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -47,8 +49,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         sceneView.session.run(configuration)
         //set contact delegate
         sceneView.scene.physicsWorld.contactDelegate = self
-        // Run the view's session
-        sceneView.session.run(configuration)
+       
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -97,16 +98,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
         }
     //test func remember to delete
-    func addChessTest(hitTestResult: ARHitTestResult) {
+    func initChessWithPos(pos: SCNVector3) -> SCNNode{
         let chessNode = createChess()
-        //playerBoardNode.eulerAngles = SCNVector3(45.degreesToRadius, 0, 0)
-        //playGroundNode.geometry?.firstMaterial?.isDoubleSided = true
-        //playGroundNode.geometry?.firstMaterial?.diffuse.contents = UIColor.red
-        let positionOFPlane = hitTestResult.worldTransform.columns.3
-        let xP = positionOFPlane.x
-        let yP = positionOFPlane.y
-        let zP = positionOFPlane.z
-        //
+        let xP = pos.x
+        let yP = pos.y
+        let zP = pos.z
+        ///////
+        // We create a Physically Based Rendering material
         let reflectiveMaterial = SCNMaterial()
         reflectiveMaterial.lightingModel = .physicallyBased
         // We want our ball to look metallic
@@ -114,20 +112,48 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         // And shiny
         reflectiveMaterial.roughness.contents = 0.0
         chessNode.geometry?.firstMaterial = reflectiveMaterial
-        //
+
+        let body = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(geometry: SCNCylinder(radius: 0.01, height: 0.01), options: nil))
         
-        let body = SCNPhysicsBody(type: .dynamic, shape: SCNPhysicsShape(node: chessNode))
-        body.mass = 5
         chessNode.physicsBody = body
-        chessNode.physicsBody?.categoryBitMask = BitMaskCategoty.baseChess.rawValue
-        chessNode.physicsBody?.contactTestBitMask = BitMaskCategoty.hand.rawValue
-        chessNode.position = SCNVector3(xP,yP + 0.1 ,zP)
-        //playGroundNode.physicsBody?.categoryBitMask = BitMaskCategoty.playGround.rawValue
-        //playGroundNode.physicsBody?.contactTestBitMask = BitMaskCategoty.baseCard.rawValue
-        self.sceneView.scene.rootNode.addChildNode(chessNode)
+        
+        chessNode.position = SCNVector3(xP,yP,zP)
+        return chessNode
     }
+    func addChessTest(hitTestResult: ARHitTestResult) {
+        
+        let positionOFPlane = hitTestResult.worldTransform.columns.3
+        let xP = positionOFPlane.x
+        let yP = positionOFPlane.y
+        let zP = positionOFPlane.z
+        let chessNode = initChessWithPos(pos: SCNVector3(xP, yP, zP))
+        
+        self.sceneView.scene.rootNode.addChildNode(chessNode)
+                       
+                       
+    }
+    func initGameTest() {
+           for index in 1 ..< 8 {
+                if let curNode = playerBoardNode.childNode(withName: "e" + String(index), recursively: true) {
+                    let tempChess = initChessWithPos(pos: curNode.position)
+                    tempChess.position.y += 0.01
+                    print(tempChess.position)
+                    playerBoardNode.addChildNode(tempChess)
+                }
+            }
+        for index in 1 ..< 8 {
+            if let curNode = playerBoardNode.childNode(withName: "a" + String(index), recursively: true) {
+                let tempChess = initChessWithPos(pos: curNode.position)
+                tempChess.position.y += 0.01
+               
+                playerBoardNode.addChildNode(tempChess)
+            }
+        }
+           
+       }
+    /////////////////end////////
     func initPlayerBoard(hitTestResult: ARHitTestResult) {
-        let playerBoardNode = createPlayerBoard()
+        playerBoardNode = createPlayerBoard()
         //playerBoardNode.eulerAngles = SCNVector3(45.degreesToRadius, 0, 0)
         //playGroundNode.geometry?.firstMaterial?.isDoubleSided = true
         //playGroundNode.geometry?.firstMaterial?.diffuse.contents = UIColor.red
@@ -135,11 +161,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         let xP = positionOFPlane.x
         let yP = positionOFPlane.y
         let zP = positionOFPlane.z
-        playerBoardNode.position = SCNVector3(xP,yP + 0.01,zP)
+        playerBoardNode.position = SCNVector3(xP,yP,zP)
         playerBoardNode.physicsBody = SCNPhysicsBody(type: .static, shape: nil)
         //playGroundNode.physicsBody?.categoryBitMask = BitMaskCategoty.playGround.rawValue
         //playGroundNode.physicsBody?.contactTestBitMask = BitMaskCategoty.baseCard.rawValue
         self.sceneView.scene.rootNode.addChildNode(playerBoardNode)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: {
+                                       self.initGameTest()
+                                   })
+       
     }
     
     // MARK: - ARSCNViewDelegate
@@ -156,6 +186,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             let planeNode = node as? customPlaneNode else {
             return
         }
+        //print(planeNode.position)
         planeNode.update(from: planeAnchor)
     }
 
@@ -164,6 +195,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             let planeNode = node as? customPlaneNode else {
             return
         }
+        //print(planeNode.position)
         planeNode.update(from: planeAnchor)
     }
 }

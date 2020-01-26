@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C709C50623DD791D00944C01 /* enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = C709C50523DD791D00944C01 /* enums.swift */; };
+		C709C50823DD86D100944C01 /* utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = C709C50723DD86D100944C01 /* utils.swift */; };
+		C709C50A23DD86EF00944C01 /* enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = C709C50923DD86EF00944C01 /* enums.swift */; };
 		C73426A223D9E338003B7697 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C73426A123D9E338003B7697 /* AppDelegate.swift */; };
 		C73426A423D9E338003B7697 /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = C73426A323D9E338003B7697 /* art.scnassets */; };
 		C73426A623D9E338003B7697 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C73426A523D9E338003B7697 /* ViewController.swift */; };
@@ -16,7 +17,6 @@
 		C73426AE23D9E33B003B7697 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C73426AC23D9E33B003B7697 /* LaunchScreen.storyboard */; };
 		C73426B923D9E33B003B7697 /* AChessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C73426B823D9E33B003B7697 /* AChessTests.swift */; };
 		C73426C423D9E33B003B7697 /* AChessUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C73426C323D9E33B003B7697 /* AChessUITests.swift */; };
-		C7C759EF23DB293400274596 /* utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C759EE23DB293400274596 /* utils.swift */; };
 		C7C759F223DB2B8300274596 /* customPlaneNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C759F123DB2B8300274596 /* customPlaneNode.swift */; };
 /* End PBXBuildFile section */
 
@@ -38,7 +38,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		C709C50523DD791D00944C01 /* enums.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = enums.swift; path = ../../../archess/archess/util/enums.swift; sourceTree = "<group>"; };
+		C709C50723DD86D100944C01 /* utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = utils.swift; sourceTree = "<group>"; };
+		C709C50923DD86EF00944C01 /* enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = enums.swift; sourceTree = "<group>"; };
 		C734269E23D9E338003B7697 /* AChess.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AChess.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C73426A123D9E338003B7697 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C73426A323D9E338003B7697 /* art.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = art.scnassets; sourceTree = "<group>"; };
@@ -53,7 +54,6 @@
 		C73426BF23D9E33B003B7697 /* AChessUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AChessUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C73426C323D9E33B003B7697 /* AChessUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AChessUITests.swift; sourceTree = "<group>"; };
 		C73426C523D9E33B003B7697 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		C7C759EE23DB293400274596 /* utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = utils.swift; path = ../../../archess/archess/util/utils.swift; sourceTree = "<group>"; };
 		C7C759F123DB2B8300274596 /* customPlaneNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = customPlaneNode.swift; path = ../../../archess/archess/customPlaneNode.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -139,8 +139,8 @@
 		C7C759ED23DB291C00274596 /* utils */ = {
 			isa = PBXGroup;
 			children = (
-				C7C759EE23DB293400274596 /* utils.swift */,
-				C709C50523DD791D00944C01 /* enums.swift */,
+				C709C50723DD86D100944C01 /* utils.swift */,
+				C709C50923DD86EF00944C01 /* enums.swift */,
 			);
 			path = utils;
 			sourceTree = "<group>";
@@ -285,8 +285,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C7C759EF23DB293400274596 /* utils.swift in Sources */,
-				C709C50623DD791D00944C01 /* enums.swift in Sources */,
+				C709C50823DD86D100944C01 /* utils.swift in Sources */,
+				C709C50A23DD86EF00944C01 /* enums.swift in Sources */,
 				C7C759F223DB2B8300274596 /* customPlaneNode.swift in Sources */,
 				C73426A623D9E338003B7697 /* ViewController.swift in Sources */,
 				C73426A223D9E338003B7697 /* AppDelegate.swift in Sources */,
