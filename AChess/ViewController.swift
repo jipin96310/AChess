@@ -13,7 +13,7 @@ import ARKit
 class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SCNPhysicsContactDelegate {
 
     @IBOutlet var sceneView: ARSCNView!
-    
+    var isPlayerBoardinited = false
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -88,9 +88,44 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             let touchLocation = sender.location(in: sceneView)
             let hitTestResult = sceneView.hitTest(touchLocation, types: [.existingPlaneUsingExtent])
             if !hitTestResult.isEmpty {
-                self.initPlayerBoard(hitTestResult: hitTestResult.first!)
+                if isPlayerBoardinited == false {
+                    self.initPlayerBoard(hitTestResult: hitTestResult.first!)
+                    isPlayerBoardinited = true
+                } else {
+                    self.addChessTest(hitTestResult: hitTestResult.first!)
+                }
             }
         }
+    //test func remember to delete
+    func addChessTest(hitTestResult: ARHitTestResult) {
+        let chessNode = createChess()
+        //playerBoardNode.eulerAngles = SCNVector3(45.degreesToRadius, 0, 0)
+        //playGroundNode.geometry?.firstMaterial?.isDoubleSided = true
+        //playGroundNode.geometry?.firstMaterial?.diffuse.contents = UIColor.red
+        let positionOFPlane = hitTestResult.worldTransform.columns.3
+        let xP = positionOFPlane.x
+        let yP = positionOFPlane.y
+        let zP = positionOFPlane.z
+        //
+        let reflectiveMaterial = SCNMaterial()
+        reflectiveMaterial.lightingModel = .physicallyBased
+        // We want our ball to look metallic
+        reflectiveMaterial.metalness.contents = 1.0
+        // And shiny
+        reflectiveMaterial.roughness.contents = 0.0
+        chessNode.geometry?.firstMaterial = reflectiveMaterial
+        //
+        
+        let body = SCNPhysicsBody(type: .dynamic, shape: SCNPhysicsShape(node: chessNode))
+        body.mass = 5
+        chessNode.physicsBody = body
+        chessNode.physicsBody?.categoryBitMask = BitMaskCategoty.baseChess.rawValue
+        chessNode.physicsBody?.contactTestBitMask = BitMaskCategoty.hand.rawValue
+        chessNode.position = SCNVector3(xP,yP + 0.1 ,zP)
+        //playGroundNode.physicsBody?.categoryBitMask = BitMaskCategoty.playGround.rawValue
+        //playGroundNode.physicsBody?.contactTestBitMask = BitMaskCategoty.baseCard.rawValue
+        self.sceneView.scene.rootNode.addChildNode(chessNode)
+    }
     func initPlayerBoard(hitTestResult: ARHitTestResult) {
         let playerBoardNode = createPlayerBoard()
         //playerBoardNode.eulerAngles = SCNVector3(45.degreesToRadius, 0, 0)
