@@ -18,6 +18,9 @@
 		C73426B923D9E33B003B7697 /* AChessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C73426B823D9E33B003B7697 /* AChessTests.swift */; };
 		C73426C423D9E33B003B7697 /* AChessUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C73426C323D9E33B003B7697 /* AChessUITests.swift */; };
 		C7C759F223DB2B8300274596 /* customPlaneNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C759F123DB2B8300274596 /* customPlaneNode.swift */; };
+		C7DD950823DE9ACE0096CE0C /* actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DD950723DE9ACE0096CE0C /* actions.swift */; };
+		C7DD950E23DEB8F80096CE0C /* particals.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = C7DD950D23DEB8F80096CE0C /* particals.scnassets */; };
+		C7DD951323DF06590096CE0C /* baseChessNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DD951223DF06590096CE0C /* baseChessNode.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,6 +58,9 @@
 		C73426C323D9E33B003B7697 /* AChessUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AChessUITests.swift; sourceTree = "<group>"; };
 		C73426C523D9E33B003B7697 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C7C759F123DB2B8300274596 /* customPlaneNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = customPlaneNode.swift; path = ../../../archess/archess/customPlaneNode.swift; sourceTree = "<group>"; };
+		C7DD950723DE9ACE0096CE0C /* actions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = actions.swift; sourceTree = "<group>"; };
+		C7DD950D23DEB8F80096CE0C /* particals.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = particals.scnassets; sourceTree = "<group>"; };
+		C7DD951223DF06590096CE0C /* baseChessNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = baseChessNode.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -114,6 +120,7 @@
 				C73426AA23D9E33B003B7697 /* Assets.xcassets */,
 				C73426AC23D9E33B003B7697 /* LaunchScreen.storyboard */,
 				C73426AF23D9E33B003B7697 /* Info.plist */,
+				C7DD950D23DEB8F80096CE0C /* particals.scnassets */,
 			);
 			path = AChess;
 			sourceTree = "<group>";
@@ -141,6 +148,7 @@
 			children = (
 				C709C50723DD86D100944C01 /* utils.swift */,
 				C709C50923DD86EF00944C01 /* enums.swift */,
+				C7DD950723DE9ACE0096CE0C /* actions.swift */,
 			);
 			path = utils;
 			sourceTree = "<group>";
@@ -149,6 +157,7 @@
 			isa = PBXGroup;
 			children = (
 				C7C759F123DB2B8300274596 /* customPlaneNode.swift */,
+				C7DD951223DF06590096CE0C /* baseChessNode.swift */,
 			);
 			path = nodesClass;
 			sourceTree = "<group>";
@@ -261,6 +270,7 @@
 				C73426AE23D9E33B003B7697 /* LaunchScreen.storyboard in Resources */,
 				C73426AB23D9E33B003B7697 /* Assets.xcassets in Resources */,
 				C73426A923D9E338003B7697 /* Main.storyboard in Resources */,
+				C7DD950E23DEB8F80096CE0C /* particals.scnassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -286,7 +296,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				C709C50823DD86D100944C01 /* utils.swift in Sources */,
+				C7DD950823DE9ACE0096CE0C /* actions.swift in Sources */,
 				C709C50A23DD86EF00944C01 /* enums.swift in Sources */,
+				C7DD951323DF06590096CE0C /* baseChessNode.swift in Sources */,
 				C7C759F223DB2B8300274596 /* customPlaneNode.swift in Sources */,
 				C73426A623D9E338003B7697 /* ViewController.swift in Sources */,
 				C73426A223D9E338003B7697 /* AppDelegate.swift in Sources */,
