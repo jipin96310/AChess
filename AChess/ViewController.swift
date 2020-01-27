@@ -15,6 +15,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     @IBOutlet var sceneView: ARSCNView!
     var isPlayerBoardinited = false
     var playerBoardNode = createPlayerBoard()
+    var boardNode :[[SCNNode]] = [[],[]]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -139,6 +140,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     tempChess.position.y += 0.01
                     print(tempChess.position)
                     playerBoardNode.addChildNode(tempChess)
+                    boardNode[0].append(tempChess)
                 }
             }
         for index in 1 ..< 8 {
@@ -147,8 +149,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 tempChess.position.y += 0.01
                
                 playerBoardNode.addChildNode(tempChess)
+                boardNode[1].append(tempChess)
             }
         }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: {
+            let startPos = self.boardNode[0][0].position
+            let attackSequence = SCNAction.sequence([attack(startPos, self.boardNode[1][1].position),backTo(startPos)])
+            self.boardNode[0][0].runAction(attackSequence)
+            
+        })
            
        }
     /////////////////end////////
