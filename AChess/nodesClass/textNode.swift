@@ -21,12 +21,12 @@ class TextNode: SCNNode {
 
     override init() {
         super.init()
-
+        
         textGeometry.truncationMode = CATextLayerTruncationMode.middle.rawValue
         textGeometry.isWrapped = true
         textGeometry.alignmentMode = CATextLayerAlignmentMode.left.rawValue
         textGeometry.font = UIFont.systemFont(ofSize: 26)
-        textGeometry.string = "21312412412"
+       
         let blackMaterial = SCNMaterial()
         blackMaterial.diffuse.contents = UIColor.red
         blackMaterial.locksAmbientWithDiffuse = true
