@@ -25,10 +25,11 @@ class TextNode: SCNNode {
         textGeometry.truncationMode = CATextLayerTruncationMode.middle.rawValue
         textGeometry.isWrapped = true
         textGeometry.alignmentMode = CATextLayerAlignmentMode.left.rawValue
-        textGeometry.font = UIFont.systemFont(ofSize: 26)
+        textGeometry.font = UIFont.systemFont(ofSize: 1)
+        scale = SCNVector3(0.01, 0.01, 0.01)
        
         let blackMaterial = SCNMaterial()
-        blackMaterial.diffuse.contents = UIColor.red
+        blackMaterial.diffuse.contents = UIColor.orange
         blackMaterial.locksAmbientWithDiffuse = true
         textGeometry.materials = [blackMaterial]
 
@@ -43,8 +44,11 @@ class TextNode: SCNNode {
             let (min, max) = boundingBox
             let width = CGFloat(max.x - min.x)
             let height = CGFloat(max.y - min.y)
-            print("width :",max.x - min.x,"height :",max.y - min.y,"depth :",max.z - min.z)
-            textGeometry.containerFrame = CGRect(x: 0.0, y: 0.0, width: width, height: height)
+            if width > 0 && height > 0 {
+                print("width :",max.x - min.x,"height :",max.y - min.y,"depth :",max.z - min.z)
+                textGeometry.containerFrame = CGRect(x: 0.0, y: 0.0, width: width, height: height)
+            }
+            
     //        textGeometry.containerFrame = CGRect(origin: .zero, size: CGSize(width: 1.0, height: 1.0))
         }
 }
