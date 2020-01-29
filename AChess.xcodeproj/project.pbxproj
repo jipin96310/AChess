@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		C709C50823DD86D100944C01 /* utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = C709C50723DD86D100944C01 /* utils.swift */; };
 		C709C50A23DD86EF00944C01 /* enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = C709C50923DD86EF00944C01 /* enums.swift */; };
+		C72D0EC623DFF8F800CC0EFB /* textNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72D0EC523DFF8F800CC0EFB /* textNode.swift */; };
 		C73426A223D9E338003B7697 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C73426A123D9E338003B7697 /* AppDelegate.swift */; };
 		C73426A423D9E338003B7697 /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = C73426A323D9E338003B7697 /* art.scnassets */; };
 		C73426A623D9E338003B7697 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C73426A523D9E338003B7697 /* ViewController.swift */; };
@@ -43,6 +44,7 @@
 /* Begin PBXFileReference section */
 		C709C50723DD86D100944C01 /* utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = utils.swift; sourceTree = "<group>"; };
 		C709C50923DD86EF00944C01 /* enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = enums.swift; sourceTree = "<group>"; };
+		C72D0EC523DFF8F800CC0EFB /* textNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = textNode.swift; sourceTree = "<group>"; };
 		C734269E23D9E338003B7697 /* AChess.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AChess.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C73426A123D9E338003B7697 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C73426A323D9E338003B7697 /* art.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = art.scnassets; sourceTree = "<group>"; };
@@ -158,6 +160,7 @@
 			children = (
 				C7C759F123DB2B8300274596 /* customPlaneNode.swift */,
 				C7DD951223DF06590096CE0C /* baseChessNode.swift */,
+				C72D0EC523DFF8F800CC0EFB /* textNode.swift */,
 			);
 			path = nodesClass;
 			sourceTree = "<group>";
@@ -299,6 +302,7 @@
 				C7DD950823DE9ACE0096CE0C /* actions.swift in Sources */,
 				C709C50A23DD86EF00944C01 /* enums.swift in Sources */,
 				C7DD951323DF06590096CE0C /* baseChessNode.swift in Sources */,
+				C72D0EC623DFF8F800CC0EFB /* textNode.swift in Sources */,
 				C7C759F223DB2B8300274596 /* customPlaneNode.swift in Sources */,
 				C73426A623D9E338003B7697 /* ViewController.swift in Sources */,
 				C73426A223D9E338003B7697 /* AppDelegate.swift in Sources */,
