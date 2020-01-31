@@ -135,6 +135,21 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                        
                        
     }
+    func beginARound(){ //当前默认是敌人方进行攻击 后续调整
+        var beginIndex = 0
+        while beginIndex < boardNode[0].count {
+            let randomIndex = Int.randomIntNumber(lower: 0, upper: self.boardNode[1].count)
+            let attackResult = attack(self.boardNode[0][beginIndex], self.boardNode[1][randomIndex])
+            if attackResult[0] == 0 { //attacker eliminated
+                self.boardNode[0].remove(at: beginIndex)
+            }
+            if attackResult[0] == 0 { //victim elinminated
+                self.boardNode[1].remove(at: randomIndex)
+            }
+            
+            beginIndex += 1
+        }
+    }
     func initGameTest() {
            for index in 1 ..< 8 {
                 if let curNode = playerBoardNode.childNode(withName: "e" + String(index), recursively: true) {
@@ -155,8 +170,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: {
-           let attackResult = attack(self.boardNode[0][0], self.boardNode[1][1])
-            print("att:", attackResult[0], "def:", attackResult[1])
+           //let attackResult = attack(self.boardNode[0][0], self.boardNode[1][1])
+            self.beginARound()
+           
 //            let startPos = self.boardNode[0][0].position
 //            let attackSequence = SCNAction.sequence([attackAction(startPos, self.boardNode[1][1].position),backToAction(startPos)])
 //            self.boardNode[0][0].runAction(attackSequence)
