@@ -15,7 +15,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     @IBOutlet var sceneView: ARSCNView!
     var isPlayerBoardinited = false
     var playerBoardNode = createPlayerBoard()
-    var boardNode :[[SCNNode]] = [[],[]]
+    var boardNode :[[baseChessNode]] = [[],[]]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -99,8 +99,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
         }
     //test func remember to delete
-    func initChessWithPos(pos: SCNVector3) -> SCNNode{
-        let chessNode = createChess()
+    func initChessWithPos(pos: SCNVector3) -> baseChessNode{
+        let chessNode = baseChessNode()
+        chessNode.atkNum = 4
+        chessNode.defNum = 4
         let xP = pos.x
         let yP = pos.y
         let zP = pos.z
@@ -153,9 +155,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: {
-            let startPos = self.boardNode[0][0].position
-            let attackSequence = SCNAction.sequence([attack(startPos, self.boardNode[1][1].position),backTo(startPos)])
-            self.boardNode[0][0].runAction(attackSequence)
+           let attackResult = attack(self.boardNode[0][0], self.boardNode[1][1])
+            print("att:", attackResult[0], "def:", attackResult[1])
+//            let startPos = self.boardNode[0][0].position
+//            let attackSequence = SCNAction.sequence([attackAction(startPos, self.boardNode[1][1].position),backToAction(startPos)])
+//            self.boardNode[0][0].runAction(attackSequence)
             
         })
            
