@@ -150,7 +150,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                if attackResult[1] == 0 { //victim elinminated
                    self.boardNode[1].remove(at: randomIndex)
                }
-               delay(5) { self.aRoundTaskAsync(&curIndex, resolver) }
+               print("actionTotalTime:", attackResult[2])
+               delay(attackResult[2]) { self.aRoundTaskAsync(&curIndex, resolver) }
            } else if boardNode[0].count > 0 && boardNode[1].count > 0 {
                var nextRoundIndex = 0
                self.aRoundTaskAsync(&nextRoundIndex, resolver)//从头开始
