@@ -9,6 +9,7 @@
 import UIKit
 import SceneKit
 import ARKit
+import PromiseKit
 
 class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SCNPhysicsContactDelegate {
 
@@ -101,7 +102,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     //test func remember to delete
     func initChessWithPos(pos: SCNVector3) -> baseChessNode{
         let chessNode = baseChessNode()
-        chessNode.atkNum = 4
+        chessNode.atkNum = 2
         chessNode.defNum = 4
         let xP = pos.x
         let yP = pos.y
@@ -135,20 +136,58 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                        
                        
     }
-    func beginARound(){ //当前默认是敌人方进行攻击 后续调整
-        var beginIndex = 0
-        while beginIndex < boardNode[0].count {
+    func aRoundTaskAsync(_ beginIndex: inout Int, _ resolver: Resolver<Any>) {
+          var curIndex = beginIndex
+           if (beginIndex < boardNode[0].count) {
+               let randomIndex = Int.randomIntNumber(lower: 0, upper: self.boardNode[1].count)
+               let attackResult = attack(self.boardNode[0][beginIndex], self.boardNode[1][randomIndex])
+              
+               if attackResult[0] == 0 { //attacker eliminated
+                   self.boardNode[0].remove(at: beginIndex)
+               }
+               if attackResult[1] == 0 { //victim elinminated
+                   self.boardNode[1].remove(at: randomIndex)
+               }
+               curIndex += 1
+               delay(5) { self.aRoundTaskAsync(&curIndex, resolver) }
+           } else if boardNode[0].count > 0 && boardNode[1].count > 0 {
+               var nextRoundIndex = 0
+               delay(1) { self.aRoundTaskAsync(&nextRoundIndex, resolver) } //从头开始
+           } else {
+            resolver.fulfill("success")
+        }
+   }
+    
+    func aRoundTask( _ beginIndex: inout Int) { //指针传递inout
+        var curIndex = beginIndex
+        if (beginIndex < boardNode[0].count) {
             let randomIndex = Int.randomIntNumber(lower: 0, upper: self.boardNode[1].count)
             let attackResult = attack(self.boardNode[0][beginIndex], self.boardNode[1][randomIndex])
+           
             if attackResult[0] == 0 { //attacker eliminated
                 self.boardNode[0].remove(at: beginIndex)
             }
-            if attackResult[0] == 0 { //victim elinminated
+            if attackResult[1] == 0 { //victim elinminated
                 self.boardNode[1].remove(at: randomIndex)
             }
-            
-            beginIndex += 1
+            curIndex += 1
+            delay(5) { self.aRoundTask(&curIndex) }
+        } else if boardNode[0].count > 0 && boardNode[1].count > 0 {
+            var beginIndex = 0
+            delay(5) { self.aRoundTask(&beginIndex) } //从头开始
         }
+    }
+    func beginRounds(){ //当前默认是敌人方进行攻击 后续调整
+       // while boardNode[0].count > 0 && boardNode[1].count > 0 {
+        Promise<Any>(resolver: { (resolver) in
+           var beginIndex = 0
+           aRoundTaskAsync(&beginIndex, resolver)
+            }).done { (v) in
+                print("done", v)
+            }
+//            var beginIndex = 0
+//            aRoundTask(&beginIndex)
+       // }
     }
     func initGameTest() {
            for index in 1 ..< 8 {
@@ -171,7 +210,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: {
            //let attackResult = attack(self.boardNode[0][0], self.boardNode[1][1])
-            self.beginARound()
+            self.beginRounds()
            
 //            let startPos = self.boardNode[0][0].position
 //            let attackSequence = SCNAction.sequence([attackAction(startPos, self.boardNode[1][1].position),backToAction(startPos)])
