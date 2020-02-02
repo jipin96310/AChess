@@ -136,6 +136,22 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                        
                        
     }
+    func updateChessBoardPosition( _ attackResult: [Double] ) -> Double {
+        var totalTime = 0.50
+        for typeIndex in 0 ..< 2 { // 0: 1:  2号位是动作时间
+            if attackResult[typeIndex] == 0 {
+                for index in 0 ..< self.boardNode[typeIndex].count {
+                    
+                    let curRootNode  = boardRootNode[typeIndex][index]
+                    let curChessNode = self.boardNode[typeIndex][index]
+                    let updateAction = SCNAction.move(to: SCNVector3(curRootNode.position.x, curRootNode.position.y + 0.01 , curRootNode.position.z), duration: totalTime)
+                    curChessNode.runAction(updateAction)
+                    
+                }
+            }
+        }
+        return totalTime
+    }
     func aRoundTaskAsync(_ beginIndex: inout Int, _ resolver: Resolver<Any>) {
           var curIndex = beginIndex
            if (curIndex < boardNode[0].count) {
@@ -151,7 +167,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                    self.boardNode[1].remove(at: randomIndex)
                }
                delay(attackResult[2]) {
-                self.aRoundTaskAsync(&curIndex, resolver)
+                let updateTime = self.updateChessBoardPosition(attackResult)
+                delay(updateTime + 0.10) { //
+                   self.aRoundTaskAsync(&curIndex, resolver)
+                }
                 }
            } else if boardNode[0].count > 0 && boardNode[1].count > 0 {
                var nextRoundIndex = 0
@@ -199,6 +218,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     tempChess.position.y += 0.01
                     
                     playerBoardNode.addChildNode(tempChess)
+                    boardRootNode[0].append(curNode)
                     boardNode[0].append(tempChess)
                 }
             }
@@ -208,6 +228,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 tempChess.position.y += 0.01
                
                 playerBoardNode.addChildNode(tempChess)
+                boardRootNode[1].append(curNode)
                 boardNode[1].append(tempChess)
             }
         }
