@@ -17,6 +17,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var isPlayerBoardinited = false
     var playerBoardNode = createPlayerBoard()
     var boardNode :[[baseChessNode]] = [[],[]]
+    var boardRootNode :[[SCNNode]] = [[],[]]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -102,8 +103,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     //test func remember to delete
     func initChessWithPos(pos: SCNVector3) -> baseChessNode{
         let chessNode = baseChessNode()
-        chessNode.atkNum = 2
-        chessNode.defNum = 4
+        chessNode.atkNum = 3
+        chessNode.defNum = 3
         let xP = pos.x
         let yP = pos.y
         let zP = pos.z
@@ -140,7 +141,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
            if (curIndex < boardNode[0].count) {
                let randomIndex = Int.randomIntNumber(lower: 0, upper: self.boardNode[1].count)
                let attackResult = attack(self.boardNode[0][curIndex], self.boardNode[1][randomIndex])
-               print("attacker:", self.boardNode[0][beginIndex], "vic:", self.boardNode[1][randomIndex])
+               
                if attackResult[0] == 0 { //attacker eliminated
                    self.boardNode[0].remove(at: beginIndex)
                } else {
@@ -149,8 +150,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                if attackResult[1] == 0 { //victim elinminated
                    self.boardNode[1].remove(at: randomIndex)
                }
-               print("actionTotalTime:", attackResult[2])
-               delay(attackResult[2]) { self.aRoundTaskAsync(&curIndex, resolver) }
+               delay(attackResult[2]) {
+                self.aRoundTaskAsync(&curIndex, resolver)
+                }
            } else if boardNode[0].count > 0 && boardNode[1].count > 0 {
                var nextRoundIndex = 0
                self.aRoundTaskAsync(&nextRoundIndex, resolver)//从头开始
