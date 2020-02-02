@@ -118,7 +118,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         chessNode.geometry?.firstMaterial = reflectiveMaterial
 
         let body = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(geometry: SCNCylinder(radius: 0.01, height: 0.01), options: nil))
-        
         chessNode.physicsBody = body
         
         chessNode.position = SCNVector3(xP,yP,zP)
