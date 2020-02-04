@@ -19,6 +19,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var boardNode :[[baseChessNode]] = [[],[]]
     var boardRootNode :[[SCNNode]] = [[],[]]
     var setting = (controlMethod : 0, particalOn : 0)//0:  0 用tap的方式操作。1用手识别操作
+    //
+    var handPoint = SCNNode()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,6 +31,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         // Show statistics such as fps and timing information
         sceneView.showsStatistics = true
         
+        initHandNode()
         // Create a new scene
         //let scene = SCNScene(named: "art.scnassets/ship.scn")!
         
@@ -103,7 +106,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 let hitTestResult = sceneView.hitTest(touchLocation, options: [SCNHitTestOption.boundingBoxOnly: true])
                            if !hitTestResult.isEmpty {
                             let firstResult = hitTestResult.first!
-                            print("hitNode: ", firstResult)
+                            if let rootNode = findChessRootNode(firstResult.node) {
+                                print(rootNode)
+                            }
+                            
 //                                   let positionOfPress = hitTestResult.first!.worldTransform.columns.3
 //                                   let curPressLocation = SCNVector3(positionOfPress.x, positionOfPress.y, positionOfPress.z)
 //                                   self.checkCollisionWithChess(curPressLocation)
@@ -293,6 +299,25 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                        self.initGameTest()
                                    })
        
+    }
+    func initHandNode() {
+        let newNode = SCNNode(geometry: SCNCylinder(radius: 0.05, height: 0.005))
+        newNode.name = ContactCategory.hand.rawValue
+         //newNode.simdTransform = hitTestResult.worldTransform
+         newNode.position.x = 0
+         newNode.position.y = 0
+         newNode.position.z = 0
+         newNode.geometry?.firstMaterial?.diffuse.contents = UIColor.blue
+         //hands physics body
+        let body = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(geometry: SCNCylinder(radius: 0.05, height: 0.005), options: [SCNPhysicsShape.Option.keepAsCompound : true]))
+        newNode.physicsBody = body
+
+          newNode.physicsBody?.categoryBitMask = BitMaskCategoty.hand.rawValue
+          newNode.physicsBody?.contactTestBitMask = BitMaskCategoty.baseChess.rawValue
+          
+         newNode.isHidden = true
+         handPoint = newNode
+         self.sceneView.scene.rootNode.addChildNode(handPoint)
     }
     
     // MARK: - ARSCNViewDelegate
