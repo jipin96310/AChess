@@ -18,6 +18,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var playerBoardNode = createPlayerBoard()
     var boardNode :[[baseChessNode]] = [[],[]]
     var boardRootNode :[[SCNNode]] = [[],[]]
+    var setting = (controlMethod : 0, particalOn : 0)//0:  0 用tap的方式操作。1用手识别操作
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,8 +45,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         
         //tap gesture added
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onTap))
-        self.sceneView.addGestureRecognizer(tapGestureRecognizer)
         tapGestureRecognizer.cancelsTouchesInView = false
+        self.sceneView.addGestureRecognizer(tapGestureRecognizer)
+        if setting.controlMethod == 0 { //control with long press
+            let longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action:  #selector(onLongPress))
+            longPressGestureRecognizer.cancelsTouchesInView = false
+            self.sceneView.addGestureRecognizer(longPressGestureRecognizer)
+        }
+       
         // We want to receive the frames from the video
         sceneView.session.delegate = self
         // Run the view's session
@@ -87,6 +94,26 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         // Reset tracking and/or remove existing anchors if consistent tracking is required
         
     }
+    @objc func onLongPress(sender: UITapGestureRecognizer) {
+        guard let sceneView = sender.view as? ARSCNView else {return}
+        if sender.state == .began
+               {
+                   //longPress starts
+                let touchLocation = sender.location(in: sceneView)
+                let hitTestResult = sceneView.hitTest(touchLocation, options: [SCNHitTestOption.boundingBoxOnly: true])
+                           if !hitTestResult.isEmpty {
+                            let firstResult = hitTestResult.first!
+                            print("hitNode: ", firstResult)
+//                                   let positionOfPress = hitTestResult.first!.worldTransform.columns.3
+//                                   let curPressLocation = SCNVector3(positionOfPress.x, positionOfPress.y, positionOfPress.z)
+//                                   self.checkCollisionWithChess(curPressLocation)
+                           }
+               }
+               else
+               {
+                  //longPress ended
+               }
+    }
     @objc func onTap(sender: UITapGestureRecognizer) {
             guard let sceneView = sender.view as? ARSCNView else {return}
             let touchLocation = sender.location(in: sceneView)
@@ -96,14 +123,18 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     self.initPlayerBoard(hitTestResult: hitTestResult.first!)
                     isPlayerBoardinited = true
                 } else {
-                    self.addChessTest(hitTestResult: hitTestResult.first!)
+                    //self.addChessTest(hitTestResult: hitTestResult.first!)
                 }
             }
         }
+    func checkCollisionWithChess(_ pressLocation: SCNVector3) {
+//        let node = SCNNode()
+//        node.coll
+    }
     //test func remember to delete
     func initChessWithPos(pos: SCNVector3) -> baseChessNode{
         let chessNode = baseChessNode()
-        chessNode.atkNum = 3
+        chessNode.atkNum = 1
         chessNode.defNum = 3
         let xP = pos.x
         let yP = pos.y
@@ -137,7 +168,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                        
     }
     func updateChessBoardPosition( _ attackResult: [Double] ) -> Double {
-        var totalTime = 0.50
+        let totalTime = 0.50
         for typeIndex in 0 ..< 2 { // 0: 1:  2号位是动作时间
             if attackResult[typeIndex] == 0 {
                 for index in 0 ..< self.boardNode[typeIndex].count {
@@ -232,15 +263,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 boardNode[1].append(tempChess)
             }
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: {
-           //let attackResult = attack(self.boardNode[0][0], self.boardNode[1][1])
-            self.beginRounds()
-           
-//            let startPos = self.boardNode[0][0].position
-//            let attackSequence = SCNAction.sequence([attackAction(startPos, self.boardNode[1][1].position),backToAction(startPos)])
-//            self.boardNode[0][0].runAction(attackSequence)
-            
-        })
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: {
+//           //let attackResult = attack(self.boardNode[0][0], self.boardNode[1][1])
+//            self.beginRounds()
+//
+////            let startPos = self.boardNode[0][0].position
+////            let attackSequence = SCNAction.sequence([attackAction(startPos, self.boardNode[1][1].position),backToAction(startPos)])
+////            self.boardNode[0][0].runAction(attackSequence)
+//
+//        })
            
        }
     /////////////////end////////
@@ -258,7 +289,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         //playGroundNode.physicsBody?.categoryBitMask = BitMaskCategoty.playGround.rawValue
         //playGroundNode.physicsBody?.contactTestBitMask = BitMaskCategoty.baseCard.rawValue
         self.sceneView.scene.rootNode.addChildNode(playerBoardNode)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01, execute: {
                                        self.initGameTest()
                                    })
        
@@ -291,9 +322,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         planeNode.update(from: planeAnchor)
     }
 }
-extension Int {
-    var degreesToRadius: Double { return Double(self) * .pi/180}
-}
+
 //func +(left: SCNVector3, right: SCNVector3) -> SCNVector3 {
 //    return SCNVector3Make(left.x + right.x, left.y + right.y, left.z + right.z)
 //}
