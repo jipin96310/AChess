@@ -21,7 +21,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var setting = (controlMethod : 0, particalOn : 0)//0:  0 用tap的方式操作。1用手识别操作
     //
     var handPoint = SCNNode()
-    
+    var curDragPoint: baseChessNode? = nil
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -50,10 +50,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onTap))
         tapGestureRecognizer.cancelsTouchesInView = false
         self.sceneView.addGestureRecognizer(tapGestureRecognizer)
-        if setting.controlMethod == 0 { //control with long press
+        if setting.controlMethod == 0 {
+            //control with long press
             let longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action:  #selector(onLongPress))
             longPressGestureRecognizer.cancelsTouchesInView = false
             self.sceneView.addGestureRecognizer(longPressGestureRecognizer)
+            // MARK: pan gesture is unnecessary. it is included in longpress recognizer
+//            let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(onPan))
+//            panGestureRecognizer.maximumNumberOfTouches = 1
+//            self.sceneView.addGestureRecognizer(panGestureRecognizer)
         }
        
         // We want to receive the frames from the video
@@ -97,6 +102,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         // Reset tracking and/or remove existing anchors if consistent tracking is required
         
     }
+//    @objc func onPan(sender: UITapGestureRecognizer) {
+//        guard let sceneView = sender.view as? ARSCNView else {return}
+//        let touchLocation = sender.location(in: sceneView)
+//        print("panLocation", touchLocation)
+//    }
     @objc func onLongPress(sender: UITapGestureRecognizer) {
         guard let sceneView = sender.view as? ARSCNView else {return}
         if sender.state == .began
@@ -107,7 +117,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                            if !hitTestResult.isEmpty {
                             let firstResult = hitTestResult.first!
                             if let rootNode = findChessRootNode(firstResult.node) {
-                                print(rootNode)
+                               rootNode.removeFromParentNode()
+                                
+                               curDragPoint = rootNode
+                                self.sceneView.scene.rootNode.addChildNode(curDragPoint!)
+                               //curDragPoint?.geometry?.firstMaterial?.diffuse = UIColor.red
                             }
                             
 //                                   let positionOfPress = hitTestResult.first!.worldTransform.columns.3
@@ -115,10 +129,22 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 //                                   self.checkCollisionWithChess(curPressLocation)
                            }
                }
-               else
-               {
-                  //longPress ended
-               }
+        else if sender.state == .changed
+        {
+            if curDragPoint != nil {
+                let touchLocation = sender.location(in: sceneView)
+                 let hitTestResult = sceneView.hitTest(touchLocation, types: [.existingPlaneUsingExtent])
+                if !hitTestResult.isEmpty {
+                    let positionOfPress = hitTestResult.first!.worldTransform.columns.3
+                    let curPressLocation = SCNVector3(positionOfPress.x, positionOfPress.y, positionOfPress.z)
+                    curDragPoint?.position = SCNVector3(curPressLocation.x, curPressLocation.y + 0.05, curPressLocation.z)
+                    
+                }
+            }
+        } else if sender.state == .ended
+        {
+            curDragPoint = nil
+        }
     }
     @objc func onTap(sender: UITapGestureRecognizer) {
             guard let sceneView = sender.view as? ARSCNView else {return}
