@@ -113,7 +113,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                {
                    //longPress starts
                 let touchLocation = sender.location(in: sceneView)
-                let hitTestResult = sceneView.hitTest(touchLocation, options: [SCNHitTestOption.boundingBoxOnly: true])
+                let hitTestResult = sceneView.hitTest(touchLocation, options: [SCNHitTestOption.boundingBoxOnly: true, SCNHitTestOption.ignoreHiddenNodes: true])
                            if !hitTestResult.isEmpty {
                             let firstResult = hitTestResult.first!
                             if let rootNode = findChessRootNode(firstResult.node) {
@@ -373,6 +373,17 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         planeNode.update(from: planeAnchor)
     }
 }
+
+
+//   func physicsWorld(_ world: SCNPhysicsWorld, didBegin contact: SCNPhysicsContact) {
+//           let nodeA = contact.nodeA
+//           let nodeB = contact.nodeB
+//         print("nodeA:", nodeA.categoryBitMask, "nodeB", nodeB.categoryBitMask)
+//          if nodeA.physicsBody?.categoryBitMask == BitMaskCategoty.baseChess.rawValue {
+//        
+//        }
+//       
+//       }
 
 //func +(left: SCNVector3, right: SCNVector3) -> SCNVector3 {
 //    return SCNVector3Make(left.x + right.x, left.y + right.y, left.z + right.z)
