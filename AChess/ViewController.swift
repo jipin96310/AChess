@@ -19,8 +19,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var boardNode :[[baseChessNode]] = [[],[]]
     var boardRootNode :[[SCNNode]] = [[],[]]
     var setting = (controlMethod : 0, particalOn : 0)//0:  0 用tap的方式操作。1用手识别操作
+    var rootNodeDefalutColor = [UIColor.red, UIColor.green]
     //
-    var handPoint = SCNNode()
+    var handPoint = SCNNode() // use for mode1 with hand
+    var referencePoint = SCNNode() // use for mode0 with touching on screen
+    
     var curDragPoint: baseChessNode? = nil
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -51,6 +54,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         tapGestureRecognizer.cancelsTouchesInView = false
         self.sceneView.addGestureRecognizer(tapGestureRecognizer)
         if setting.controlMethod == 0 {
+            initReferenceNode()
             //control with long press
             let longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action:  #selector(onLongPress))
             longPressGestureRecognizer.cancelsTouchesInView = false
@@ -60,13 +64,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 //            panGestureRecognizer.maximumNumberOfTouches = 1
 //            self.sceneView.addGestureRecognizer(panGestureRecognizer)
         }
-       
+        //only for test
+        self.sceneView.debugOptions = [ARSCNDebugOptions.showPhysicsShapes]
         // We want to receive the frames from the video
         sceneView.session.delegate = self
+        sceneView.scene.physicsWorld.contactDelegate = self
         // Run the view's session
         sceneView.session.run(configuration)
         //set contact delegate
-        sceneView.scene.physicsWorld.contactDelegate = self
+        
        
     }
     
@@ -138,11 +144,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     let positionOfPress = hitTestResult.first!.worldTransform.columns.3
                     let curPressLocation = SCNVector3(positionOfPress.x, positionOfPress.y, positionOfPress.z)
                     curDragPoint?.position = SCNVector3(curPressLocation.x, curPressLocation.y + 0.05, curPressLocation.z)
+                    referencePoint.position = SCNVector3(curPressLocation.x, curPressLocation.y + 0.01, curPressLocation.z)
+                    referencePoint.isHidden = false
                     
                 }
             }
         } else if sender.state == .ended
         {
+            referencePoint.isHidden = true
             curDragPoint = nil
         }
     }
@@ -152,6 +161,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             let hitTestResult = sceneView.hitTest(touchLocation, types: [.existingPlaneUsingExtent])
             if !hitTestResult.isEmpty {
                 if isPlayerBoardinited == false {
+                    //self.addChessTest(hitTestResult: hitTestResult.first!)
                     self.initPlayerBoard(hitTestResult: hitTestResult.first!)
                     isPlayerBoardinited = true
                 } else {
@@ -182,7 +192,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         chessNode.geometry?.firstMaterial = reflectiveMaterial
 
         let body = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(geometry: SCNCylinder(radius: 0.01, height: 0.01), options: nil))
+        //body.mass = 5
+        //body.isAffectedByGravity = true
         chessNode.physicsBody = body
+        
+        chessNode.physicsBody?.categoryBitMask = BitMaskCategoty.baseChess.rawValue
+        chessNode.physicsBody?.contactTestBitMask = BitMaskCategoty.hand.rawValue
         
         chessNode.position = SCNVector3(xP,yP,zP)
         return chessNode
@@ -193,7 +208,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         let xP = positionOFPlane.x
         let yP = positionOFPlane.y
         let zP = positionOFPlane.z
-        let chessNode = initChessWithPos(pos: SCNVector3(xP, yP, zP))
+        let chessNode = initChessWithPos(pos: SCNVector3(xP, yP + 0.01, zP))
         
         self.sceneView.scene.rootNode.addChildNode(chessNode)
                        
@@ -275,21 +290,33 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
        // }
     }
     func initGameTest() {
-           for index in 1 ..< 8 {
-                if let curNode = playerBoardNode.childNode(withName: "e" + String(index), recursively: true) {
-                    let tempChess = initChessWithPos(pos: curNode.position)
-                    tempChess.position.y += 0.01
-                    
-                    playerBoardNode.addChildNode(tempChess)
-                    boardRootNode[0].append(curNode)
-                    boardNode[0].append(tempChess)
-                }
+        for index in 1 ..< 8 {
+            if let curNode = playerBoardNode.childNode(withName: "e" + String(index), recursively: true) {
+                let tempChess = initChessWithPos(pos: curNode.position)
+                tempChess.position.y += 0.01
+                //
+                let body = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(geometry: SCNCylinder(radius: 0.01, height: 0.001), options: nil))
+                
+                curNode.physicsBody = body
+                curNode.physicsBody?.categoryBitMask = BitMaskCategoty.baseChessHolder.rawValue
+                curNode.physicsBody?.contactTestBitMask = BitMaskCategoty.hand.rawValue
+                //
+                playerBoardNode.addChildNode(tempChess)
+                boardRootNode[0].append(curNode)
+                boardNode[0].append(tempChess)
             }
+        }
         for index in 1 ..< 8 {
             if let curNode = playerBoardNode.childNode(withName: "a" + String(index), recursively: true) {
                 let tempChess = initChessWithPos(pos: curNode.position)
                 tempChess.position.y += 0.01
-               
+                //
+                let body = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(geometry: SCNCylinder(radius: 0.01, height: 0.001), options: nil))
+                
+                curNode.physicsBody = body
+                curNode.physicsBody?.categoryBitMask = BitMaskCategoty.baseChessHolder.rawValue
+                curNode.physicsBody?.contactTestBitMask = BitMaskCategoty.hand.rawValue
+                //
                 playerBoardNode.addChildNode(tempChess)
                 boardRootNode[1].append(curNode)
                 boardNode[1].append(tempChess)
@@ -317,7 +344,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         let yP = positionOFPlane.y
         let zP = positionOFPlane.z
         playerBoardNode.position = SCNVector3(xP,yP,zP)
-        playerBoardNode.physicsBody = SCNPhysicsBody(type: .static, shape: nil)
+        playerBoardNode.physicsBody = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(node: playerBoardNode))
         //playGroundNode.physicsBody?.categoryBitMask = BitMaskCategoty.playGround.rawValue
         //playGroundNode.physicsBody?.contactTestBitMask = BitMaskCategoty.baseCard.rawValue
         self.sceneView.scene.rootNode.addChildNode(playerBoardNode)
@@ -336,7 +363,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
          newNode.geometry?.firstMaterial?.diffuse.contents = UIColor.blue
          //hands physics body
         let body = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(geometry: SCNCylinder(radius: 0.05, height: 0.005), options: [SCNPhysicsShape.Option.keepAsCompound : true]))
-        newNode.physicsBody = body
+          newNode.physicsBody = body
 
           newNode.physicsBody?.categoryBitMask = BitMaskCategoty.hand.rawValue
           newNode.physicsBody?.contactTestBitMask = BitMaskCategoty.baseChess.rawValue
@@ -345,7 +372,47 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
          handPoint = newNode
          self.sceneView.scene.rootNode.addChildNode(handPoint)
     }
-    
+    func initReferenceNode() {
+        let newNode = SCNNode(geometry: SCNSphere(radius: 0.01))
+       
+         //newNode.simdTransform = hitTestResult.worldTransform
+         newNode.position.x = 0
+         newNode.position.y = 0
+         newNode.position.z = 0
+         newNode.geometry?.firstMaterial?.diffuse.contents = UIColor.red
+         //hands physics body
+        let body = SCNPhysicsBody(type: .kinematic, shape: SCNPhysicsShape(node: newNode, options: [SCNPhysicsShape.Option.scale: SCNVector3(0.3, 0.3, 0.3)]))
+        //body.angularVelocityFactor = SCNVector3(1.0,0.0,1.0)
+        body.isAffectedByGravity = false
+        newNode.physicsBody = body
+
+          newNode.physicsBody?.categoryBitMask = BitMaskCategoty.hand.rawValue
+          newNode.physicsBody?.contactTestBitMask = BitMaskCategoty.baseChessHolder.rawValue
+        newNode.physicsBody?.collisionBitMask = BitMaskCategoty.baseChessHolder.rawValue
+          
+         newNode.isHidden = true
+         referencePoint = newNode
+         self.sceneView.scene.rootNode.addChildNode(referencePoint)
+    }
+    func physicsWorld(_ world: SCNPhysicsWorld, didBegin contact: SCNPhysicsContact) {
+         let nodeA = contact.nodeA
+        let nodeB = contact.nodeB
+        if nodeA.physicsBody?.categoryBitMask == BitMaskCategoty.baseChessHolder.rawValue && nodeB.physicsBody?.categoryBitMask == BitMaskCategoty.hand.rawValue
+            {
+            
+               for index in 0 ..< boardRootNode.count {
+                let curBoard = boardRootNode[index]
+                    curBoard.forEach{(boardNode) in
+                        if boardNode.name != nodeA.name {
+                            boardNode.geometry?.firstMaterial?.diffuse.contents = rootNodeDefalutColor[index]
+                        } else {
+                            print("findNode: ", boardNode)
+                            boardNode.geometry?.firstMaterial?.diffuse.contents = UIColor.blue
+                        }
+                    }
+                }
+            }
+    }
     // MARK: - ARSCNViewDelegate
 
     public func renderer(_: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
@@ -375,15 +442,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 }
 
 
-//   func physicsWorld(_ world: SCNPhysicsWorld, didBegin contact: SCNPhysicsContact) {
-//           let nodeA = contact.nodeA
-//           let nodeB = contact.nodeB
-//         print("nodeA:", nodeA.categoryBitMask, "nodeB", nodeB.categoryBitMask)
-//          if nodeA.physicsBody?.categoryBitMask == BitMaskCategoty.baseChess.rawValue {
-//        
-//        }
-//       
-//       }
 
 //func +(left: SCNVector3, right: SCNVector3) -> SCNVector3 {
 //    return SCNVector3Make(left.x + right.x, left.y + right.y, left.z + right.z)
