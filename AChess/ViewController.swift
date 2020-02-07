@@ -25,6 +25,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var referencePoint = SCNNode() // use for mode0 with touching on screen
     
     var curDragPoint: baseChessNode? = nil
+    var curFocusPoint: SCNNode? = nil
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -151,6 +153,25 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
         } else if sender.state == .ended
         {
+            let touchLocation = sender.location(in: sceneView)
+            let hitTestResult = sceneView.hitTest(touchLocation, options: [SCNHitTestOption.ignoreHiddenNodes: true])
+            if !hitTestResult.isEmpty {
+                let curPressNode = hitTestResult.first!.node
+                //if curDragPoint?.name?.first == "a" { //抓的是已经购买的牌
+                    if let curPressParent = findChessRootNode(curPressNode) { //按到棋子上了
+                        //if curPressParent.name?.first == "a" {
+                            swapChessPos(curDragPoint!, curPressParent)
+                        //}
+                    } else { //按到空地或者底座上了
+                        
+                    }
+                //}
+                //let positionOfPress = hitTestResult.first!.worldTransform.columns.3
+                
+                //let curPressLocation = SCNVector3(positionOfPress.x, positionOfPress.y, positionOfPress.z)
+              //
+                
+            }
             referencePoint.isHidden = true
             curDragPoint = nil
         }
@@ -169,6 +190,37 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 }
             }
         }
+    func swapChessPos( _ firstChess: baseChessNode, _ secondChess: baseChessNode ) {
+        var firstPos: [Int] = []
+        var secondPos: [Int] = []
+        
+        for index in 0 ..< boardNode[0].count { //enemy those code can be combined
+            let curNode = boardNode[0][index]
+            if curNode == firstChess {
+                firstPos = [0, index]
+            }
+            if curNode == secondChess {
+               secondPos = [0, index]
+            }
+        }
+        for index in 0 ..< boardNode[1].count { //ally
+            let curNode = boardNode[1][index]
+            if curNode == firstChess {
+                firstPos = [1, index]
+            }
+            if curNode == secondChess {
+                secondPos = [1, index]
+            }
+        }
+        let temp = boardNode[firstPos[0]][firstPos[1]]
+        boardNode[firstPos[0]].remove(at: firstPos[1])
+        boardNode[firstPos[0]].insert(boardNode[secondPos[0]][secondPos[1]], at: firstPos[1])
+        boardNode[secondPos[0]].remove(at: secondPos[1])
+        boardNode[secondPos[0]].insert(temp , at: secondPos[1])
+        print(boardNode[0])
+         print(boardNode[1])
+
+    }
     func checkCollisionWithChess(_ pressLocation: SCNVector3) {
 //        let node = SCNNode()
 //        node.coll
@@ -296,6 +348,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         for index in 1 ..< 8 {
             if let curNode = playerBoardNode.childNode(withName: "e" + String(index), recursively: true) {
                 let tempChess = initChessWithPos(pos: curNode.position)
+                tempChess.name = "chessE" + String(index)
                 tempChess.position.y += 0.01
                 //
                 let body = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(node: curNode, options: [SCNPhysicsShape.Option.scale: SCNVector3(0.01, 0.01, 0.01)]))
@@ -312,6 +365,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         for index in 1 ..< 8 {
             if let curNode = playerBoardNode.childNode(withName: "a" + String(index), recursively: true) {
                 let tempChess = initChessWithPos(pos: curNode.position)
+                tempChess.name = "chessA" + String(index)
                 tempChess.position.y += 0.01
                 //
                 let body = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(node: curNode, options: [SCNPhysicsShape.Option.scale: SCNVector3(0.02, 0.02, 0.02)]))
@@ -414,7 +468,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                            //nodeA.runAction(SCNAction.scale(to: 0.1, duration: 1))
                             //nodeA.geometry?.firstMaterial?.diffuse.contents = rootNodeDefalutColor[index]
                         } else {
-                            print("findNode2: ", boardNode.name)
+                           // print("findNode2: ", boardNode.name)
                            // let newMat =
                              //nodeA.runAction(SCNAction.scale(to: 0.12, duration: 1))
                             //let curColor = rootNodeDefalutColor[index]
