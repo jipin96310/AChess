@@ -161,7 +161,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             let hitTestResult = sceneView.hitTest(touchLocation, types: [.existingPlaneUsingExtent])
             if !hitTestResult.isEmpty {
                 if isPlayerBoardinited == false {
-                    //self.addChessTest(hitTestResult: hitTestResult.first!)
+                   //self.addChessTest(hitTestResult: hitTestResult.first!)
                     self.initPlayerBoard(hitTestResult: hitTestResult.first!)
                     isPlayerBoardinited = true
                 } else {
@@ -209,9 +209,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         let yP = positionOFPlane.y
         let zP = positionOFPlane.z
         let chessNode = initChessWithPos(pos: SCNVector3(xP, yP + 0.01, zP))
+        //chessNode.geometry?.firstMaterial?.diffuse.contents = UIColor.blue
         
-        self.sceneView.scene.rootNode.addChildNode(chessNode)
-                       
+         self.sceneView.scene.rootNode.addChildNode(chessNode)
+//        if let sideNode = chessNode.childNode(withName: "side", recursively: true) {
+//            sideNode.geometry?.firstMaterial?.diffuse.contents = UIColor.blue
+//        }
                        
     }
     func updateChessBoardPosition( _ attackResult: [Double] ) -> Double {
@@ -295,7 +298,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 let tempChess = initChessWithPos(pos: curNode.position)
                 tempChess.position.y += 0.01
                 //
-                let body = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(geometry: SCNCylinder(radius: 0.01, height: 0.001), options: nil))
+                let body = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(node: curNode, options: [SCNPhysicsShape.Option.scale: SCNVector3(0.01, 0.01, 0.01)]))
                 
                 curNode.physicsBody = body
                 curNode.physicsBody?.categoryBitMask = BitMaskCategoty.baseChessHolder.rawValue
@@ -311,7 +314,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 let tempChess = initChessWithPos(pos: curNode.position)
                 tempChess.position.y += 0.01
                 //
-                let body = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(geometry: SCNCylinder(radius: 0.01, height: 0.001), options: nil))
+                let body = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(node: curNode, options: [SCNPhysicsShape.Option.scale: SCNVector3(0.02, 0.02, 0.02)]))
                 
                 curNode.physicsBody = body
                 curNode.physicsBody?.categoryBitMask = BitMaskCategoty.baseChessHolder.rawValue
@@ -381,7 +384,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
          newNode.position.z = 0
          newNode.geometry?.firstMaterial?.diffuse.contents = UIColor.red
          //hands physics body
-        let body = SCNPhysicsBody(type: .kinematic, shape: SCNPhysicsShape(node: newNode, options: [SCNPhysicsShape.Option.scale: SCNVector3(0.3, 0.3, 0.3)]))
+        let body = SCNPhysicsBody(type: .kinematic, shape: SCNPhysicsShape(node: newNode, options: [SCNPhysicsShape.Option.scale: SCNVector3(0.2, 0.2, 0.2)]))
         //body.angularVelocityFactor = SCNVector3(1.0,0.0,1.0)
         body.isAffectedByGravity = false
         newNode.physicsBody = body
@@ -402,12 +405,32 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             
                for index in 0 ..< boardRootNode.count {
                 let curBoard = boardRootNode[index]
+//                print("findNode1: ", nodeA.name)
                     curBoard.forEach{(boardNode) in
                         if boardNode.name != nodeA.name {
-                            boardNode.geometry?.firstMaterial?.diffuse.contents = rootNodeDefalutColor[index]
+//                            if boardNode.name == "a3" {
+//                                print("findNode1: ", boardNode.name)
+//                            }
+                           //nodeA.runAction(SCNAction.scale(to: 0.1, duration: 1))
+                            //nodeA.geometry?.firstMaterial?.diffuse.contents = rootNodeDefalutColor[index]
                         } else {
-                            print("findNode: ", boardNode)
-                            boardNode.geometry?.firstMaterial?.diffuse.contents = UIColor.blue
+                            print("findNode2: ", boardNode.name)
+                           // let newMat =
+                             //nodeA.runAction(SCNAction.scale(to: 0.12, duration: 1))
+                            //let curColor = rootNodeDefalutColor[index]
+                             nodeA.geometry?.firstMaterial?.diffuse.contents = UIColor.blue
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: {
+                                for innerIndex in 0 ..< self.boardRootNode.count {
+                                    let curNodes = self.boardRootNode[innerIndex]
+                                    curNodes.forEach{(curNode) in
+                                        if curNode.name != boardNode.name {
+                                            curNode.geometry?.firstMaterial?.diffuse.contents = self.rootNodeDefalutColor[innerIndex]
+                                        }
+                                        
+                                    }
+                                }
+                            })
+                            
                         }
                     }
                 }
