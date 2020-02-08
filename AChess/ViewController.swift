@@ -125,9 +125,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                            if !hitTestResult.isEmpty {
                             let firstResult = hitTestResult.first!
                             if let rootNode = findChessRootNode(firstResult.node) {
-                               rootNode.removeFromParentNode()
-                                
-                               curDragPoint = rootNode
+                               rootNode.removeFromParentNode() //it is actually a chessNode not a root node
+                                curDragPoint = rootNode
+                                if let rootNodePos = findChessPos(rootNode) {
+                                    boardNode[rootNodePos[0]].remove(at: rootNodePos[1])
+                                }
+                               
                                 self.sceneView.scene.rootNode.addChildNode(curDragPoint!)
                                //curDragPoint?.geometry?.firstMaterial?.diffuse = UIColor.red
                             }
@@ -163,7 +166,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             swapChessPos(curDragPoint!, curPressParent)
                         //}
                     } else { //按到空地或者底座上了
-                        
+                        if let curRootNodePos = findRootPos(curPressNode) {
+                            var curSide = boardNode[curRootNodePos[0]]
+                            print(curRootNodePos)
+                            if curSide.count <= curRootNodePos[1] {
+                                curSide.append(curDragPoint!)
+                            } else {
+                                curSide.insert(curDragPoint! , at: curRootNodePos[1])
+                            }
+                            updateWholeBoardPosition()
+                        }
                     }
                 //}
                 //let positionOfPress = hitTestResult.first!.worldTransform.columns.3
@@ -190,6 +202,30 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 }
             }
         }
+    func findRootPos( _ rootNode: SCNNode ) -> [Int]? {
+        var nodePos: [Int]? = nil
+        for out in 0 ..< boardRootNode.count {
+            for index in 0 ..< boardRootNode[out].count { //enemy those code can be combined
+                              let curNode = boardRootNode[out][index]
+                              if curNode == rootNode {
+                                  nodePos = [out, index]
+                               }
+            }
+        }
+       return nodePos
+    }
+    func findChessPos( _ rootNode: SCNNode ) -> [Int]? {
+          var nodePos: [Int]? = nil
+          for out in 0 ..< boardNode.count {
+              for index in 0 ..< boardNode[out].count { //enemy those code can be combined
+                                let curNode = boardNode[out][index]
+                                if curNode == rootNode {
+                                    nodePos = [out, index]
+                                 }
+              }
+          }
+         return nodePos
+      }
     func swapChessPos( _ firstChess: baseChessNode, _ secondChess: baseChessNode ) {
         var firstPos: [Int] = []
         var secondPos: [Int] = []
@@ -366,7 +402,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
        // }
     }
     func initGameTest() {
-        for index in 1 ..< 8 {
+        for index in 1 ..< 7 {
             if let curNode = playerBoardNode.childNode(withName: "e" + String(index), recursively: true) {
                 let tempChess = initChessWithPos(pos: curNode.position)
                 tempChess.name = "chessE" + String(index)
@@ -383,7 +419,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 boardNode[0].append(tempChess)
             }
         }
-        for index in 1 ..< 8 {
+        for index in 1 ..< 7 {
             if let curNode = playerBoardNode.childNode(withName: "a" + String(index), recursively: true) {
                 let tempChess = initChessWithPos(pos: curNode.position)
                 tempChess.name = "chessA" + String(index)
