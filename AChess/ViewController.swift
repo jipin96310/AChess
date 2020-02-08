@@ -154,7 +154,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         } else if sender.state == .ended
         {
             let touchLocation = sender.location(in: sceneView)
-            let hitTestResult = sceneView.hitTest(touchLocation, options: [SCNHitTestOption.ignoreHiddenNodes: true])
+            let hitTestResult = sceneView.hitTest(touchLocation, options: [SCNHitTestOption.ignoreHiddenNodes: true, SCNHitTestOption.rootNode: playerBoardNode])
             if !hitTestResult.isEmpty {
                 let curPressNode = hitTestResult.first!.node
                 //if curDragPoint?.name?.first == "a" { //抓的是已经购买的牌
@@ -212,15 +212,23 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 secondPos = [1, index]
             }
         }
-        let temp = boardNode[firstPos[0]][firstPos[1]]
+        let temp1 = boardNode[firstPos[0]][firstPos[1]]
+        let temp2 = boardNode[secondPos[0]][secondPos[1]]
+       // print(temp)
         boardNode[firstPos[0]].remove(at: firstPos[1])
-        boardNode[firstPos[0]].insert(boardNode[secondPos[0]][secondPos[1]], at: firstPos[1])
+        boardNode[firstPos[0]].insert(temp2, at: firstPos[1])
         boardNode[secondPos[0]].remove(at: secondPos[1])
-        boardNode[secondPos[0]].insert(temp , at: secondPos[1])
-        print(boardNode[0])
+       //print(temp)
+        boardNode[secondPos[0]].insert(temp1 , at: secondPos[1])
+        if curDragPoint != nil {
+            playerBoardNode.addChildNode(curDragPoint!)
+        }
+        //print(firstChess, secondChess)
+        updateWholeBoardPosition()
          print(boardNode[1])
 
     }
+    
     func checkCollisionWithChess(_ pressLocation: SCNVector3) {
 //        let node = SCNNode()
 //        node.coll
@@ -268,6 +276,19 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 //            sideNode.geometry?.firstMaterial?.diffuse.contents = UIColor.blue
 //        }
                        
+    }
+    func updateWholeBoardPosition() -> Double {
+        let totalTime = 0.50
+        for index in 0 ..< boardNode.count {
+            let curBoardSide = boardNode[index]
+            for innerIndex in 0 ..< curBoardSide.count {
+                let curRootNode = boardRootNode[index][innerIndex]
+                let curChessNode = boardNode[index][innerIndex]
+                let updateAction = SCNAction.move(to: SCNVector3(curRootNode.position.x, curRootNode.position.y + 0.01 , curRootNode.position.z), duration: totalTime)
+                curChessNode.runAction(updateAction)
+            }
+        }
+       return totalTime
     }
     func updateChessBoardPosition( _ attackResult: [Double] ) -> Double {
         let totalTime = 0.50
