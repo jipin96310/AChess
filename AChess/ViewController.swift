@@ -14,19 +14,27 @@ import PromiseKit
 class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SCNPhysicsContactDelegate {
 
     @IBOutlet var sceneView: ARSCNView!
+   
+    
+    var setting = (controlMethod : 0, particalOn : 0)//0:  0 用tap的方式操作。1用手识别操作  这个数据应该存在数据库或缓存里作为全局变量
+    
+    //以下数据为实时记录数据 无需保存
+    var rootNodeDefalutColor = [UIColor.red, UIColor.green]
     var isPlayerBoardinited = false
     var playerBoardNode = createPlayerBoard()
-    var boardNode :[[baseChessNode]] = [[],[]]
-    var boardRootNode :[[SCNNode]] = [[],[]]
-    var setting = (controlMethod : 0, particalOn : 0)//0:  0 用tap的方式操作。1用手识别操作
-    var rootNodeDefalutColor = [UIColor.red, UIColor.green]
-    //
+    
     var handPoint = SCNNode() // use for mode1 with hand
     var referencePoint = SCNNode() // use for mode0 with touching on screen
     
     var curDragPoint: baseChessNode? = nil
     var curFocusPoint: SCNNode? = nil
-    
+    //以下数据需要保存
+    var boardNode :[[baseChessNode]] = [[],[]] //本方棋子
+    var boardRootNode :[[SCNNode]] = [[],[]] //对面棋子
+    var playerStatues = [(curCoin: 0, curLevel: 1), (curCoin: 0, curLevel: 1)] //当前玩家状态数据 单人模式默认取id = 1
+    var curPlayerId = 0
+    var curRound = 0
+    var curStage = EnumsGameStage.exchangeStage.rawValue
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -125,8 +133,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                            if !hitTestResult.isEmpty {
                             let firstResult = hitTestResult.first!
                             if let rootNode = findChessRootNode(firstResult.node) {
-                               rootNode.removeFromParentNode() //it is actually a chessNode not a root node
+                                
                                 curDragPoint = rootNode
+                                print(curDragPoint)
+                                rootNode.removeFromParentNode() //it is actually a chessNode not a root node
+                                
                                 if let rootNodePos = findChessPos(rootNode) {
                                     boardNode[rootNodePos[0]].remove(at: rootNodePos[1])
                                 }
@@ -175,9 +186,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                 boardNode[curRootNodePos[0]].insert(curDragPoint! , at: curRootNodePos[1])
                             }
                             if curDragPoint != nil {
+                                curDragPoint?.position.y = 0.01
                                 playerBoardNode.addChildNode(curDragPoint!)
                             }
-                            print(boardNode[curRootNodePos[0]])
                             updateWholeBoardPosition()
                         }
                     }
@@ -252,21 +263,23 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 secondPos = [1, index]
             }
         }
-        let temp1 = boardNode[firstPos[0]][firstPos[1]]
-        let temp2 = boardNode[secondPos[0]][secondPos[1]]
-       // print(temp)
-        boardNode[firstPos[0]].remove(at: firstPos[1])
-        boardNode[firstPos[0]].insert(temp2, at: firstPos[1])
-        boardNode[secondPos[0]].remove(at: secondPos[1])
-       //print(temp)
-        boardNode[secondPos[0]].insert(temp1 , at: secondPos[1])
-        if curDragPoint != nil {
-            playerBoardNode.addChildNode(curDragPoint!)
+        if firstPos.count > 0 && secondPos.count > 0 {
+            let temp1 = boardNode[firstPos[0]][firstPos[1]]
+                   let temp2 = boardNode[secondPos[0]][secondPos[1]]
+                  // print(temp)
+                   boardNode[firstPos[0]].remove(at: firstPos[1])
+                   boardNode[firstPos[0]].insert(temp2, at: firstPos[1])
+                   boardNode[secondPos[0]].remove(at: secondPos[1])
+                  //print(temp)
+                   boardNode[secondPos[0]].insert(temp1 , at: secondPos[1])
+                   if curDragPoint != nil {
+                       playerBoardNode.addChildNode(curDragPoint!)
+                   }
+             
+                   updateWholeBoardPosition()
+                  
         }
-        //print(firstChess, secondChess)
-        updateWholeBoardPosition()
-         print(boardNode[1])
-
+       
     }
     
     func checkCollisionWithChess(_ pressLocation: SCNVector3) {
@@ -328,6 +341,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 curChessNode.runAction(updateAction)
             }
         }
+        recoverRootNodeColor()
        return totalTime
     }
     func updateChessBoardPosition( _ attackResult: [Double] ) -> Double {
@@ -345,6 +359,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
         }
         return totalTime
+    }
+    func recoverRootNodeColor() {
+        for innerIndex in 0 ..< self.boardRootNode.count {
+            let curNodes = self.boardRootNode[innerIndex]
+            curNodes.forEach{(curNode) in
+                    curNode.geometry?.firstMaterial?.diffuse.contents = self.rootNodeDefalutColor[innerIndex]
+                
+            }
+        }
     }
     func aRoundTaskAsync(_ beginIndex: inout Int, _ resolver: Resolver<Any>) {
           var curIndex = beginIndex
@@ -405,7 +428,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 //            aRoundTask(&beginIndex)
        // }
     }
-    func initBoardRootNode () {
+    func initBoardRootNode () { //初始化底座node。是必须的 游戏开始必须调用
         for index in 1 ..< 8 {
             if let curNode = playerBoardNode.childNode(withName: "e" + String(index), recursively: true) {
                 //
@@ -428,6 +451,27 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 //
                 boardRootNode[1].append(curNode)
             }
+        }
+    }
+    func initBoardChess() {
+        switch curStage {
+        case EnumsGameStage.exchangeStage:
+            for index in 1 ... playerStatues[curPlayerId].curLevel + 2  {
+                if let curNode = playerBoardNode.childNode(withName: "e" + String(index), recursively: true) {
+                    let tempChess = initChessWithPos(pos: curNode.position)
+                    tempChess.name = "chessE" + String(index)
+                    tempChess.position.y += 0.01
+                 
+                    playerBoardNode.addChildNode(tempChess)
+                  
+                    boardNode[0].append(tempChess)
+                }
+            }
+            return
+        case EnumsGameStage.battleStage:
+            return
+        default:
+            return
         }
     }
     func initGameTest() {
