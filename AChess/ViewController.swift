@@ -168,12 +168,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     } else { //按到空地或者底座上了
                         if let curRootNodePos = findRootPos(curPressNode) {
                             var curSide = boardNode[curRootNodePos[0]]
-                            print(curRootNodePos)
+                            print(curSide.count, curRootNodePos)
                             if curSide.count <= curRootNodePos[1] {
-                                curSide.append(curDragPoint!)
+                                boardNode[curRootNodePos[0]].append(curDragPoint!)
                             } else {
-                                curSide.insert(curDragPoint! , at: curRootNodePos[1])
+                                boardNode[curRootNodePos[0]].insert(curDragPoint! , at: curRootNodePos[1])
                             }
+                            if curDragPoint != nil {
+                                playerBoardNode.addChildNode(curDragPoint!)
+                            }
+                            print(boardNode[curRootNodePos[0]])
                             updateWholeBoardPosition()
                         }
                     }
@@ -401,21 +405,41 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 //            aRoundTask(&beginIndex)
        // }
     }
+    func initBoardRootNode () {
+        for index in 1 ..< 8 {
+            if let curNode = playerBoardNode.childNode(withName: "e" + String(index), recursively: true) {
+                //
+                let body = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(node: curNode, options: [SCNPhysicsShape.Option.scale: SCNVector3(0.01, 0.01, 0.01)]))
+                curNode.physicsBody = body
+                curNode.physicsBody?.categoryBitMask = BitMaskCategoty.baseChessHolder.rawValue
+                curNode.physicsBody?.contactTestBitMask = BitMaskCategoty.hand.rawValue
+                //
+                boardRootNode[0].append(curNode)
+            }
+        }
+        
+        for index in 1 ..< 8 {
+            if let curNode = playerBoardNode.childNode(withName: "a" + String(index), recursively: true) {
+                //
+                let body = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(node: curNode, options: [SCNPhysicsShape.Option.scale: SCNVector3(0.01, 0.01, 0.01)]))
+                curNode.physicsBody = body
+                curNode.physicsBody?.categoryBitMask = BitMaskCategoty.baseChessHolder.rawValue
+                curNode.physicsBody?.contactTestBitMask = BitMaskCategoty.hand.rawValue
+                //
+                boardRootNode[1].append(curNode)
+            }
+        }
+    }
     func initGameTest() {
+        initBoardRootNode()
         for index in 1 ..< 7 {
             if let curNode = playerBoardNode.childNode(withName: "e" + String(index), recursively: true) {
                 let tempChess = initChessWithPos(pos: curNode.position)
                 tempChess.name = "chessE" + String(index)
                 tempChess.position.y += 0.01
-                //
-                let body = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(node: curNode, options: [SCNPhysicsShape.Option.scale: SCNVector3(0.01, 0.01, 0.01)]))
-                
-                curNode.physicsBody = body
-                curNode.physicsBody?.categoryBitMask = BitMaskCategoty.baseChessHolder.rawValue
-                curNode.physicsBody?.contactTestBitMask = BitMaskCategoty.hand.rawValue
-                //
+             
                 playerBoardNode.addChildNode(tempChess)
-                boardRootNode[0].append(curNode)
+              
                 boardNode[0].append(tempChess)
             }
         }
@@ -424,15 +448,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 let tempChess = initChessWithPos(pos: curNode.position)
                 tempChess.name = "chessA" + String(index)
                 tempChess.position.y += 0.01
-                //
-                let body = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(node: curNode, options: [SCNPhysicsShape.Option.scale: SCNVector3(0.02, 0.02, 0.02)]))
-                
-                curNode.physicsBody = body
-                curNode.physicsBody?.categoryBitMask = BitMaskCategoty.baseChessHolder.rawValue
-                curNode.physicsBody?.contactTestBitMask = BitMaskCategoty.hand.rawValue
-                //
+               
                 playerBoardNode.addChildNode(tempChess)
-                boardRootNode[1].append(curNode)
+            
                 boardNode[1].append(tempChess)
             }
         }
@@ -568,6 +586,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     public func renderer(_: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
         guard let planeAnchor = anchor as? ARPlaneAnchor,
             let planeNode = node as? customPlaneNode else {
+            return
+        }
+        if planeNode.position.y > 0 {
             return
         }
         //print(planeNode.position)
