@@ -31,7 +31,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     //以下数据需要保存
     var boardNode :[[baseChessNode]] = [[],[]] //本方棋子
     var boardRootNode :[[SCNNode]] = [[],[]] //对面棋子
-    var playerStatues = [(curCoin: 1, curLevel: 1), (curCoin: 1, curLevel: 1)] //当前玩家状态数据 单人模式默认取id = 1
+    var playerStatues = [(curCoin: 3, curLevel: 1), (curCoin: 3, curLevel: 1)] //当前玩家状态数据 单人模式默认取id = 1
     var curPlayerId = 0
     var curRound = 0
     var curStage = EnumsGameStage.exchangeStage.rawValue
@@ -190,6 +190,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                         curDragPoint?.position.y = 0.01
                                         playerBoardNode.addChildNode(curDragPoint!)
                                     }
+                                    referencePoint.isHidden = true
+                                    //
+                                    curDragPoint = nil
                                     updateWholeBoardPosition()
                                     return
                                 }
@@ -310,12 +313,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 //        node.coll
     }
     //test func remember to delete
-    func initChessWithPos(pos: SCNVector3,sta: Int) -> baseChessNode{
-        let chessNode = baseChessNode()
-        chessNode.atkNum = 1
-        chessNode.defNum = 3
-        //chessNode.chessPrice = 3
-        chessNode.chessStatus = sta //棋子的状态 
+    func initChessWithPos(pos: SCNVector3,sta: Int, info: chessStruct) -> baseChessNode{
+        let chessNode = baseChessNode(statusNum: EnumsChessStage.forSale.rawValue, chessInfo: info)
+
         let xP = pos.x
         let yP = pos.y
         let zP = pos.z
@@ -346,7 +346,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         let xP = positionOFPlane.x
         let yP = positionOFPlane.y
         let zP = positionOFPlane.z
-        let chessNode = initChessWithPos(pos: SCNVector3(xP, yP + 0.01, zP), sta: EnumsChessStage.forSale.rawValue )
+        let chessNode = initChessWithPos(pos: SCNVector3(xP, yP + 0.01, zP), sta: EnumsChessStage.forSale.rawValue, info: chessCollectionsLevel[0][0])
         //chessNode.geometry?.firstMaterial?.diffuse.contents = UIColor.blue
         
          self.sceneView.scene.rootNode.addChildNode(chessNode)
@@ -479,11 +479,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         }
     }
     func initBoardChess() {
+        let curPlayerLevel = playerStatues[curPlayerId].curLevel
         switch curStage {
         case EnumsGameStage.exchangeStage.rawValue:
             for index in 1 ... playerStatues[curPlayerId].curLevel + 2  {
                 if let curNode = playerBoardNode.childNode(withName: "e" + String(index), recursively: true) {
-                    let tempChess = initChessWithPos(pos: curNode.position, sta: EnumsChessStage.forSale.rawValue )
+                    let randomNum =  Int.randomIntNumber(lower: 0, upper: chessCollectionsLevel[curPlayerLevel - 1].count)
+                    let tempChess = initChessWithPos(pos: curNode.position, sta: EnumsChessStage.forSale.rawValue, info: chessCollectionsLevel[curPlayerLevel - 1][randomNum] )
                     //tempChess.name = "chessE" + String(index)
                     tempChess.position.y += 0.01
                  
