@@ -31,10 +31,18 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     //以下数据需要保存
     var boardNode :[[baseChessNode]] = [[],[]] //本方棋子
     var boardRootNode :[[SCNNode]] = [[],[]] //对面棋子
-    var playerStatues = [(curCoin: 3, curLevel: 1), (curCoin: 3, curLevel: 1)] //当前玩家状态数据 单人模式默认取id = 1
+    var playerStatues = [(curCoin: 3, curLevel: 1), (curCoin: 3, curLevel: 1)] {
+        didSet {
+            moneyTextNode.string = String(playerStatues[curPlayerId].curCoin)
+            levelTextNode.string = String(playerStatues[curPlayerId].curLevel)
+        }
+    } //当前玩家状态数据 单人模式默认取id = 1
     var curPlayerId = 0
     var curRound = 0
     var curStage = EnumsGameStage.exchangeStage.rawValue
+    //below are text nodes
+     var moneyTextNode = TextNode(textScale: SCNVector3(0.1, 0.3, 1))
+     var levelTextNode = TextNode(textScale: SCNVector3(0.1, 0.3, 1))
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -233,6 +241,19 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     isPlayerBoardinited = true
                 } else {
                     //self.addChessTest(hitTestResult: hitTestResult.first!)
+                    guard let sceneView = sender.view as? ARSCNView else {return}
+                    let touchLocation = sender.location(in: sceneView)
+                    let hitTestResult = sceneView.hitTest(touchLocation, options: [SCNHitTestOption.boundingBoxOnly: true, SCNHitTestOption.ignoreHiddenNodes: true])
+                    if !hitTestResult.isEmpty {
+                        if isNameButton(hitTestResult.first!.node, "randomButton") {
+                            initBoardChess()
+                        } else if isNameButton(hitTestResult.first!.node, "upgradeButton") {
+                            upgradePlayerLevel(curPlayerId)
+                        } else if isNameButton(hitTestResult.first!.node, "endButton"){
+                            //
+                        }
+                    }
+                            
                 }
             }
         }
@@ -478,7 +499,21 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
         }
     }
+    func upgradePlayerLevel(_ playerID: Int) -> Bool{
+        let playerInfo = playerStatues[playerID]
+        if playerInfo.curCoin > 0 && playerInfo.curCoin < GlobalNumberSettings.maxLevel.rawValue {
+            playerStatues[playerID].curCoin -= 1
+            playerStatues[playerID].curLevel += 1
+        } else {
+            return false
+        }
+        return true
+    }
     func initBoardChess() {
+        boardNode[0].forEach{(boardNode) in
+            boardNode.removeFromParentNode()
+        }
+        boardNode[0] = []
         let curPlayerLevel = playerStatues[curPlayerId].curLevel
         switch curStage {
         case EnumsGameStage.exchangeStage.rawValue:
@@ -501,9 +536,31 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             return
         }
     }
+    func initDisplay() {
+       let curPlayer = playerStatues[curPlayerId]
+        switch curStage {
+        case EnumsGameStage.exchangeStage.rawValue:
+            if let moneyDisplay = playerBoardNode.childNode(withName: "saleStage", recursively: true) {
+                moneyTextNode.position = SCNVector3(-0.4, -0.5, 0.1)
+               moneyDisplay.addChildNode(moneyTextNode)
+               moneyTextNode.string = String(curPlayer.curCoin)
+            }
+            if let levelDisplay = playerBoardNode.childNode(withName: "saleStage", recursively: true) {
+               levelTextNode.position = SCNVector3(-0.1, -0.5, 0.1)
+               levelDisplay.addChildNode(levelTextNode)
+               levelTextNode.string = String(curPlayer.curLevel)
+            }
+            return
+        case EnumsGameStage.battleStage.rawValue:
+            return
+        default:
+            return
+        }
+    }
     func initGameTest() {
         initBoardRootNode()
         initBoardChess()
+        initDisplay()
 //        for index in 1 ..< 7 {
 //            if let curNode = playerBoardNode.childNode(withName: "e" + String(index), recursively: true) {
 //                let tempChess = initChessWithPos(pos: curNode.position)
