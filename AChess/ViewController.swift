@@ -31,18 +31,21 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     //以下数据需要保存
     var boardNode :[[baseChessNode]] = [[],[]] //本方棋子
     var boardRootNode :[[SCNNode]] = [[],[]] //对面棋子
-    var playerStatues = [(curCoin: 3, curLevel: 1), (curCoin: 3, curLevel: 1)] {
+    //var backupBoardNode:[[baseChessNode]] = [[],[]]
+    var playerStatues = [(curCoin: 3, curLevel: 1, curBlood: 40, curChesses: nil), (curCoin: 3, curLevel: 1, curBlood: 40, curChesses: nil)] {
         didSet {
             moneyTextNode.string = String(playerStatues[curPlayerId].curCoin)
             levelTextNode.string = String(playerStatues[curPlayerId].curLevel)
         }
     } //当前玩家状态数据 单人模式默认取id = 1
     var curPlayerId = 0
+    var curEnemyID = 1
     var curRound = 0
     var curStage = EnumsGameStage.exchangeStage.rawValue
     //below are text nodes
      var moneyTextNode = TextNode(textScale: SCNVector3(0.1, 0.3, 1))
      var levelTextNode = TextNode(textScale: SCNVector3(0.1, 0.3, 1))
+     var enemyBloodTextNode = TextNode(textScale: SCNVector3(0.1, 0.3, 1))
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -246,11 +249,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     let hitTestResult = sceneView.hitTest(touchLocation, options: [SCNHitTestOption.boundingBoxOnly: true, SCNHitTestOption.ignoreHiddenNodes: true])
                     if !hitTestResult.isEmpty {
                         if isNameButton(hitTestResult.first!.node, "randomButton") {
-                            initBoardChess()
+                            if playerStatues[curPlayerId].curCoin > 0 {
+                                playerStatues[curPlayerId].curCoin -= 1
+                                initBoardChess()
+                            }
                         } else if isNameButton(hitTestResult.first!.node, "upgradeButton") {
                             upgradePlayerLevel(curPlayerId)
                         } else if isNameButton(hitTestResult.first!.node, "endButton"){
-                            //
+                            switchGameStage()
                         }
                     }
                             
@@ -462,14 +468,24 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 //            delay(5) { self.aRoundTask(&beginIndex) } //从头开始
 //        }
 //    }
-    func beginRounds(){ //当前默认是敌人方进行攻击 后续调整
+    func dealWithDamage() -> Promise<Any>{ //伤害清算
+        return Promise<Any>( resolver: { (resolver) in
+            let curPlayer = playerStatues[curPlayerId]
+            var winner = 0
+            if boardNode[1].count > 0 {
+                winner = 1
+            }
+            
+            resolver.fulfill("success")
+        }
+        )
+    }
+    func beginRounds() -> Promise<Any>{ //当前默认是敌人方进行攻击 后续调整
        // while boardNode[0].count > 0 && boardNode[1].count > 0 {
-        Promise<Any>(resolver: { (resolver) in
+        return Promise<Any>(resolver: { (resolver) in
            var beginIndex = 0
            aRoundTaskAsync(&beginIndex, resolver)
-            }).done { (v) in
-                print("done", v)
-            }
+            })
 //            var beginIndex = 0
 //            aRoundTask(&beginIndex)
        // }
@@ -499,6 +515,26 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
         }
     }
+    func switchGameStage() {
+        if curStage == EnumsGameStage.exchangeStage.rawValue {
+            curStage = EnumsGameStage.battleStage.rawValue
+            playerStatues[curPlayerId].curChesses = boardNode[1]
+            initDisplay()
+            initBoardChess()
+            delay(0.5) {
+                self.beginRounds().done { (v1) in
+                   self.dealWithDamage().done { (v2) in
+                      self.switchGameStage()
+                    } //伤害清算
+                }
+            }
+        } else if curStage == EnumsGameStage.battleStage.rawValue {
+            curStage = EnumsGameStage.exchangeStage.rawValue
+            boardNode[1] = playerStatues[curPlayerId].curChesses
+            initDisplay()
+            initBoardChess()
+        }
+    }
     func upgradePlayerLevel(_ playerID: Int) -> Bool{
         let playerInfo = playerStatues[playerID]
         if playerInfo.curCoin > 0 && playerInfo.curCoin < GlobalNumberSettings.maxLevel.rawValue {
@@ -509,12 +545,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         }
         return true
     }
+    func feedEnemies() -> [chessStruct] {
+        return dummyAICrew[curRound]
+    }
     func initBoardChess() {
         boardNode[0].forEach{(boardNode) in
             boardNode.removeFromParentNode()
         }
         boardNode[0] = []
         let curPlayerLevel = playerStatues[curPlayerId].curLevel
+        
         switch curStage {
         case EnumsGameStage.exchangeStage.rawValue:
             for index in 1 ... playerStatues[curPlayerId].curLevel + 2  {
@@ -531,27 +571,54 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
             return
         case EnumsGameStage.battleStage.rawValue:
-            return
+             let enemies = feedEnemies()
+             if enemies.count > 7 {
+                return
+             }
+             for index in 0 ..< enemies.count {
+                if let curNode = playerBoardNode.childNode(withName: "e" + String(index + 1), recursively: true) {
+                    let tempChess = initChessWithPos(pos: curNode.position, sta: EnumsChessStage.forSale.rawValue, info:  enemies[index])
+                    tempChess.position.y += 0.01
+                    boardNode[0].append(tempChess)
+                    playerBoardNode.addChildNode(tempChess)
+                }
+             }
         default:
             return
         }
     }
+
     func initDisplay() {
        let curPlayer = playerStatues[curPlayerId]
         switch curStage {
         case EnumsGameStage.exchangeStage.rawValue:
-            if let moneyDisplay = playerBoardNode.childNode(withName: "saleStage", recursively: true) {
-                moneyTextNode.position = SCNVector3(-0.4, -0.5, 0.1)
-               moneyDisplay.addChildNode(moneyTextNode)
-               moneyTextNode.string = String(curPlayer.curCoin)
+            if let battleStageDisplay = playerBoardNode.childNode(withName: "battleStage", recursively: true) {
+                battleStageDisplay.isHidden = true
             }
-            if let levelDisplay = playerBoardNode.childNode(withName: "saleStage", recursively: true) {
-               levelTextNode.position = SCNVector3(-0.1, -0.5, 0.1)
-               levelDisplay.addChildNode(levelTextNode)
-               levelTextNode.string = String(curPlayer.curLevel)
+            if let saleStageDisplay = playerBoardNode.childNode(withName: "saleStage", recursively: true) {
+                saleStageDisplay.isHidden = false
+                
+                levelTextNode.position = SCNVector3(-0.1, -0.5, 0.1)
+                saleStageDisplay.addChildNode(levelTextNode)
+                levelTextNode.string = String(curPlayer.curLevel)
+                moneyTextNode.position = SCNVector3(-0.4, -0.5, 0.1)
+                saleStageDisplay.addChildNode(moneyTextNode)
+                moneyTextNode.string = String(curPlayer.curCoin)
             }
             return
         case EnumsGameStage.battleStage.rawValue:
+            if let saleStageDisplay = playerBoardNode.childNode(withName: "saleStage", recursively: true) {
+                saleStageDisplay.isHidden = true
+            }
+            if let battleStageDisplay = playerBoardNode.childNode(withName: "battleStage", recursively: true) {
+                battleStageDisplay.isHidden = false
+                
+                enemyBloodTextNode.position = SCNVector3(-0.1, -0.5, 0.1)
+                battleStageDisplay.addChildNode(enemyBloodTextNode)
+                enemyBloodTextNode.string = String(curPlayer.curBlood)
+                
+                
+            }
             return
         default:
             return
