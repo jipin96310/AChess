@@ -32,20 +32,25 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var boardNode :[[baseChessNode]] = [[],[]] //本方棋子
     var boardRootNode :[[SCNNode]] = [[],[]] //对面棋子
     //var backupBoardNode:[[baseChessNode]] = [[],[]]
-    var playerStatues = [(curCoin: 3, curLevel: 1, curBlood: 40, curChesses: nil), (curCoin: 3, curLevel: 1, curBlood: 40, curChesses: nil)] {
+    var playerStatues: [(curCoin: Int,curLevel: Int,curBlood: Int,curChesses: [baseChessNode])] = [(curCoin: 3, curLevel: 1, curBlood: 40, curChesses: []), (curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [])] {
         didSet {
+            print("playerStatusChanged")
             moneyTextNode.string = String(playerStatues[curPlayerId].curCoin)
             levelTextNode.string = String(playerStatues[curPlayerId].curLevel)
+            enemyBloodTextNode.string = String(playerStatues[curEnemyId].curBlood)
+            playerBloodTextNode.string = String(playerStatues[curPlayerId].curBlood)
         }
     } //当前玩家状态数据 单人模式默认取id = 1
     var curPlayerId = 0
-    var curEnemyID = 1
+    var curEnemyId = 1
     var curRound = 0
     var curStage = EnumsGameStage.exchangeStage.rawValue
     //below are text nodes
      var moneyTextNode = TextNode(textScale: SCNVector3(0.1, 0.3, 1))
      var levelTextNode = TextNode(textScale: SCNVector3(0.1, 0.3, 1))
      var enemyBloodTextNode = TextNode(textScale: SCNVector3(0.1, 0.3, 1))
+     var playerBloodTextNode = TextNode(textScale: SCNVector3(0.1, 0.3, 1))
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -146,7 +151,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             if let rootNode = findChessRootNode(firstResult.node) {
                                 
                                 curDragPoint = rootNode
-                                print(curDragPoint)
+                               
                                 rootNode.removeFromParentNode() //it is actually a chessNode not a root node
                                 
                                 if let rootNodePos = findChessPos(rootNode) {
@@ -470,10 +475,21 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 //    }
     func dealWithDamage() -> Promise<Any>{ //伤害清算
         return Promise<Any>( resolver: { (resolver) in
-            let curPlayer = playerStatues[curPlayerId]
-            var winner = 0
-            if boardNode[1].count > 0 {
-                winner = 1
+            if boardNode[0].count > 0 || boardNode[1].count > 0 { //平局的话就不处理了 do nth if its a draw+
+                let curPlayer = playerStatues[curPlayerId]
+                var winner = 1  //you win
+                if boardNode[0].count > 0 {
+                    winner = 0 //enemy win
+                }
+                var curDamage = 0
+                boardNode[winner].forEach{(restChess) in
+                    curDamage += restChess.chessRarity
+                }
+                if winner == 1 { // you win
+                    playerStatues[curEnemyId].curBlood -= curDamage
+                } else { // enemy win
+                    playerStatues[curPlayerId].curBlood -= curDamage
+                }
             }
             
             resolver.fulfill("success")
@@ -518,6 +534,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     func switchGameStage() {
         if curStage == EnumsGameStage.exchangeStage.rawValue {
             curStage = EnumsGameStage.battleStage.rawValue
+            //copy the backup data
+            playerStatues[curPlayerId].curChesses = []
+            boardNode[1].forEach{(curChess) in
+                playerStatues[curPlayerId].curChesses.append(curChess.copy() as! baseChessNode)
+            }
             playerStatues[curPlayerId].curChesses = boardNode[1]
             initDisplay()
             initBoardChess()
@@ -530,7 +551,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
         } else if curStage == EnumsGameStage.battleStage.rawValue {
             curStage = EnumsGameStage.exchangeStage.rawValue
-            boardNode[1] = playerStatues[curPlayerId].curChesses
+            boardNode[1].forEach{(curChess) in
+                curChess.removeFromParentNode()
+            }
+            boardNode[1] = []
+            playerStatues[curPlayerId].curChesses.forEach{(curChess) in
+                boardNode[1].append(curChess.copy() as! baseChessNode)
+            }
+             print("base", boardNode[1][0].name)
             initDisplay()
             initBoardChess()
         }
@@ -560,13 +588,26 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             for index in 1 ... playerStatues[curPlayerId].curLevel + 2  {
                 if let curNode = playerBoardNode.childNode(withName: "e" + String(index), recursively: true) {
                     let randomNum =  Int.randomIntNumber(lower: 0, upper: chessCollectionsLevel[curPlayerLevel - 1].count)
-                    let tempChess = initChessWithPos(pos: curNode.position, sta: EnumsChessStage.forSale.rawValue, info: chessCollectionsLevel[curPlayerLevel - 1][randomNum] )
+                    let tempChess = initChessWithPos(pos: curNode.position, sta: EnumsChessStage.enemySide.rawValue, info: chessCollectionsLevel[curPlayerLevel - 1][randomNum] )
                     //tempChess.name = "chessE" + String(index)
                     tempChess.position.y += 0.01
                  
                     playerBoardNode.addChildNode(tempChess)
                   
                     boardNode[0].append(tempChess)
+                }
+            }
+            for index in 0 ..< boardNode[1].count  {
+                if let curNode = playerBoardNode.childNode(withName: "a" + String(index + 1), recursively: true) {
+//                    let randomNum =  Int.randomIntNumber(lower: 0, upper: chessCollectionsLevel[curPlayerLevel - 1].count)
+//                    let tempChess = initChessWithPos(pos: curNode.position, sta: EnumsChessStage.enemySide.rawValue, info: chessCollectionsLevel[curPlayerLevel - 1][randomNum] )
+//
+//                    //tempChess.name = "chessE" + String(index)
+//                    tempChess.position.y += 0.01
+                 
+                    playerBoardNode.addChildNode(boardNode[1][index])
+                  
+                    updateWholeBoardPosition()
                 }
             }
             return
@@ -613,10 +654,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             if let battleStageDisplay = playerBoardNode.childNode(withName: "battleStage", recursively: true) {
                 battleStageDisplay.isHidden = false
                 
-                enemyBloodTextNode.position = SCNVector3(-0.1, -0.5, 0.1)
+                enemyBloodTextNode.position = SCNVector3(-0.3, -0.5, 0.1)
                 battleStageDisplay.addChildNode(enemyBloodTextNode)
-                enemyBloodTextNode.string = String(curPlayer.curBlood)
-                
+                enemyBloodTextNode.string = String(playerStatues[curEnemyId].curBlood)
+                playerBloodTextNode.position = SCNVector3(0.3, -0.5, 0.1)
+                battleStageDisplay.addChildNode(playerBloodTextNode)
+                playerBloodTextNode.string = String(curPlayer.curBlood)
                 
             }
             return
@@ -730,7 +773,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             
                for index in 0 ..< boardRootNode.count {
                 let curBoard = boardRootNode[index]
-//                print("findNode1: ", nodeA.name)
+
                     curBoard.forEach{(boardNode) in
                         if boardNode.name != nodeA.name {
 //                            if boardNode.name == "a3" {
