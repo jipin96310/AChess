@@ -32,7 +32,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var boardNode :[[baseChessNode]] = [[],[]] //本方棋子
     var boardRootNode :[[SCNNode]] = [[],[]] //对面棋子
     //var backupBoardNode:[[baseChessNode]] = [[],[]]
-    var playerStatues: [(curCoin: Int,curLevel: Int,curBlood: Int,curChesses: [baseChessNode])] = [(curCoin: 3, curLevel: 1, curBlood: 40, curChesses: []), (curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [])] {
+    var playerStatues: [(curCoin: Int,curLevel: Int,curBlood: Int,curChesses: [baseChessNode])] = [(curCoin: GlobalNumberSettings.roundBaseCoin.rawValue, curLevel: 1, curBlood: 40, curChesses: []), (curCoin: GlobalNumberSettings.roundBaseCoin.rawValue, curLevel: 1, curBlood: 40, curChesses: [])] {
         didSet {
             print("playerStatusChanged")
             moneyTextNode.string = String(playerStatues[curPlayerId].curCoin)
@@ -487,8 +487,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 }
                 if winner == 1 { // you win
                     playerStatues[curEnemyId].curBlood -= curDamage
+                    playerStatues[curEnemyId].curCoin += (curDamage + GlobalNumberSettings.roundBaseCoin.rawValue)
                 } else { // enemy win
                     playerStatues[curPlayerId].curBlood -= curDamage
+                    playerStatues[curPlayerId].curCoin += (GlobalNumberSettings.roundBaseCoin.rawValue)
                 }
             }
             
@@ -537,9 +539,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             //copy the backup data
             playerStatues[curPlayerId].curChesses = []
             boardNode[1].forEach{(curChess) in
-                playerStatues[curPlayerId].curChesses.append(curChess.copy() as! baseChessNode)
+                playerStatues[curPlayerId].curChesses.append(curChess.copyable())
             }
-            playerStatues[curPlayerId].curChesses = boardNode[1]
+            //playerStatues[curPlayerId].curChesses = boardNode[1]
             initDisplay()
             initBoardChess()
             delay(0.5) {
@@ -556,9 +558,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
             boardNode[1] = []
             playerStatues[curPlayerId].curChesses.forEach{(curChess) in
-                boardNode[1].append(curChess.copy() as! baseChessNode)
+                boardNode[1].append(curChess.copyable())
             }
-             print("base", boardNode[1][0].name)
+            
             initDisplay()
             initBoardChess()
         }
@@ -628,7 +630,36 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             return
         }
     }
-
+    func switchDisPlayText() {
+        let curPlayer = playerStatues[curPlayerId]
+        switch curStage {
+        case EnumsGameStage.exchangeStage.rawValue:
+            if let battleStageDisplay = playerBoardNode.childNode(withName: "battleStage", recursively: true) {
+                battleStageDisplay.isHidden = true
+            }
+            if let saleStageDisplay = playerBoardNode.childNode(withName: "saleStage", recursively: true) {
+                saleStageDisplay.isHidden = false
+                
+                levelTextNode.string = String(curPlayer.curLevel)
+                moneyTextNode.string = String(curPlayer.curCoin)
+            }
+            return
+        case EnumsGameStage.battleStage.rawValue:
+            if let saleStageDisplay = playerBoardNode.childNode(withName: "saleStage", recursively: true) {
+                saleStageDisplay.isHidden = true
+            }
+            if let battleStageDisplay = playerBoardNode.childNode(withName: "battleStage", recursively: true) {
+                battleStageDisplay.isHidden = false
+                
+                enemyBloodTextNode.string = String(playerStatues[curEnemyId].curBlood)
+                playerBloodTextNode.string = String(curPlayer.curBlood)
+                
+            }
+            return
+        default:
+            return
+        }
+    }
     func initDisplay() {
        let curPlayer = playerStatues[curPlayerId]
         switch curStage {
