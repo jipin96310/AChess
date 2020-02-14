@@ -195,24 +195,27 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     } else { //按到空地或者底座上了
                         if let curRootNodePos = findRootPos(curPressNode) { //只有购买状态时候才能操作 所以无需判断当前阶段
                             let curSide = boardNode[curRootNodePos[0]]
-                            if curDragPoint!.chessStatus == EnumsChessStage.owned.rawValue { //already owned, just move into the position
-                                //leave this blank, in case there will be other operations further
-                            } else if curDragPoint!.chessStatus == EnumsChessStage.forSale.rawValue { //not yet owned, first deducts the money
-                                if buyChess(playerID: curPlayerId, chessPrice: curDragPoint!.chessPrice) == true { //buy success
-                                    
-                                } else {
-                                    boardNode[0].append(curDragPoint!)
-                                    if curDragPoint != nil {
-                                        curDragPoint?.position.y = 0.01
-                                        playerBoardNode.addChildNode(curDragPoint!)
+                            if curRootNodePos[0] == 1 { //落点在本方 才会触发购买
+                                if curDragPoint!.chessStatus == EnumsChessStage.owned.rawValue { //already owned, just move into the position
+                                    //leave this blank, in case there will be other operations further
+                                } else if curDragPoint!.chessStatus == EnumsChessStage.forSale.rawValue { //not yet owned, first deducts the money
+                                    if buyChess(playerID: curPlayerId, chessPrice: curDragPoint!.chessPrice) == true { //buy success
+                                        curDragPoint?.chessStatus = EnumsChessStage.owned.rawValue
+                                    } else {
+                                        boardNode[0].append(curDragPoint!)
+                                        if curDragPoint != nil {
+                                            curDragPoint?.position.y = 0.01
+                                            playerBoardNode.addChildNode(curDragPoint!)
+                                        }
+                                        referencePoint.isHidden = true
+                                        //
+                                        curDragPoint = nil
+                                        updateWholeBoardPosition()
+                                        return
                                     }
-                                    referencePoint.isHidden = true
-                                    //
-                                    curDragPoint = nil
-                                    updateWholeBoardPosition()
-                                    return
                                 }
                             }
+                        
                             if curSide.count <= curRootNodePos[1] {
                                 boardNode[curRootNodePos[0]].append(curDragPoint!)
                             } else {
