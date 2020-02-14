@@ -215,7 +215,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                     }
                                 }
                             }
-                        
+                          
+//                            else if curDragPoint?.chessStatus == EnumsChessStage.forSale.rawValue {
+//                                pointBoardIndex = 0
+//                            }
                             if curSide.count <= curRootNodePos[1] {
                                 boardNode[curRootNodePos[0]].append(curDragPoint!)
                             } else {
@@ -226,9 +229,19 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                 playerBoardNode.addChildNode(curDragPoint!)
                             }
                             updateWholeBoardPosition()
-                            
-                            
+                        } else { //无需判断长度 因为之前的地方肯定有位置给它
+                            var pointBoardIndex = 0
+                            if curDragPoint?.chessStatus == EnumsChessStage.owned.rawValue {
+                                pointBoardIndex = 1
+                            }
+                            if curDragPoint != nil {
+                                curDragPoint?.position.y = 0.01
+                                playerBoardNode.addChildNode(curDragPoint!)
+                            }
+                            boardNode[pointBoardIndex].append(curDragPoint!)
+                            updateWholeBoardPosition()
                         }
+                       
                     }
                 //}
                 //let positionOfPress = hitTestResult.first!.worldTransform.columns.3
