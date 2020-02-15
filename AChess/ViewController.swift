@@ -407,12 +407,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 //        }
                        
     }
-    func updateWholeBoardPosition() -> Double {
+    func updateWholeBoardPosition() -> Double { //update all chesses' position
         let totalTime = 0.50
         for index in 0 ..< boardNode.count {
             let curBoardSide = boardNode[index]
+            let startIndex = (GlobalNumberSettings.chessNumber.rawValue - curBoardSide.count) / 2
             for innerIndex in 0 ..< curBoardSide.count {
-                let curRootNode = boardRootNode[index][innerIndex]
+                let curRootNode = boardRootNode[index][innerIndex + startIndex]
                 let curChessNode = boardNode[index][innerIndex]
                 let updateAction = SCNAction.move(to: SCNVector3(curRootNode.position.x, curRootNode.position.y + 0.01 , curRootNode.position.z), duration: totalTime)
                 curChessNode.runAction(updateAction)
@@ -421,7 +422,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         recoverRootNodeColor()
        return totalTime
     }
-    func updateChessBoardPosition( _ attackResult: [Double] ) -> Double {
+    func updateChessBoardPosition( _ attackResult: [Double] ) -> Double { //attack动作进行中调用的更新棋子位置的方法
         let totalTime = 0.50
         for typeIndex in 0 ..< 2 { // 0: 1:  2号位是动作时间
             if attackResult[typeIndex] == 0 {
@@ -507,10 +508,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 }
                 if winner == 1 { // you win
                     playerStatues[curEnemyId].curBlood -= curDamage
-                    playerStatues[curEnemyId].curCoin += (curDamage + GlobalNumberSettings.roundBaseCoin.rawValue)
+                    playerStatues[curPlayerId].curCoin += (curDamage + GlobalNumberSettings.roundBaseCoin.rawValue)
                 } else { // enemy win
                     playerStatues[curPlayerId].curBlood -= curDamage
-                    playerStatues[curPlayerId].curCoin += (GlobalNumberSettings.roundBaseCoin.rawValue)
+                    playerStatues[curEnemyId].curCoin += (curDamage + GlobalNumberSettings.roundBaseCoin.rawValue)
                 }
             }
             
@@ -584,6 +585,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             initDisplay()
             initBoardChess()
         }
+        //here update every players info, if there'll be multiplayers mode, you should get other players info, and then update to the playerStatues array
+        //now we only update current player
+        
     }
     func upgradePlayerLevel(_ playerID: Int) -> Bool{
         let playerInfo = playerStatues[playerID]
@@ -607,45 +611,43 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         
         switch curStage {
         case EnumsGameStage.exchangeStage.rawValue:
-            for index in 1 ... playerStatues[curPlayerId].curLevel + 2  {
-                if let curNode = playerBoardNode.childNode(withName: "e" + String(index), recursively: true) {
-                    let randomNum =  Int.randomIntNumber(lower: 0, upper: chessCollectionsLevel[curPlayerLevel - 1].count)
-                    let tempChess = initChessWithPos(pos: curNode.position, sta: EnumsChessStage.enemySide.rawValue, info: chessCollectionsLevel[curPlayerLevel - 1][randomNum] )
-                    //tempChess.name = "chessE" + String(index)
-                    tempChess.position.y += 0.01
-                 
-                    playerBoardNode.addChildNode(tempChess)
-                  
-                    boardNode[0].append(tempChess)
-                }
+            let curSaleNumber = playerStatues[curPlayerId].curLevel + 2
+            let curStartIndex = (GlobalNumberSettings.chessNumber.rawValue - curSaleNumber) / 2
+            for index in 0 ..< curSaleNumber  {
+                let curNode = boardRootNode[0][index + curStartIndex]
+                //if let curNode = playerBoardNode.childNode(withName: "e" + String(index), recursively: true) {
+                let randomNum =  Int.randomIntNumber(lower: 0, upper: chessCollectionsLevel[curPlayerLevel - 1].count)
+                let tempChess = initChessWithPos(pos: curNode.position, sta: EnumsChessStage.forSale.rawValue, info: chessCollectionsLevel[curPlayerLevel - 1][randomNum] )
+                //tempChess.name = "chessE" + String(index)
+                tempChess.position.y += 0.01
+                boardNode[0].append(tempChess)
+                playerBoardNode.addChildNode(tempChess)
+                
+                //}
             }
             for index in 0 ..< boardNode[1].count  {
                 if let curNode = playerBoardNode.childNode(withName: "a" + String(index + 1), recursively: true) {
-//                    let randomNum =  Int.randomIntNumber(lower: 0, upper: chessCollectionsLevel[curPlayerLevel - 1].count)
-//                    let tempChess = initChessWithPos(pos: curNode.position, sta: EnumsChessStage.enemySide.rawValue, info: chessCollectionsLevel[curPlayerLevel - 1][randomNum] )
-//
-//                    //tempChess.name = "chessE" + String(index)
-//                    tempChess.position.y += 0.01
-                 
                     playerBoardNode.addChildNode(boardNode[1][index])
-                  
                     updateWholeBoardPosition()
                 }
             }
             return
         case EnumsGameStage.battleStage.rawValue:
              let enemies = feedEnemies()
-             if enemies.count > 7 {
+             if enemies.count > GlobalNumberSettings.chessNumber.rawValue {
                 return
              }
+             let curStartIndex = (GlobalNumberSettings.chessNumber.rawValue - enemies.count) / 2
+             
              for index in 0 ..< enemies.count {
-                if let curNode = playerBoardNode.childNode(withName: "e" + String(index + 1), recursively: true) {
-                    let tempChess = initChessWithPos(pos: curNode.position, sta: EnumsChessStage.forSale.rawValue, info:  enemies[index])
+                    let curNode = boardRootNode[0][index + curStartIndex]
+                    let tempChess = initChessWithPos(pos: curNode.position, sta: EnumsChessStage.enemySide.rawValue, info:  enemies[index])
                     tempChess.position.y += 0.01
+                //print("tempchess", tempChess.position)
                     boardNode[0].append(tempChess)
                     playerBoardNode.addChildNode(tempChess)
-                }
              }
+            updateWholeBoardPosition()
         default:
             return
         }
