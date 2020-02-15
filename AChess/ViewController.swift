@@ -180,6 +180,17 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     referencePoint.isHidden = false
                     
                 }
+                let hitTestResult2 = sceneView.hitTest(touchLocation, options: [SCNHitTestOption.ignoreHiddenNodes: true, SCNHitTestOption.rootNode: playerBoardNode])
+                if !hitTestResult2.isEmpty {
+                    let curPressNode = hitTestResult2.first!.node
+                    if curPressNode.name == EnumNodeName.saleStage.rawValue {
+                        curPressNode.geometry?.firstMaterial?.diffuse.contents = UIColor.blue
+                    } else {
+                        if let saleStage = playerBoardNode.childNode(withName: EnumNodeName.saleStage.rawValue, recursively: true) {
+                            saleStage.geometry?.firstMaterial?.diffuse.contents = UIColor.black
+                        }
+                    }
+                }
             }
         } else if sender.state == .ended
         {
@@ -188,6 +199,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             if !hitTestResult.isEmpty {
                 let curPressNode = hitTestResult.first!.node
                 //if curDragPoint?.name?.first == "a" { //抓的是已经购买的牌
+              
                     if let curPressParent = findChessRootNode(curPressNode) { //按到棋子上了
                         //if curPressParent.name?.first == "a" {
                             swapChessPos(curDragPoint!, curPressParent)
@@ -233,6 +245,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                 playerBoardNode.addChildNode(curDragPoint!)
                             }
                             updateWholeBoardPosition()
+                        } else if curPressNode.name == EnumNodeName.saleStage.rawValue && curDragPoint?.chessStatus == EnumsChessStage.owned.rawValue{
+                            sellChess(playerID: curPlayerId, curChess: curDragPoint!)
                         } else { //无需判断长度 因为之前的地方肯定有位置给它
                             var pointBoardIndex = 0
                             if curDragPoint?.chessStatus == EnumsChessStage.owned.rawValue {
@@ -253,6 +267,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 //let curPressLocation = SCNVector3(positionOfPress.x, positionOfPress.y, positionOfPress.z)
               //
                 
+            }
+            //
+            if let saleStage = playerBoardNode.childNode(withName: EnumNodeName.saleStage.rawValue, recursively: true) {
+                saleStage.geometry?.firstMaterial?.diffuse.contents = UIColor.black
             }
             referencePoint.isHidden = true
             curDragPoint = nil
@@ -359,6 +377,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             return true
         }
         return false
+    }
+    func sellChess(playerID: Int, curChess: baseChessNode) {
+        playerStatues[playerID].curCoin += curChess.chessPrice
+        curChess.removeFromParentNode()
     }
     func checkCollisionWithChess(_ pressLocation: SCNVector3) {
 //        let node = SCNNode()
@@ -659,7 +681,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             if let battleStageDisplay = playerBoardNode.childNode(withName: "battleStage", recursively: true) {
                 battleStageDisplay.isHidden = true
             }
-            if let saleStageDisplay = playerBoardNode.childNode(withName: "saleStage", recursively: true) {
+            if let saleStageDisplay = playerBoardNode.childNode(withName: EnumNodeName.saleStage.rawValue, recursively: true) {
                 saleStageDisplay.isHidden = false
                 
                 levelTextNode.string = String(curPlayer.curLevel)
@@ -667,7 +689,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
             return
         case EnumsGameStage.battleStage.rawValue:
-            if let saleStageDisplay = playerBoardNode.childNode(withName: "saleStage", recursively: true) {
+            if let saleStageDisplay = playerBoardNode.childNode(withName: EnumNodeName.saleStage.rawValue, recursively: true) {
                 saleStageDisplay.isHidden = true
             }
             if let battleStageDisplay = playerBoardNode.childNode(withName: "battleStage", recursively: true) {
@@ -689,7 +711,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             if let battleStageDisplay = playerBoardNode.childNode(withName: "battleStage", recursively: true) {
                 battleStageDisplay.isHidden = true
             }
-            if let saleStageDisplay = playerBoardNode.childNode(withName: "saleStage", recursively: true) {
+            if let saleStageDisplay = playerBoardNode.childNode(withName: EnumNodeName.saleStage.rawValue, recursively: true) {
                 saleStageDisplay.isHidden = false
                 
                 levelTextNode.position = SCNVector3(-0.1, -0.5, 0.1)
@@ -701,7 +723,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
             return
         case EnumsGameStage.battleStage.rawValue:
-            if let saleStageDisplay = playerBoardNode.childNode(withName: "saleStage", recursively: true) {
+            if let saleStageDisplay = playerBoardNode.childNode(withName: EnumNodeName.saleStage.rawValue, recursively: true) {
                 saleStageDisplay.isHidden = true
             }
             if let battleStageDisplay = playerBoardNode.childNode(withName: "battleStage", recursively: true) {
@@ -805,7 +827,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
          newNode.position.z = 0
          newNode.geometry?.firstMaterial?.diffuse.contents = UIColor.red
          //hands physics body
-        let body = SCNPhysicsBody(type: .kinematic, shape: SCNPhysicsShape(node: newNode, options: [SCNPhysicsShape.Option.scale: SCNVector3(0.2, 0.2, 0.2)]))
+        let body = SCNPhysicsBody(type: .kinematic, shape: SCNPhysicsShape(node: newNode, options: [SCNPhysicsShape.Option.scale: SCNVector3(0.22, 0.22, 0.22)]))
         //body.angularVelocityFactor = SCNVector3(1.0,0.0,1.0)
         body.isAffectedByGravity = false
         newNode.physicsBody = body
@@ -856,6 +878,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     }
                 }
             }
+//            else if nodeA.physicsBody?.categoryBitMask == BitMaskCategoty.saleScreen.rawValue && nodeB.physicsBody?.categoryBitMask == BitMaskCategoty.hand.rawValue {
+//                if let saleScreen = playerBoardNode.childNode(withName: "saleStage", recursively: true) {
+//                     saleScreen.geometry?.firstMaterial?.diffuse.contents = UIColor.blue
+//                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
+//                        saleScreen.geometry?.firstMaterial?.diffuse.contents = UIColor.black
+//                     })
+//                }
+//            }
     }
     // MARK: - ARSCNViewDelegate
 
