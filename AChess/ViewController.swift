@@ -194,13 +194,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         //}
                     } else { //按到空地或者底座上了
                         if let curRootNodePos = findRootPos(curPressNode) { //只有购买状态时候才能操作 所以无需判断当前阶段
-                            let curSide = boardNode[curRootNodePos[0]]
-                            if curRootNodePos[0] == 1 { //落点在本方 才会触发购买
-                                if curDragPoint!.chessStatus == EnumsChessStage.owned.rawValue { //already owned, just move into the position
-                                    //leave this blank, in case there will be other operations further
-                                } else if curDragPoint!.chessStatus == EnumsChessStage.forSale.rawValue { //not yet owned, first deducts the money
+                            var curSideIndex = curRootNodePos[0] //阵营编号
+                            var curIndex = curRootNodePos[1] //落点编号
+                            let curSide = boardNode[curSideIndex]
+                            if curSideIndex == BoardSide.allySide.rawValue { //落点在本方 才会触发购买
+                                if curDragPoint!.chessStatus == EnumsChessStage.forSale.rawValue { //not yet owned, first deducts the money
                                     if buyChess(playerID: curPlayerId, chessPrice: curDragPoint!.chessPrice) == true { //buy success
-                                        curDragPoint?.chessStatus = EnumsChessStage.owned.rawValue
+                                                curDragPoint?.chessStatus = EnumsChessStage.owned.rawValue
                                     } else {
                                         boardNode[0].append(curDragPoint!)
                                         if curDragPoint != nil {
@@ -214,15 +214,19 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                         return
                                     }
                                 }
+                            } else if curSideIndex == BoardSide.enemySide.rawValue {
+                                if curDragPoint!.chessStatus == EnumsChessStage.owned.rawValue {
+                                    curSideIndex = BoardSide.allySide.rawValue
+                                }
                             }
                           
 //                            else if curDragPoint?.chessStatus == EnumsChessStage.forSale.rawValue {
 //                                pointBoardIndex = 0
 //                            }
-                            if curSide.count <= curRootNodePos[1] {
-                                boardNode[curRootNodePos[0]].append(curDragPoint!)
+                            if curSide.count <= curIndex {
+                                boardNode[curSideIndex].append(curDragPoint!)
                             } else {
-                                boardNode[curRootNodePos[0]].insert(curDragPoint! , at: curRootNodePos[1])
+                                boardNode[curSideIndex].insert(curDragPoint! , at: curIndex)
                             }
                             if curDragPoint != nil {
                                 curDragPoint?.position.y = 0.01
