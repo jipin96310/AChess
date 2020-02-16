@@ -32,9 +32,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var boardNode :[[baseChessNode]] = [[],[]] //本方棋子
     var boardRootNode :[[SCNNode]] = [[],[]] //对面棋子
     //var backupBoardNode:[[baseChessNode]] = [[],[]]
-    var playerStatues: [(curCoin: Int,curLevel: Int,curBlood: Int,curChesses: [baseChessNode])] = [(curCoin: GlobalNumberSettings.roundBaseCoin.rawValue, curLevel: 1, curBlood: 40, curChesses: []), (curCoin: GlobalNumberSettings.roundBaseCoin.rawValue, curLevel: 1, curBlood: 40, curChesses: [])] {
+    var playerStatues: [(curCoin: Int,curLevel: Int,curBlood: Int,curChesses: [baseChessNode])] = [(curCoin: GlobalNumberSettings.roundBaseCoin.rawValue + 10, curLevel: 1, curBlood: 40, curChesses: []), (curCoin: GlobalNumberSettings.roundBaseCoin.rawValue, curLevel: 1, curBlood: 40, curChesses: [])] {
         didSet {
-            print("playerStatusChanged")
             moneyTextNode.string = String(playerStatues[curPlayerId].curCoin)
             levelTextNode.string = String(playerStatues[curPlayerId].curLevel)
             enemyBloodTextNode.string = String(playerStatues[curEnemyId].curBlood)
@@ -159,6 +158,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                 }
                                
                                 self.sceneView.scene.rootNode.addChildNode(curDragPoint!)
+                                updateWholeBoardPosition()
                                //curDragPoint?.geometry?.firstMaterial?.diffuse = UIColor.red
                             }
                             
@@ -202,7 +202,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
               
                     if let curPressParent = findChessRootNode(curPressNode) { //按到棋子上了
                         //if curPressParent.name?.first == "a" {
-                            swapChessPos(curDragPoint!, curPressParent)
+                        //print("onchess")
+                        inserChessPos(insertChess: curDragPoint!, insertTo: curPressParent)
+                        if curDragPoint != nil {
+                            curDragPoint?.position.y = 0.01
+                            playerBoardNode.addChildNode(curDragPoint!)
+                        }
+                        updateWholeBoardPosition()
                         //}
                     } else { //按到空地或者底座上了
                         if let curRootNodePos = findRootPos(curPressNode) { //只有购买状态时候才能操作 所以无需判断当前阶段
@@ -330,46 +336,68 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
           }
          return nodePos
       }
-    func swapChessPos( _ firstChess: baseChessNode, _ secondChess: baseChessNode ) {
-        var firstPos: [Int] = []
-        var secondPos: [Int] = []
-        
-        for index in 0 ..< boardNode[0].count { //enemy those code can be combined
-            let curNode = boardNode[0][index]
-            if curNode == firstChess {
-                firstPos = [0, index]
-            }
-            if curNode == secondChess {
-               secondPos = [0, index]
-            }
-        }
-        for index in 0 ..< boardNode[1].count { //ally
-            let curNode = boardNode[1][index]
-            if curNode == firstChess {
-                firstPos = [1, index]
-            }
-            if curNode == secondChess {
-                secondPos = [1, index]
+    func inserChessPos(insertChess: baseChessNode, insertTo: baseChessNode) -> Bool{
+        var inserToPos:[Int] = []
+        for index in 0 ..< boardNode.count {
+            let curBoard = boardNode[index]
+            for innerIndex in 0 ..< curBoard.count {
+                let curNode = curBoard[innerIndex]
+                if curNode == insertTo {
+                    inserToPos = [index, innerIndex]
+                    break;
+                }
+                
             }
         }
-        if firstPos.count > 0 && secondPos.count > 0 {
-            let temp1 = boardNode[firstPos[0]][firstPos[1]]
-                   let temp2 = boardNode[secondPos[0]][secondPos[1]]
-                  // print(temp)
-                   boardNode[firstPos[0]].remove(at: firstPos[1])
-                   boardNode[firstPos[0]].insert(temp2, at: firstPos[1])
-                   boardNode[secondPos[0]].remove(at: secondPos[1])
-                  //print(temp)
-                   boardNode[secondPos[0]].insert(temp1 , at: secondPos[1])
-                   if curDragPoint != nil {
-                       playerBoardNode.addChildNode(curDragPoint!)
-                   }
-             
-                   updateWholeBoardPosition()
-                  
+        let curBoard = boardNode[inserToPos[0]]
+        if curBoard.count > GlobalNumberSettings.chessNumber.rawValue {
+            return false
+        } else {
+            //print("inserto", inserToPos[1])
+            boardNode[inserToPos[0]].insert(insertChess, at: inserToPos[1])
         }
-       
+        return true
     }
+//    func swapChessPos( _ firstChess: baseChessNode, _ secondChess: baseChessNode ) {
+//        var firstPos: [Int] = []
+//        var secondPos: [Int] = []
+//
+//        for index in 0 ..< boardNode[0].count { //enemy those code can be combined
+//            let curNode = boardNode[0][index]
+//            if curNode == firstChess {
+//                firstPos = [0, index]
+//            }
+//            if curNode == secondChess {
+//               secondPos = [0, index]
+//            }
+//        }
+//        for index in 0 ..< boardNode[1].count { //ally
+//            let curNode = boardNode[1][index]
+//            if curNode == firstChess {
+//                firstPos = [1, index]
+//            }
+//            if curNode == secondChess {
+//                secondPos = [1, index]
+//            }
+//        }
+//        if firstPos.count > 0 && secondPos.count > 0 {
+//            let temp1 = boardNode[firstPos[0]][firstPos[1]]
+//                   let temp2 = boardNode[secondPos[0]][secondPos[1]]
+//                  // print(temp)
+//                   boardNode[firstPos[0]].remove(at: firstPos[1])
+//                   boardNode[firstPos[0]].insert(temp2, at: firstPos[1])
+//                   boardNode[secondPos[0]].remove(at: secondPos[1])
+//                  //print(temp)
+//                   boardNode[secondPos[0]].insert(temp1 , at: secondPos[1])
+//                   if curDragPoint != nil {
+//                       playerBoardNode.addChildNode(curDragPoint!)
+//                   }
+//
+//                   updateWholeBoardPosition()
+//
+//        }
+//
+//    }
     func buyChess(playerID: Int, chessPrice: Int) -> Bool{
         let curPlayerMoney = playerStatues[playerID].curCoin
         if curPlayerMoney >= chessPrice {
