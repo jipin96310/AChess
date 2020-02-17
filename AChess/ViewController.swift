@@ -29,6 +29,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var curDragPoint: baseChessNode? = nil
     var curFocusPoint: SCNNode? = nil
     //以下数据需要保存
+    var boardPool : [[String : Int]] = [["" : 0], ["" : 0], ["" : 0], ["" : 0], ["" : 0]] //卡池
     var boardNode :[[baseChessNode]] = [[],[]] //本方棋子
     var boardRootNode :[[SCNNode]] = [[],[]] //对面棋子
     //var backupBoardNode:[[baseChessNode]] = [[],[]]
@@ -98,6 +99,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         sceneView.session.run(configuration)
         //set contact delegate
         
+        //set up card pool
+        
+        for level in 0 ..< chessCollectionsLevel.count {
+            let specialFacotr = (GlobalNumberSettings.maxLevel.rawValue - level + 2) * 3
+            for index in 0 ..< chessCollectionsLevel[level].count {
+                let curChess = chessCollectionsLevel[level][index]
+                boardPool[level][curChess.name!] = specialFacotr
+            }
+        }
+        print("bp", boardPool)
        
     }
     
