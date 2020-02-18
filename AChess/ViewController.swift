@@ -29,7 +29,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var curDragPoint: baseChessNode? = nil
     var curFocusPoint: SCNNode? = nil
     //以下数据需要保存
-    var boardPool : [[String : Int]] = [["" : 0], ["" : 0], ["" : 0], ["" : 0], ["" : 0]] //卡池
+    var boardPool : [String : Int] = ["" : 0] //卡池
     var boardNode :[[baseChessNode]] = [[],[]] //本方棋子
     var boardRootNode :[[SCNNode]] = [[],[]] //对面棋子
     //var backupBoardNode:[[baseChessNode]] = [[],[]]
@@ -105,7 +105,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             let specialFacotr = (GlobalNumberSettings.maxLevel.rawValue - level + 2) * 3
             for index in 0 ..< chessCollectionsLevel[level].count {
                 let curChess = chessCollectionsLevel[level][index]
-                boardPool[level][curChess.name!] = specialFacotr
+                boardPool[curChess.name!] = specialFacotr
             }
         }
         print("bp", boardPool)
@@ -231,7 +231,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                     if buyChess(playerID: curPlayerId, chessPrice: curDragPoint!.chessPrice) == true { //buy success
                                                 curDragPoint?.chessStatus = EnumsChessStage.owned.rawValue
                                     } else {
-                                        boardNode[0].append(curDragPoint!)
+                                        if curIndex < (GlobalNumberSettings.chessNumber.rawValue - curSide.count) / 2 {
+                                            boardNode[curSideIndex].insert(curDragPoint!, at: 0)
+                                        } else {
+                                            boardNode[curSideIndex].append(curDragPoint!)
+                                        }
                                         if curDragPoint != nil {
                                             curDragPoint?.position.y = 0.01
                                             playerBoardNode.addChildNode(curDragPoint!)
@@ -244,7 +248,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                     }
                                 }
                             } else if curSideIndex == BoardSide.enemySide.rawValue {
-                                if curDragPoint!.chessStatus == EnumsChessStage.owned.rawValue {
+                                if curDragPoint!.chessStatus == EnumsChessStage.owned.rawValue { //如果已经买过了，就移动回到ally side
                                     curSideIndex = BoardSide.allySide.rawValue
                                 }
                             }
@@ -252,10 +256,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 //                            else if curDragPoint?.chessStatus == EnumsChessStage.forSale.rawValue {
 //                                pointBoardIndex = 0
 //                            }
-                            if curSide.count <= curIndex {
+                             if curIndex < (GlobalNumberSettings.chessNumber.rawValue - curSide.count) / 2 {
+                                boardNode[curSideIndex].insert(curDragPoint!, at: 0)
+                             } else {
                                 boardNode[curSideIndex].append(curDragPoint!)
-                            } else {
-                                boardNode[curSideIndex].insert(curDragPoint! , at: curIndex)
                             }
                             if curDragPoint != nil {
                                 curDragPoint?.position.y = 0.01
@@ -484,17 +488,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
        return totalTime
     }
     func updateChessBoardPosition( _ attackResult: [Double] ) -> Double { //attack动作进行中调用的更新棋子位置的方法
-        let totalTime = 0.50
+        var totalTime = 0.50
         for typeIndex in 0 ..< 2 { // 0: 1:  2号位是动作时间
             if attackResult[typeIndex] == 0 {
-                for index in 0 ..< self.boardNode[typeIndex].count {
-                    
-                    let curRootNode  = boardRootNode[typeIndex][index]
-                    let curChessNode = self.boardNode[typeIndex][index]
-                    let updateAction = SCNAction.move(to: SCNVector3(curRootNode.position.x, curRootNode.position.y + 0.01 , curRootNode.position.z), duration: totalTime)
-                    curChessNode.runAction(updateAction)
-                    
-                }
+                totalTime = updateWholeBoardPosition()
             }
         }
         return totalTime
@@ -652,7 +649,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
     func upgradePlayerLevel(_ playerID: Int) -> Bool{
         let playerInfo = playerStatues[playerID]
-        if playerInfo.curCoin > 0 && playerInfo.curCoin < GlobalNumberSettings.maxLevel.rawValue {
+        if playerInfo.curCoin > 0 && playerInfo.curLevel < GlobalNumberSettings.maxLevel.rawValue {
             playerStatues[playerID].curCoin -= 1
             playerStatues[playerID].curLevel += 1
         } else {
@@ -662,6 +659,19 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
     func feedEnemies() -> [chessStruct] {
         return dummyAICrew[curRound]
+    }
+    func getRandomChessStructFromPool(_ curLevel : Int) -> chessStruct { //不可能出现所有都小于等于0的情况 出现了就直接用现有的
+        var randomNum =  Int.randomIntNumber(lower: 0, upper: chessCollectionsLevel[curLevel - 1].count)
+        var randomLevel = Int.randomIntNumber(lower: 1, upper: curLevel)
+        var curChessInfo =  chessCollectionsLevel[randomLevel - 1][randomNum]
+        var randomTime = 1
+        while boardPool[curChessInfo.name!]! <= 0 && randomTime < 10 {
+            randomNum =  Int.randomIntNumber(lower: 0, upper: chessCollectionsLevel[curLevel - 1].count)
+            randomLevel = Int.randomIntNumber(lower: 1, upper: curLevel)
+            curChessInfo =  chessCollectionsLevel[randomLevel - 1][randomNum]
+            randomTime += 1
+        }
+        return curChessInfo
     }
     func initBoardChess() {
         boardNode[0].forEach{(boardNode) in
@@ -677,8 +687,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             for index in 0 ..< curSaleNumber  {
                 let curNode = boardRootNode[0][index + curStartIndex]
                 //if let curNode = playerBoardNode.childNode(withName: "e" + String(index), recursively: true) {
-                let randomNum =  Int.randomIntNumber(lower: 0, upper: chessCollectionsLevel[curPlayerLevel - 1].count)
-                let tempChess = initChessWithPos(pos: curNode.position, sta: EnumsChessStage.forSale.rawValue, info: chessCollectionsLevel[curPlayerLevel - 1][randomNum] )
+                let randomStruct =  getRandomChessStructFromPool(curPlayerLevel)
+                let tempChess = initChessWithPos(pos: curNode.position, sta: EnumsChessStage.forSale.rawValue, info: randomStruct )
                 //tempChess.name = "chessE" + String(index)
                 tempChess.position.y += 0.01
                 boardNode[0].append(tempChess)
