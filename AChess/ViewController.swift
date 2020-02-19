@@ -247,12 +247,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                         return
                                     }
                                 }
-                            } else if curSideIndex == BoardSide.enemySide.rawValue {
-                                if curDragPoint!.chessStatus == EnumsChessStage.owned.rawValue { //如果已经买过了，就移动回到ally side
-                                    curSideIndex = BoardSide.allySide.rawValue
-                                }
                             }
-                          
+                          if curDragPoint!.chessStatus == EnumsChessStage.owned.rawValue { //如果已经买过了，就移动回到ally side
+                              curSideIndex = BoardSide.allySide.rawValue
+                          }
 //                            else if curDragPoint?.chessStatus == EnumsChessStage.forSale.rawValue {
 //                                pointBoardIndex = 0
 //                            }
