@@ -507,7 +507,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
           var curIndex = beginIndex
            if (curIndex < boardNode[0].count) {
                let randomIndex = Int.randomIntNumber(lower: 0, upper: self.boardNode[1].count)
-               let attackResult = attack(self.boardNode[0][curIndex], self.boardNode[1][randomIndex])
+               let attackResult = attack(attackBoard: self.boardNode[0], attackIndex: curIndex, victimBoard: self.boardNode[1], victimIndex: randomIndex)//self.boardNode[0][curIndex], self.boardNode[1][randomIndex]
                
                if attackResult[0] == 0 { //attacker eliminated
                    self.boardNode[0].remove(at: beginIndex)
@@ -612,6 +612,19 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
     func switchGameStage() {
         if curStage == EnumsGameStage.exchangeStage.rawValue {
+            var totalTime = 0.00
+            //处理abilities beforeround事件
+            for index in 0 ..< boardNode[1].count {
+                let curChess = boardNode[1][index]
+                if curChess.abilitiesEndRound.contains(EnumAbilities.liveInGroup.rawValue) {
+                    let copyChess = curChess.copyable()
+                    boardNode[1].insert(copyChess, at: index)
+                    playerBoardNode.addChildNode(copyChess)
+                    let actionTime = updateWholeBoardPosition()
+                    totalTime += actionTime
+                }
+            }
+            //
             curStage = EnumsGameStage.battleStage.rawValue
             //copy the backup data
             playerStatues[curPlayerId].curChesses = []
@@ -619,9 +632,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 playerStatues[curPlayerId].curChesses.append(curChess.copyable())
             }
             //playerStatues[curPlayerId].curChesses = boardNode[1]
-            initDisplay()
-            initBoardChess()
-            delay(0.5) {
+            delay(0.5 + totalTime) {
+                self.initDisplay()
+                self.initBoardChess()
                 self.beginRounds().done { (v1) in
                    self.dealWithDamage().done { (v2) in
                       self.switchGameStage()
@@ -660,12 +673,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
     func getRandomChessStructFromPool(_ curLevel : Int) -> chessStruct { //不可能出现所有都小于等于0的情况 出现了就直接用现有的
         var randomNum =  Int.randomIntNumber(lower: 0, upper: chessCollectionsLevel[curLevel - 1].count)
-        var randomLevel = Int.randomIntNumber(lower: 1, upper: curLevel)
+        var randomLevel = Int.randomIntNumber(lower: 1, upper: curLevel + 1)
         var curChessInfo =  chessCollectionsLevel[randomLevel - 1][randomNum]
         var randomTime = 1
         while boardPool[curChessInfo.name!]! <= 0 && randomTime < 10 {
             randomNum =  Int.randomIntNumber(lower: 0, upper: chessCollectionsLevel[curLevel - 1].count)
-            randomLevel = Int.randomIntNumber(lower: 1, upper: curLevel)
+            randomLevel = Int.randomIntNumber(lower: 1, upper: curLevel + 1)
             curChessInfo =  chessCollectionsLevel[randomLevel - 1][randomNum]
             randomTime += 1
         }
