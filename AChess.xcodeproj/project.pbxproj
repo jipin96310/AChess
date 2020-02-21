@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		543BBDDEA2A1C24D4899855C /* Pods_AChess_AChessUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1416B5104597841945B7868 /* Pods_AChess_AChessUITests.framework */; };
-		7F163695EECFC4BCBF7BC426 /* Pods_AChess.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F51A63BA5838B96F0AB20344 /* Pods_AChess.framework */; };
+		7F163695EECFC4BCBF7BC426 /* Pods_AChess.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F51A63BA5838B96F0AB20344 /* Pods_AChess.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		86417A26C0F51475DA98F201 /* Pods_AChessTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8298695AAE5F3885E811D13E /* Pods_AChessTests.framework */; };
 		C709C50823DD86D100944C01 /* utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = C709C50723DD86D100944C01 /* utils.swift */; };
 		C709C50A23DD86EF00944C01 /* enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = C709C50923DD86EF00944C01 /* enums.swift */; };
@@ -28,6 +28,7 @@
 		C771AFF523E80CC5007C99F0 /* extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C771AFF423E80CC5007C99F0 /* extensions.swift */; };
 		C792198623F66978008B6950 /* protocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C792198523F66978008B6950 /* protocol.swift */; };
 		C7AFB4FC23EAF8B400B21E09 /* customPlanenode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7AFB4FB23EAF8B400B21E09 /* customPlanenode.swift */; };
+		C7DB34BB23FEC88200DBE512 /* abilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DB34BA23FEC88200DBE512 /* abilities.swift */; };
 		C7DD950823DE9ACE0096CE0C /* actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DD950723DE9ACE0096CE0C /* actions.swift */; };
 		C7DD950E23DEB8F80096CE0C /* particals.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = C7DD950D23DEB8F80096CE0C /* particals.scnassets */; };
 		C7DD951323DF06590096CE0C /* baseChessNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DD951223DF06590096CE0C /* baseChessNode.swift */; };
@@ -50,6 +51,18 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		C7300486240012040085F358 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		2BF1ED6B6AB2FA0F52DFAF1F /* Pods-AChess-AChessUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AChess-AChessUITests.debug.xcconfig"; path = "Target Support Files/Pods-AChess-AChessUITests/Pods-AChess-AChessUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		413365B4EE492798AD9DC4EB /* Pods-AChessTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AChessTests.debug.xcconfig"; path = "Target Support Files/Pods-AChessTests/Pods-AChessTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -61,6 +74,7 @@
 		C709C50923DD86EF00944C01 /* enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = enums.swift; sourceTree = "<group>"; };
 		C72D0EC523DFF8F800CC0EFB /* textNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = textNode.swift; sourceTree = "<group>"; };
 		C72E92F523F195FD008F890F /* chessCollections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = chessCollections.swift; sourceTree = "<group>"; };
+		C7300483240010860085F358 /* PromiseKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PromiseKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C734269E23D9E338003B7697 /* AChess.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AChess.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C73426A123D9E338003B7697 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C73426A323D9E338003B7697 /* art.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = art.scnassets; sourceTree = "<group>"; };
@@ -81,6 +95,7 @@
 		C771AFF423E80CC5007C99F0 /* extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = extensions.swift; sourceTree = "<group>"; };
 		C792198523F66978008B6950 /* protocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = protocol.swift; sourceTree = "<group>"; };
 		C7AFB4FB23EAF8B400B21E09 /* customPlanenode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = customPlanenode.swift; sourceTree = "<group>"; };
+		C7DB34BA23FEC88200DBE512 /* abilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = abilities.swift; sourceTree = "<group>"; };
 		C7DD950723DE9ACE0096CE0C /* actions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = actions.swift; sourceTree = "<group>"; };
 		C7DD950D23DEB8F80096CE0C /* particals.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = particals.scnassets; sourceTree = "<group>"; };
 		C7DD951223DF06590096CE0C /* baseChessNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = baseChessNode.swift; sourceTree = "<group>"; };
@@ -133,6 +148,7 @@
 		9E6EE20B3FFDABF1885B3468 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C7300483240010860085F358 /* PromiseKit.framework */,
 				F51A63BA5838B96F0AB20344 /* Pods_AChess.framework */,
 				A1416B5104597841945B7868 /* Pods_AChess_AChessUITests.framework */,
 				8298695AAE5F3885E811D13E /* Pods_AChessTests.framework */,
@@ -217,6 +233,7 @@
 				C771AFF423E80CC5007C99F0 /* extensions.swift */,
 				C792198523F66978008B6950 /* protocol.swift */,
 				C766178923FD7EF700D11EBF /* nodeColor.swift */,
+				C7DB34BA23FEC88200DBE512 /* abilities.swift */,
 			);
 			path = utils;
 			sourceTree = "<group>";
@@ -243,6 +260,7 @@
 				C734269B23D9E338003B7697 /* Frameworks */,
 				C734269C23D9E338003B7697 /* Resources */,
 				81EF15AE958431E8991A5C4A /* [CP] Embed Pods Frameworks */,
+				C7300486240012040085F358 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -474,6 +492,7 @@
 			files = (
 				C709C50823DD86D100944C01 /* utils.swift in Sources */,
 				C7DD950823DE9ACE0096CE0C /* actions.swift in Sources */,
+				C7DB34BB23FEC88200DBE512 /* abilities.swift in Sources */,
 				C792198623F66978008B6950 /* protocol.swift in Sources */,
 				C709C50A23DD86EF00944C01 /* enums.swift in Sources */,
 				C7AFB4FC23EAF8B400B21E09 /* customPlanenode.swift in Sources */,
@@ -659,8 +678,10 @@
 			baseConfigurationReference = C958387DE5F93F17C6EA051C /* Pods-AChess.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 3Q9AU22DAF;
+				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = AChess/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -668,6 +689,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = zhsoho.AChess;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -678,8 +700,10 @@
 			baseConfigurationReference = FE236FCB68789C2173E820BE /* Pods-AChess.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 3Q9AU22DAF;
+				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = AChess/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -687,6 +711,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = zhsoho.AChess;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
