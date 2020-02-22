@@ -470,14 +470,56 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 //        }
                        
     }
+    func appendNewNodeToBoard(curBoardSide:Int, curChess: baseChessNode) {
+        boardNode[curBoardSide].append(curChess)
+        playerBoardNode.addChildNode(curChess)
+    }
+    func generateUpgradeChess( _ subChessNodes : [baseChessNode]) -> baseChessNode{//用于合成高等级棋子 保留3个棋子的所有特效  待完善 todo
+        //之后可以增加一些判断是否超过2级
+        return baseChessNode(statusNum: EnumsChessStage.owned.rawValue , chessInfo: chessStruct(name: subChessNodes[0].chessName, desc: subChessNodes[0].chessDesc, atkNum: subChessNodes[0].atkNum! * 2, defNum: subChessNodes[0].defNum! * 2, chessRarity: subChessNodes[0].chessRarity, chessLevel: subChessNodes[0].chessLevel + 1, abilitiesBefore: subChessNodes[0].abilitiesBefore, abilitiesAfter: subChessNodes[0].abilitiesAfter, abilitiesEndRound: subChessNodes[0].abilitiesEndRound, rattleFunc: subChessNodes[0].rattleFunc, inheritFunc: subChessNodes[0].inheritFunc))
+    }
     func updateWholeBoardPosition() -> Double { //update all chesses' position
         let totalTime = 0.50
+        var chessTimesDic:[[String : Int]] = [[:],[:],[:]] //棋子map
+       
+        //
+        for index in 0 ..< boardNode.count {
+            let curBoardSide = boardNode[index]
+            let startIndex = (GlobalNumberSettings.chessNumber.rawValue - curBoardSide.count) / 2
+            for innerIndex in 0 ..< curBoardSide.count {
+                //let curRootNode = boardRootNode[index][innerIndex + startIndex]
+                let curChessNode = boardNode[index][innerIndex]
+                
+                if (index == BoardSide.allySide.rawValue && curChessNode.chessLevel < 3) { //只有己方才触发
+                    if chessTimesDic[curChessNode.chessLevel][curChessNode.chessName] != nil {
+                        chessTimesDic[curChessNode.chessLevel][curChessNode.chessName]! += 1
+                        print("add", chessTimesDic)
+                        if chessTimesDic[curChessNode.chessLevel][curChessNode.chessName]! >= 3 {
+                            var subChessNodes:[baseChessNode] = []
+                            boardNode[index] = boardNode[index].filter{(chessNode) -> Bool in
+                            subChessNodes.append(chessNode)
+                            chessNode.removeFromParentNode() //从棋盘上删除
+                            return chessNode.chessName != curChessNode.chessName };
+                            let newNode = generateUpgradeChess(subChessNodes)
+                            appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: newNode)//直接置入本方场内 后期可以修改为置入等待区域
+                        }
+                    } else {
+                        chessTimesDic[curChessNode.chessLevel][curChessNode.chessName] = 1
+                        print("init", chessTimesDic)
+                    }
+                    
+                }
+            }
+        }
+        
+        // chess positions adjust actions
         for index in 0 ..< boardNode.count {
             let curBoardSide = boardNode[index]
             let startIndex = (GlobalNumberSettings.chessNumber.rawValue - curBoardSide.count) / 2
             for innerIndex in 0 ..< curBoardSide.count {
                 let curRootNode = boardRootNode[index][innerIndex + startIndex]
                 let curChessNode = boardNode[index][innerIndex]
+              
                 let updateAction = SCNAction.move(to: SCNVector3(curRootNode.position.x, curRootNode.position.y + 0.01 , curRootNode.position.z), duration: totalTime)
                 curChessNode.runAction(updateAction)
             }
