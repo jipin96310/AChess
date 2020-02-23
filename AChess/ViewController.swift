@@ -30,8 +30,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var curFocusPoint: SCNNode? = nil
     //以下数据需要保存
     var boardPool : [String : Int] = ["" : 0] //卡池
-    var boardNode :[[baseChessNode]] = [[],[]] //本方棋子
-    var boardRootNode :[[SCNNode]] = [[],[]] //对面棋子
+    var boardNode :[[baseChessNode]] = [[],[]] //chesses
+    var boardRootNode :[[SCNNode]] = [[],[]] //chess holder
+    var storageNode : [baseChessNode] = []
+    var storageRootNode : [SCNNode] = []
     //var backupBoardNode:[[baseChessNode]] = [[],[]]
     var playerStatues: [(curCoin: Int,curLevel: Int,curBlood: Int,curChesses: [baseChessNode])] = [(curCoin: GlobalNumberSettings.roundBaseCoin.rawValue + 10, curLevel: 1, curBlood: 40, curChesses: []), (curCoin: GlobalNumberSettings.roundBaseCoin.rawValue, curLevel: 1, curBlood: 40, curChesses: [])] {
         didSet {
@@ -108,8 +110,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 boardPool[curChess.name!] = specialFacotr
             }
         }
-        print("bp", boardPool)
-       
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -196,9 +196,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     let curPressNode = hitTestResult2.first!.node
                     if curPressNode.name == EnumNodeName.saleStage.rawValue {
                         curPressNode.geometry?.firstMaterial?.diffuse.contents = UIColor.blue
+                    } else if curPressNode.name == EnumNodeName.storagePlace.rawValue {
+                        curPressNode.geometry?.firstMaterial?.diffuse.contents = UIColor.blue
                     } else {
                         if let saleStage = playerBoardNode.childNode(withName: EnumNodeName.saleStage.rawValue, recursively: true) {
                             saleStage.geometry?.firstMaterial?.diffuse.contents = UIColor.black
+                        }
+                        if let storagePlace = playerBoardNode.childNode(withName: EnumNodeName.storagePlace.rawValue, recursively: true) {
+                            storagePlace.geometry?.firstMaterial?.diffuse.contents = UIColor.black
                         }
                     }
                 }
@@ -493,7 +498,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 if (index == BoardSide.allySide.rawValue && curChessNode.chessLevel < 3) { //只有己方才触发
                     if chessTimesDic[curChessNode.chessLevel][curChessNode.chessName] != nil {
                         chessTimesDic[curChessNode.chessLevel][curChessNode.chessName]! += 1
-                        print("add", chessTimesDic)
                         if chessTimesDic[curChessNode.chessLevel][curChessNode.chessName]! >= 3 {
                             var subChessNodes:[baseChessNode] = []
                             boardNode[index] = boardNode[index].filter{(chessNode) -> Bool in
@@ -505,7 +509,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         }
                     } else {
                         chessTimesDic[curChessNode.chessLevel][curChessNode.chessName] = 1
-                        print("init", chessTimesDic)
                     }
                     
                 }
@@ -628,7 +631,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
        // }
     }
     func initBoardRootNode () { //初始化底座node。是必须的 游戏开始必须调用
-        for index in 1 ..< 8 {
+        for index in 1 ... GlobalNumberSettings.chessNumber.rawValue {
             if let curNode = playerBoardNode.childNode(withName: "e" + String(index), recursively: true) {
                 //
                 let body = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(node: curNode, options: [SCNPhysicsShape.Option.scale: SCNVector3(0.01, 0.01, 0.01)]))
@@ -640,7 +643,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
         }
         
-        for index in 1 ..< 8 {
+        for index in 1 ... GlobalNumberSettings.chessNumber.rawValue {
             if let curNode = playerBoardNode.childNode(withName: "a" + String(index), recursively: true) {
                 //
                 let body = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(node: curNode, options: [SCNPhysicsShape.Option.scale: SCNVector3(0.01, 0.01, 0.01)]))
@@ -649,6 +652,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 curNode.physicsBody?.contactTestBitMask = BitMaskCategoty.hand.rawValue
                 //
                 boardRootNode[1].append(curNode)
+            }
+        }
+        for index in 1 ..< GlobalCommonNumber.storageNumber {
+            if let curNode = playerBoardNode.childNode(withName: "s" + String(index), recursively: true) {
+                storageRootNode.append(curNode)
             }
         }
     }
@@ -1003,7 +1011,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             let planeNode = node as? customPlaneNode else {
             return
         }
-        //print(planeNode.position)
         planeNode.update(from: planeAnchor)
     }
 
@@ -1015,7 +1022,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         if planeNode.position.y > 0 {
             return
         }
-        //print(planeNode.position)
         planeNode.update(from: planeAnchor)
     }
 }
