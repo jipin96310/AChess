@@ -165,7 +165,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                 rootNode.removeFromParentNode() //it is actually a chessNode not a root node
                                 
                                 if let rootNodePos = findChessPos(rootNode) {
-                                    boardNode[rootNodePos[0]].remove(at: rootNodePos[1])
+                                    if rootNodePos[0] < 2 {
+                                      boardNode[rootNodePos[0]].remove(at: rootNodePos[1])
+                                    } else {
+                                        storageNode.remove(at: rootNodePos[1])
+                                    }
                                 }
                                
                                 self.sceneView.scene.rootNode.addChildNode(curDragPoint!)
@@ -289,6 +293,22 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                 updateStorageBoardPosition()
                             } else if curDragPoint?.chessStatus == EnumsChessStage.owned.rawValue { //已购买
                             
+                            if storageNode.count < GlobalCommonNumber.storageNumber { //enough space to place 还可以放
+                                if curDragPoint != nil { //storage暂时较少用到 不封装放置方法
+                                    storageNode.append(curDragPoint!)
+                                    curDragPoint?.position.y = 0.01
+                                    playerBoardNode.addChildNode(curDragPoint!)
+                                }
+                                updateStorageBoardPosition()
+                            } else {
+                                if curDragPoint != nil { //storage暂时较少用到 不封装放置方法
+                                    boardNode[BoardSide.allySide.rawValue].append(curDragPoint!)
+                                    curDragPoint?.position.y = 0.01
+                                    playerBoardNode.addChildNode(curDragPoint!)
+                                }
+                                updateWholeBoardPosition()
+                            }
+                            
                             }
                         } else { //无需判断长度 因为之前的地方肯定有位置给它
                             var pointBoardIndex = 0
@@ -362,15 +382,21 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
        return nodePos
     }
     func findChessPos( _ rootNode: SCNNode ) -> [Int]? {
-          var nodePos: [Int]? = nil
+          var nodePos: [Int]? = nil //第一位 2的话为storagenode
           for out in 0 ..< boardNode.count {
               for index in 0 ..< boardNode[out].count { //enemy those code can be combined
                                 let curNode = boardNode[out][index]
                                 if curNode == rootNode {
                                     nodePos = [out, index]
+                                    break;
                                  }
               }
           }
+        for index in 0 ..< storageNode.count {
+            if storageNode[index] == rootNode {
+                nodePos = [2, index]
+            }
+        }
          return nodePos
       }
     func inserChessPos(insertChess: baseChessNode, insertTo: baseChessNode) -> Bool{
