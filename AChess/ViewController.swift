@@ -741,6 +741,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     let copyChess = curChess.copyable()
                     boardNode[1].insert(copyChess, at: index)
                     playerBoardNode.addChildNode(copyChess)
+                    curChess.abilityTrigger(abilityEnum: AbilitiesName.liveInGroup.rawValue)
                     let actionTime = updateWholeBoardPosition()
                     totalTime += actionTime
                 }
