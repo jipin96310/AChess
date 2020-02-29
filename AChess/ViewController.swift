@@ -970,18 +970,29 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         let t1 = 0.1
         let t2 = 0.7
         let t3 = 0.3
-        if let parentBound = playerBoardNode.childNode(withName: "", recursively: true) {
-            //
-        }
         if let boardTextTemp = playerBoardNode.childNode(withName: "boardTextNode", recursively: true) {
-                   let tempText: SCNText = boardTextTemp.geometry as! SCNText
-                   tempText.string = TextContent
-                   boardTextTemp.runAction(SCNAction.sequence([
-                       SCNAction.fadeIn(duration: t1),
-                       SCNAction.wait(duration: t2),
-                       SCNAction.fadeOut(duration: t3)
-                   ]))
+        if let parentBound = playerBoardNode.childNode(withName: "middleLine", recursively: true) {
+            let tempTextGeo: SCNText = boardTextTemp.geometry as! SCNText
+            tempTextGeo.string = TextContent
+            
+            
+            let (min, max) = boardTextTemp.parent!.boundingBox
+            let dx = min.x + 0.5 * (max.x - min.x)
+            let dy = min.y + 0.5 * (max.y - min.y)
+            let dz = min.z + 0.5 * (max.z - min.z)
+            boardTextTemp.pivot = SCNMatrix4MakeTranslation(dx, dy, dz)
+           
+            
+            
+            boardTextTemp.runAction(SCNAction.sequence([
+                SCNAction.fadeIn(duration: t1),
+                SCNAction.wait(duration: t2),
+                SCNAction.fadeOut(duration: t3)
+            ]))
+            }
+           
         }
+        
         return t1 + t2 + t3
     }
     func initPlayerBoard(hitTestResult: ARHitTestResult) {
