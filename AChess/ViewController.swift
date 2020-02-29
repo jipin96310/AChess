@@ -52,6 +52,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
      var levelTextNode = TextNode(textScale: SCNVector3(0.1, 0.3, 1))
      var enemyBloodTextNode = TextNode(textScale: SCNVector3(0.1, 0.3, 1))
      var playerBloodTextNode = TextNode(textScale: SCNVector3(0.1, 0.3, 1))
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -621,7 +622,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
     func aRoundTaskAsync(_ beginIndex: inout Int, _ resolver: Resolver<Any>) {
           var curIndex = beginIndex
-           if (curIndex < boardNode[0].count) {
+           if (curIndex < boardNode[0].count && boardNode[1].count > 0) { //当前游标小于进攻方数量
                let randomIndex = Int.randomIntNumber(lower: 0, upper: self.boardNode[1].count)
                let attackResult = attack(attackBoard: self.boardNode[0], attackIndex: curIndex, victimBoard: self.boardNode[1], victimIndex: randomIndex)//self.boardNode[0][curIndex], self.boardNode[1][randomIndex]
                
@@ -733,34 +734,37 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
     func switchGameStage() {
         if curStage == EnumsGameStage.exchangeStage.rawValue {
-            var totalTime = 0.00
-            //处理abilities beforeround事件
-            for index in 0 ..< boardNode[1].count {
-                let curChess = boardNode[1][index]
-                if curChess.abilitiesEndRound.contains(EnumAbilities.liveInGroup.rawValue) {
-                    let copyChess = curChess.copyable()
-                    boardNode[1].insert(copyChess, at: index)
-                    playerBoardNode.addChildNode(copyChess)
-                    curChess.abilityTrigger(abilityEnum: AbilitiesName.liveInGroup.rawValue)
-                    let actionTime = updateWholeBoardPosition()
-                    totalTime += actionTime
+            let delayTime = PlayerBoardTextAppear(TextContent: EnumStageName.battleStage.rawValue) //弹出切换回合提示
+            delay(delayTime) {
+                var totalTime = 0.00
+                //处理abilities beforeround事件
+                for index in 0 ..< self.boardNode[1].count {
+                    let curChess = self.boardNode[1][index]
+                    if curChess.abilitiesEndRound.contains(EnumAbilities.liveInGroup.rawValue) {
+                        let copyChess = curChess.copyable()
+                        self.boardNode[1].insert(copyChess, at: index)
+                        self.playerBoardNode.addChildNode(copyChess)
+                        curChess.abilityTrigger(abilityEnum: AbilitiesName.liveInGroup.rawValue)
+                        let actionTime = self.updateWholeBoardPosition()
+                        totalTime += actionTime
+                    }
                 }
-            }
-            //
-            curStage = EnumsGameStage.battleStage.rawValue
-            //copy the backup data
-            playerStatues[curPlayerId].curChesses = []
-            boardNode[1].forEach{(curChess) in
-                playerStatues[curPlayerId].curChesses.append(curChess.copyable())
-            }
-            //playerStatues[curPlayerId].curChesses = boardNode[1]
-            delay(0.5 + totalTime) {
-                self.initDisplay()
-                self.initBoardChess()
-                self.beginRounds().done { (v1) in
-                   self.dealWithDamage().done { (v2) in
-                      self.switchGameStage()
-                    } //伤害清算
+                //
+                self.curStage = EnumsGameStage.battleStage.rawValue
+                //copy the backup data
+                self.playerStatues[self.curPlayerId].curChesses = []
+                self.boardNode[1].forEach{(curChess) in
+                    self.playerStatues[self.curPlayerId].curChesses.append(curChess.copyable())
+                }
+                //playerStatues[curPlayerId].curChesses = boardNode[1]
+                delay(0.5 + totalTime) {
+                    self.initDisplay()
+                    self.initBoardChess()
+                    self.beginRounds().done { (v1) in
+                       self.dealWithDamage().done { (v2) in
+                          self.switchGameStage()
+                        } //伤害清算
+                    }
                 }
             }
         } else if curStage == EnumsGameStage.battleStage.rawValue {
@@ -962,6 +966,24 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
            
        }
     /////////////////end////////
+    func PlayerBoardTextAppear(TextContent: String) -> Double{
+        let t1 = 0.1
+        let t2 = 0.7
+        let t3 = 0.3
+        if let parentBound = playerBoardNode.childNode(withName: "", recursively: true) {
+            //
+        }
+        if let boardTextTemp = playerBoardNode.childNode(withName: "boardTextNode", recursively: true) {
+                   let tempText: SCNText = boardTextTemp.geometry as! SCNText
+                   tempText.string = TextContent
+                   boardTextTemp.runAction(SCNAction.sequence([
+                       SCNAction.fadeIn(duration: t1),
+                       SCNAction.wait(duration: t2),
+                       SCNAction.fadeOut(duration: t3)
+                   ]))
+        }
+        return t1 + t2 + t3
+    }
     func initPlayerBoard(hitTestResult: ARHitTestResult) {
         playerBoardNode = createPlayerBoard()
         //playerBoardNode.eulerAngles = SCNVector3(45.degreesToRadius, 0, 0)
@@ -976,9 +998,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         //playGroundNode.physicsBody?.categoryBitMask = BitMaskCategoty.playGround.rawValue
         //playGroundNode.physicsBody?.contactTestBitMask = BitMaskCategoty.baseCard.rawValue
         self.sceneView.scene.rootNode.addChildNode(playerBoardNode)
+       
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.01, execute: {
                                        self.initGameTest()
-                                   })
+        })
        
     }
     func initHandNode() {
