@@ -72,6 +72,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        
         super.viewWillAppear(animated)
         
         // Create a session configuration
@@ -734,7 +735,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
     func switchGameStage() {
         if curStage == EnumsGameStage.exchangeStage.rawValue {
-            let delayTime = PlayerBoardTextAppear(TextContent: EnumStageName.battleStage.rawValue) //弹出切换回合提示
+            let delayTime = PlayerBoardTextAppear(TextContent: "BattleStage".localized) //弹出切换回合提示
             delay(delayTime) {
                 var totalTime = 0.00
                 //处理abilities beforeround事件
