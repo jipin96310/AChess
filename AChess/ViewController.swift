@@ -544,7 +544,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
     func generateUpgradeChess( _ subChessNodes : [baseChessNode]) -> baseChessNode{//用于合成高等级棋子 保留3个棋子的所有特效  待完善 todo
         //之后可以增加一些判断是否超过2级
-        return baseChessNode(statusNum: EnumsChessStage.owned.rawValue , chessInfo: chessStruct(name: subChessNodes[0].chessName, desc: subChessNodes[0].chessDesc, atkNum: subChessNodes[0].atkNum! * 2, defNum: subChessNodes[0].defNum! * 2, chessRarity: subChessNodes[0].chessRarity, chessLevel: subChessNodes[0].chessLevel + 1, abilitiesBefore: subChessNodes[0].abilitiesBefore, abilitiesAfter: subChessNodes[0].abilitiesAfter, abilitiesEndRound: subChessNodes[0].abilitiesEndRound, rattleFunc: subChessNodes[0].rattleFunc, inheritFunc: subChessNodes[0].inheritFunc))
+        return baseChessNode(statusNum: EnumsChessStage.owned.rawValue , chessInfo: chessStruct(name: subChessNodes[0].chessName, desc: subChessNodes[0].chessDesc, atkNum: subChessNodes[0].atkNum! * 2, defNum: subChessNodes[0].defNum! * 2, chessRarity: subChessNodes[0].chessRarity, chessLevel: subChessNodes[0].chessLevel + 1, abilities: subChessNodes[0].abilities, rattleFunc: subChessNodes[0].rattleFunc, inheritFunc: subChessNodes[0].inheritFunc))
     }
     func updateStorageBoardPosition() -> Double{
         let totalTime = 0.5
@@ -621,29 +621,31 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
         }
     }
-    func aRoundTaskAsync(_ beginIndex: inout Int, _ resolver: Resolver<Any>) {
-          var curIndex = beginIndex
-           if (curIndex < boardNode[0].count && boardNode[1].count > 0) { //当前游标小于进攻方数量
-               let randomIndex = Int.randomIntNumber(lower: 0, upper: self.boardNode[1].count)
-               let attackResult = attack(attackBoard: self.boardNode[0], attackIndex: curIndex, victimBoard: self.boardNode[1], victimIndex: randomIndex)//self.boardNode[0][curIndex], self.boardNode[1][randomIndex]
+    func aRoundTaskAsync(_ beginIndex: inout [Int],_ attSide: Int, _ resolver: Resolver<Any>) {
+          var beginIndexCopy = beginIndex
+          var curIndex = beginIndex[attSide]
+          var nextSide = attSide == BoardSide.enemySide.rawValue ? BoardSide.allySide.rawValue : BoardSide.enemySide.rawValue
+           if (curIndex < boardNode[attSide].count && boardNode[nextSide].count > 0) { //当前游标小于进攻方数量
+               let randomIndex = Int.randomIntNumber(lower: 0, upper: self.boardNode[nextSide].count)
+               let attackResult = attack(attackBoard: self.boardNode[attSide], attackIndex: curIndex, victimBoard: self.boardNode[nextSide], victimIndex: randomIndex)//self.boardNode[0][curIndex], self.boardNode[1][randomIndex]
                
                if attackResult[0] == 0 { //attacker eliminated
-                   self.boardNode[0].remove(at: beginIndex)
+                   self.boardNode[attSide].remove(at: curIndex)
                } else {
-                 curIndex += 1
+                   beginIndexCopy[attSide] += 1
                 }
-               if attackResult[1] == 0 { //victim elinminated
-                   self.boardNode[1].remove(at: randomIndex)
+               if attackResult[nextSide] == 0 { //victim elinminated
+                   self.boardNode[nextSide].remove(at: randomIndex)
                }
                delay(attackResult[2]) {
                 let updateTime = self.updateChessBoardPosition(attackResult)
                 delay(updateTime + 0.10) { //
-                   self.aRoundTaskAsync(&curIndex, resolver)
+                   self.aRoundTaskAsync(&beginIndexCopy, nextSide, resolver)
                 }
                 }
-           } else if boardNode[0].count > 0 && boardNode[1].count > 0 {
-               var nextRoundIndex = 0
-               self.aRoundTaskAsync(&nextRoundIndex, resolver)//从头开始
+           } else if boardNode[attSide].count > 0 && boardNode[nextSide].count > 0 {
+               var nextRoundIndex = [0, 0]
+               self.aRoundTaskAsync(&nextRoundIndex,nextSide, resolver)//从头开始
            } else {
             resolver.fulfill("success")
         }
@@ -696,8 +698,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     func beginRounds() -> Promise<Any>{ //当前默认是敌人方进行攻击 后续调整
        // while boardNode[0].count > 0 && boardNode[1].count > 0 {
         return Promise<Any>(resolver: { (resolver) in
-           var beginIndex = 0
-           aRoundTaskAsync(&beginIndex, resolver)
+           var beginIndex = [0, 0]
+           var randomSide = Int.randomIntNumber(lower: 0, upper: 2)
+           aRoundTaskAsync(&beginIndex,randomSide, resolver)
             })
 //            var beginIndex = 0
 //            aRoundTask(&beginIndex)
@@ -741,11 +744,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 //处理abilities beforeround事件
                 for index in 0 ..< self.boardNode[1].count {
                     let curChess = self.boardNode[1][index]
-                    if curChess.abilitiesEndRound.contains(EnumAbilities.liveInGroup.rawValue) {
+                    if curChess.abilities.contains(EnumAbilities.liveInGroup.rawValue) {
                         let copyChess = curChess.copyable()
                         self.boardNode[1].insert(copyChess, at: index)
                         self.playerBoardNode.addChildNode(copyChess)
-                        curChess.abilityTrigger(abilityEnum: AbilitiesName.liveInGroup.rawValue)
+                        curChess.abilityTrigger(abilityEnum: EnumString.liveInGroup.rawValue.localized)
                         let actionTime = self.updateWholeBoardPosition()
                         totalTime += actionTime
                     }
@@ -769,17 +772,20 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 }
             }
         } else if curStage == EnumsGameStage.battleStage.rawValue {
-            curStage = EnumsGameStage.exchangeStage.rawValue
-            boardNode[1].forEach{(curChess) in
-                curChess.removeFromParentNode()
+            let delayTime = PlayerBoardTextAppear(TextContent: "ExchangeStage".localized) //弹出切换回合提示
+            delay(delayTime){
+                self.curStage = EnumsGameStage.exchangeStage.rawValue
+                self.boardNode[1].forEach{(curChess) in
+                    curChess.removeFromParentNode()
+                }
+                self.boardNode[1] = []
+                self.playerStatues[self.curPlayerId].curChesses.forEach{(curChess) in
+                    self.boardNode[1].append(curChess.copyable())
+                }
+                
+                self.initDisplay()
+                self.initBoardChess()
             }
-            boardNode[1] = []
-            playerStatues[curPlayerId].curChesses.forEach{(curChess) in
-                boardNode[1].append(curChess.copyable())
-            }
-            
-            initDisplay()
-            initBoardChess()
         }
         //here update every players info, if there'll be multiplayers mode, you should get other players info, and then update to the playerStatues array
         //now we only update current player
@@ -799,13 +805,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         return dummyAICrew[curRound]
     }
     func getRandomChessStructFromPool(_ curLevel : Int) -> chessStruct { //不可能出现所有都小于等于0的情况 出现了就直接用现有的
-        var randomNum =  Int.randomIntNumber(lower: 0, upper: chessCollectionsLevel[curLevel - 1].count)
         var randomLevel = Int.randomIntNumber(lower: 1, upper: curLevel + 1)
+        var randomNum =  Int.randomIntNumber(lower: 0, upper: chessCollectionsLevel[randomLevel - 1].count)
         var curChessInfo =  chessCollectionsLevel[randomLevel - 1][randomNum]
         var randomTime = 1
         while boardPool[curChessInfo.name!]! <= 0 && randomTime < 10 {
-            randomNum =  Int.randomIntNumber(lower: 0, upper: chessCollectionsLevel[curLevel - 1].count)
             randomLevel = Int.randomIntNumber(lower: 1, upper: curLevel + 1)
+            randomNum =  Int.randomIntNumber(lower: 0, upper: chessCollectionsLevel[randomLevel - 1].count)
             curChessInfo =  chessCollectionsLevel[randomLevel - 1][randomNum]
             randomTime += 1
         }
