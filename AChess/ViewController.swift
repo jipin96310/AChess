@@ -218,7 +218,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         {
             let touchLocation = sender.location(in: sceneView)
             let hitTestResult = sceneView.hitTest(touchLocation, options: [SCNHitTestOption.ignoreHiddenNodes: true, SCNHitTestOption.rootNode: playerBoardNode])
-            if !hitTestResult.isEmpty {
+            if !hitTestResult.isEmpty && curDragPoint != nil {
                 let curPressNode = hitTestResult.first!.node
                 //if curDragPoint?.name?.first == "a" { //抓的是已经购买的牌
               
