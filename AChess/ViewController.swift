@@ -558,24 +558,25 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
     func updateWholeBoardPosition() -> Double { //update all chesses' position
         let totalTime = 0.50
-        var chessTimesDic:[[String : Int]] = [[:],[:],[:]] //棋子map
+        var chessTimesDic:[[String : Int]] = [[:],[:],[:]] //棋子map 刷新问题
        
         //
         for index in 0 ..< boardNode.count {
-            let curBoardSide = boardNode[index]
-            let startIndex = (GlobalNumberSettings.chessNumber.rawValue - curBoardSide.count) / 2
-            for innerIndex in 0 ..< curBoardSide.count {
+            for innerIndex in 0 ..< boardNode[index].count {
                 //let curRootNode = boardRootNode[index][innerIndex + startIndex]
+                let startIndex = (GlobalNumberSettings.chessNumber.rawValue - boardNode[index].count) / 2
                 let curChessNode = boardNode[index][innerIndex]
                 
                 if (index == BoardSide.allySide.rawValue && curChessNode.chessLevel < 3) { //只有己方才触发
                     if chessTimesDic[curChessNode.chessLevel][curChessNode.chessName] != nil {
                         chessTimesDic[curChessNode.chessLevel][curChessNode.chessName]! += 1
-                        if chessTimesDic[curChessNode.chessLevel][curChessNode.chessName]! >= 3 {
+                        if chessTimesDic[curChessNode.chessLevel][curChessNode.chessName]! >= 3 { //合成
                             var subChessNodes:[baseChessNode] = []
                             boardNode[index] = boardNode[index].filter{(chessNode) -> Bool in
-                            subChessNodes.append(chessNode)
-                            chessNode.removeFromParentNode() //从棋盘上删除
+                                if (chessNode.chessName == curChessNode.chessName) {
+                                    subChessNodes.append(chessNode)
+                                    chessNode.removeFromParentNode() //从棋盘上删除
+                                }
                             return chessNode.chessName != curChessNode.chessName };
                             let newNode = generateUpgradeChess(subChessNodes)
                             appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: newNode)//直接置入本方场内 后期可以修改为置入等待区域
@@ -621,55 +622,81 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
         }
     }
+    func attackActivity() {
+        
+    }
     func aRoundTaskAsync(_ beginIndex: inout [Int],_ attSide: Int, _ resolver: Resolver<Any>) {
-          var beginIndexCopy = beginIndex
-          var curIndex = beginIndex[attSide]
-          var nextSide = attSide == BoardSide.enemySide.rawValue ? BoardSide.allySide.rawValue : BoardSide.enemySide.rawValue
-           if (curIndex < boardNode[attSide].count && boardNode[nextSide].count > 0) { //当前游标小于进攻方数量
-               let randomIndex = Int.randomIntNumber(lower: 0, upper: self.boardNode[nextSide].count)
-               let attackResult = attack(attackBoard: self.boardNode[attSide], attackIndex: curIndex, victimBoard: self.boardNode[nextSide], victimIndex: randomIndex)//self.boardNode[0][curIndex], self.boardNode[1][randomIndex]
-               
-               if attackResult[0] == 0 { //attacker eliminated
-                   self.boardNode[attSide].remove(at: curIndex)
-               } else {
-                   beginIndexCopy[attSide] += 1
-                }
-               if attackResult[nextSide] == 0 { //victim elinminated
-                   self.boardNode[nextSide].remove(at: randomIndex)
-               }
-               delay(attackResult[2]) {
+        var beginIndexCopy = beginIndex
+        var curIndex = beginIndex[attSide] //拷贝的
+        var nextSide = attSide == BoardSide.enemySide.rawValue ? BoardSide.allySide.rawValue : BoardSide.enemySide.rawValue
+        if (curIndex < boardNode[attSide].count && boardNode[nextSide].count > 0) { //当前游标小于进攻方数量
+            let attacker = self.boardNode[attSide][curIndex]
+            let randomIndex = Int.randomIntNumber(lower: 0, upper: self.boardNode[nextSide].count)
+            let attackResult = attack(attackBoard: self.boardNode[attSide], attackIndex: curIndex, victimBoard: self.boardNode[nextSide], victimIndex: randomIndex)//self.boardNode[0][curIndex], self.boardNode[1][randomIndex]
+            //
+            //
+            if attackResult[0] == 0 { //attacker eliminated
+                self.boardNode[attSide].remove(at: curIndex)
+            } else {
+                beginIndexCopy[attSide] += 1
+            }
+            if attackResult[1] == 0 { //victim elinminated
+                self.boardNode[nextSide].remove(at: randomIndex)
+            }
+            delay(attackResult[2]) {
                 let updateTime = self.updateChessBoardPosition(attackResult)
                 delay(updateTime + 0.10) { //
-                   self.aRoundTaskAsync(&beginIndexCopy, nextSide, resolver)
+                    if attacker.abilities.contains(EnumAbilities.rapid.rawValue) && self.boardNode[nextSide].count > 0 && attackResult[0] != 0 { // if alive and has rapid,attack again
+                        attacker.abilityTrigger(abilityEnum: EnumString.rapid.rawValue.localized)
+                        let randomNumber = Int.randomIntNumber(lower: 0, upper: self.boardNode[nextSide].count)
+                        let attackAgainResult = attack(attackBoard: self.boardNode[attSide], attackIndex: curIndex, victimBoard: self.boardNode[nextSide], victimIndex: randomNumber)
+                        if attackAgainResult[0] == 0 { //attacker eliminated
+                            self.boardNode[attSide].remove(at: curIndex)
+                        }
+                        if attackAgainResult[nextSide] == 0 { //victim elinminated
+                            self.boardNode[nextSide].remove(at: randomNumber)
+                        }
+                        delay(attackAgainResult[2]) {
+                            let updateAgainTime = self.updateChessBoardPosition(attackAgainResult)
+                            delay(updateAgainTime + 0.10) {
+                                self.aRoundTaskAsync(&beginIndexCopy, nextSide, resolver)
+                            }
+                        }
+                        
+                    }else {
+                       self.aRoundTaskAsync(&beginIndexCopy, nextSide, resolver)
+                    }
+                    
+                    
                 }
-                }
-           } else if boardNode[attSide].count > 0 && boardNode[nextSide].count > 0 {
-               var nextRoundIndex = [0, 0]
-               self.aRoundTaskAsync(&nextRoundIndex,nextSide, resolver)//从头开始
-           } else {
+            }
+        } else if boardNode[attSide].count > 0 && boardNode[nextSide].count > 0 {
+            var nextRoundIndex = [0, 0]
+            self.aRoundTaskAsync(&nextRoundIndex,nextSide, resolver)//从头开始
+        } else {
             resolver.fulfill("success")
         }
-   }
+    }
     
-//    func aRoundTask( _ beginIndex: inout Int) { //指针传递inout
-//        var curIndex = beginIndex
-//        if (beginIndex < boardNode[0].count) {
-//            let randomIndex = Int.randomIntNumber(lower: 0, upper: self.boardNode[1].count)
-//            let attackResult = attack(self.boardNode[0][beginIndex], self.boardNode[1][randomIndex])
-//
-//            if attackResult[0] == 0 { //attacker eliminated
-//                self.boardNode[0].remove(at: beginIndex)
-//            }
-//            if attackResult[1] == 0 { //victim elinminated
-//                self.boardNode[1].remove(at: randomIndex)
-//            }
-//            curIndex += 1
-//            delay(5) { self.aRoundTask(&curIndex) }
-//        } else if boardNode[0].count > 0 && boardNode[1].count > 0 {
-//            var beginIndex = 0
-//            delay(5) { self.aRoundTask(&beginIndex) } //从头开始
-//        }
-//    }
+    //    func aRoundTask( _ beginIndex: inout Int) { //指针传递inout
+    //        var curIndex = beginIndex
+    //        if (beginIndex < boardNode[0].count) {
+    //            let randomIndex = Int.randomIntNumber(lower: 0, upper: self.boardNode[1].count)
+    //            let attackResult = attack(self.boardNode[0][beginIndex], self.boardNode[1][randomIndex])
+    //
+    //            if attackResult[0] == 0 { //attacker eliminated
+    //                self.boardNode[0].remove(at: beginIndex)
+    //            }
+    //            if attackResult[1] == 0 { //victim elinminated
+    //                self.boardNode[1].remove(at: randomIndex)
+    //            }
+    //            curIndex += 1
+    //            delay(5) { self.aRoundTask(&curIndex) }
+    //        } else if boardNode[0].count > 0 && boardNode[1].count > 0 {
+    //            var beginIndex = 0
+    //            delay(5) { self.aRoundTask(&beginIndex) } //从头开始
+    //        }
+    //    }
     func dealWithDamage() -> Promise<Any>{ //伤害清算
         return Promise<Any>( resolver: { (resolver) in
             if boardNode[0].count > 0 || boardNode[1].count > 0 { //平局的话就不处理了 do nth if its a draw+
@@ -743,16 +770,18 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 var totalTime = 0.00
                 //处理abilities beforeround事件
                 for index in 0 ..< self.boardNode[1].count {
+                    let curBoard = self.boardNode[1]
                     let curChess = self.boardNode[1][index]
                     if curChess.abilities.contains(EnumAbilities.liveInGroup.rawValue) {
                         let copyChess = curChess.copyable()
-                        self.boardNode[1].insert(copyChess, at: index)
+                        curChess.abilities = [] //empty ability,in case it keep adding
+                        self.boardNode[1].append(copyChess)
                         self.playerBoardNode.addChildNode(copyChess)
                         curChess.abilityTrigger(abilityEnum: EnumString.liveInGroup.rawValue.localized)
-                        let actionTime = self.updateWholeBoardPosition()
-                        totalTime += actionTime
                     }
                 }
+                let actionTime = self.updateWholeBoardPosition()
+                totalTime += actionTime
                 //
                 self.curStage = EnumsGameStage.battleStage.rawValue
                 //copy the backup data
