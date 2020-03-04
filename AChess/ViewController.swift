@@ -558,8 +558,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
     func updateWholeBoardPosition() -> Double { //update all chesses' position
         let totalTime = 0.50
-        var chessTimesDic:[[String : Int]] = [[:],[:],[:]] //棋子map 刷新问题
-       
+        var chessTimesDic:[[String : [Int]]] = [[:],[:],[:]] //棋子map 刷新问题
+        var newCombineChess: [baseChessNode] = []
+        var oldSubChessIndex: [Int] = []
         //
         for index in 0 ..< boardNode.count {
             for innerIndex in 0 ..< boardNode[index].count {
@@ -569,26 +570,46 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 
                 if (index == BoardSide.allySide.rawValue && curChessNode.chessLevel < 3) { //只有己方才触发
                     if chessTimesDic[curChessNode.chessLevel][curChessNode.chessName] != nil {
-                        chessTimesDic[curChessNode.chessLevel][curChessNode.chessName]! += 1
-                        if chessTimesDic[curChessNode.chessLevel][curChessNode.chessName]! >= 3 { //合成
+                        chessTimesDic[curChessNode.chessLevel][curChessNode.chessName]!.append(innerIndex)
+                        if chessTimesDic[curChessNode.chessLevel][curChessNode.chessName]!.count >= 3 { //合成
                             var subChessNodes:[baseChessNode] = []
-                            boardNode[index] = boardNode[index].filter{(chessNode) -> Bool in
-                                if (chessNode.chessName == curChessNode.chessName) {
-                                    subChessNodes.append(chessNode)
-                                    chessNode.removeFromParentNode() //从棋盘上删除
-                                }
-                            return chessNode.chessName != curChessNode.chessName };
+                            chessTimesDic[curChessNode.chessLevel][curChessNode.chessName]?.forEach{(subIndex) in
+                                subChessNodes.append(boardNode[index][subIndex])
+                            }
+//                            boardNode[index] = boardNode[index].filter{(chessNode) -> Bool in
+//                                if (chessNode.chessName == curChessNode.chessName) {
+//                                    subChessNodes.append(chessNode)
+//                                    chessNode.removeFromParentNode() //从棋盘上删除
+//                                }
+//                            return chessNode.chessName != curChessNode.chessName };
                             let newNode = generateUpgradeChess(subChessNodes)
-                            appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: newNode)//直接置入本方场内 后期可以修改为置入等待区域
+                            newCombineChess.append(newNode)
+                            oldSubChessIndex += chessTimesDic[curChessNode.chessLevel][curChessNode.chessName]!
+                            chessTimesDic[curChessNode.chessLevel][curChessNode.chessName] = []
                         }
                     } else {
-                        chessTimesDic[curChessNode.chessLevel][curChessNode.chessName] = 1
+                        chessTimesDic[curChessNode.chessLevel][curChessNode.chessName] = [innerIndex]
                     }
                     
                 }
             }
         }
+        //移除旧的棋子
+        var tempIndex = -1
+        boardNode[BoardSide.allySide.rawValue] = boardNode[BoardSide.allySide.rawValue].filter{(item) in
+            tempIndex += 1
+            if oldSubChessIndex.contains(tempIndex) {
+                item.removeFromParentNode()
+            }
+            return !oldSubChessIndex.contains(tempIndex)
+        }
+       
+        //置入合成棋子
+        newCombineChess.forEach{(newNode) in
+            appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: newNode)//直接置入本方场内 后期可以修改为置入等待区域
+        }
         
+       
         // chess positions adjust actions
         for index in 0 ..< boardNode.count {
             let curBoardSide = boardNode[index]
