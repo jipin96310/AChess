@@ -10,16 +10,16 @@ import Foundation
 
 public let dummyAICrew = [
     [
-    chessStruct(name: "白蚁", desc: "群居", atkNum: 1, defNum: 1, chessRarity: 1, abilities: [], rattleFunc: [], inheritFunc: []),
-    chessStruct(name: "白蚁", desc: "群居", atkNum: 1, defNum: 1, chessRarity: 1, abilities: [], rattleFunc: [], inheritFunc: [])
+    chessCollectionsLevel[1][0],
+    chessCollectionsLevel[1][0]
     ],
     [
-    chessStruct(name: "白蚁", desc: "群居", atkNum: 1, defNum: 1, chessRarity: 1, abilities: [], rattleFunc: [], inheritFunc: []),
-    chessStruct(name: "白蚁", desc: "群居", atkNum: 1, defNum: 1, chessRarity: 1, abilities: [], rattleFunc: [], inheritFunc: [])
+    chessCollectionsLevel[1][1],
+    chessCollectionsLevel[1][1],
     ],
     [
-       chessStruct(name: "白蚁", desc: "群居", atkNum: 1, defNum: 1, chessRarity: 1, abilities: [], rattleFunc: [], inheritFunc: []),
-       chessStruct(name: "白蚁", desc: "群居", atkNum: 1, defNum: 1, chessRarity: 1, abilities: [], rattleFunc: [], inheritFunc: []),
-       chessStruct(name: "白蚁", desc: "群居", atkNum: 1, defNum: 1, chessRarity: 1, abilities: [], rattleFunc: [], inheritFunc: []),
+       chessCollectionsLevel[1][1],
+       chessCollectionsLevel[1][1],
+       chessCollectionsLevel[1][1],
        ]
 ]

@@ -357,6 +357,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     let hitTestResult = sceneView.hitTest(touchLocation, options: [SCNHitTestOption.boundingBoxOnly: true, SCNHitTestOption.ignoreHiddenNodes: true])
                     if !hitTestResult.isEmpty {
                         if isNameButton(hitTestResult.first!.node, "randomButton") {
+                            //点击以后randombutton下压
+                            hitTestResult.first?.node.runAction(SCNAction.sequence([
+                                SCNAction.move(by: SCNVector3(1,0.5,1), duration: 0.5),
+                                SCNAction.move(by: SCNVector3(1,2,1), duration: 0.5)
+                            ]))
+                            //
                             if playerStatues[curPlayerId].curCoin > 0 {
                                 playerStatues[curPlayerId].curCoin -= 1
                                 initBoardChess()
@@ -1041,7 +1047,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         let t2 = 0.7
         let t3 = 0.3
         if let boardTextTemp = playerBoardNode.childNode(withName: "boardTextNode", recursively: true) {
-        if let parentBound = playerBoardNode.childNode(withName: "middleLine", recursively: true) {
+        //if let parentBound = playerBoardNode.childNode(withName: "middleLine", recursively: true) {
             let tempTextGeo: SCNText = boardTextTemp.geometry as! SCNText
             tempTextGeo.string = TextContent
             
@@ -1061,7 +1067,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             ]))
             }
            
-        }
+        //}
         
         return t1 + t2 + t3
     }

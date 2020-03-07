@@ -24,6 +24,7 @@
 		C73426C423D9E33B003B7697 /* AChessUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C73426C323D9E33B003B7697 /* AChessUITests.swift */; };
 		C751227423F518D7002CC4B4 /* dummyAI.swift in Sources */ = {isa = PBXBuildFile; fileRef = C751227323F518D7002CC4B4 /* dummyAI.swift */; };
 		C757833923F26A5300B0DCE3 /* chessStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = C757833823F26A5300B0DCE3 /* chessStruct.swift */; };
+		C75E6A8D240272F3000B01BD /* ComScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = C75E6A8C240272F3000B01BD /* ComScript.swift */; };
 		C766178A23FD7EF700D11EBF /* nodeColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C766178923FD7EF700D11EBF /* nodeColor.swift */; };
 		C771AFF523E80CC5007C99F0 /* extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C771AFF423E80CC5007C99F0 /* extensions.swift */; };
 		C792198623F66978008B6950 /* protocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C792198523F66978008B6950 /* protocol.swift */; };
@@ -32,6 +33,8 @@
 		C7DD950823DE9ACE0096CE0C /* actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DD950723DE9ACE0096CE0C /* actions.swift */; };
 		C7DD950E23DEB8F80096CE0C /* particals.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = C7DD950D23DEB8F80096CE0C /* particals.scnassets */; };
 		C7DD951323DF06590096CE0C /* baseChessNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DD951223DF06590096CE0C /* baseChessNode.swift */; };
+		C7F4819D240A5DE1002EBEED /* Localization.strings in Resources */ = {isa = PBXBuildFile; fileRef = C7F4819F240A5DE1002EBEED /* Localization.strings */; };
+		C7F481A2240A5EF8002EBEED /* LocalizationTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F481A1240A5EF8002EBEED /* LocalizationTool.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -91,6 +94,7 @@
 		C73426C523D9E33B003B7697 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C751227323F518D7002CC4B4 /* dummyAI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = dummyAI.swift; sourceTree = "<group>"; };
 		C757833823F26A5300B0DCE3 /* chessStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = chessStruct.swift; sourceTree = "<group>"; };
+		C75E6A8C240272F3000B01BD /* ComScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComScript.swift; sourceTree = "<group>"; };
 		C766178923FD7EF700D11EBF /* nodeColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = nodeColor.swift; sourceTree = "<group>"; };
 		C771AFF423E80CC5007C99F0 /* extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = extensions.swift; sourceTree = "<group>"; };
 		C792198523F66978008B6950 /* protocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = protocol.swift; sourceTree = "<group>"; };
@@ -99,6 +103,11 @@
 		C7DD950723DE9ACE0096CE0C /* actions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = actions.swift; sourceTree = "<group>"; };
 		C7DD950D23DEB8F80096CE0C /* particals.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = particals.scnassets; sourceTree = "<group>"; };
 		C7DD951223DF06590096CE0C /* baseChessNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = baseChessNode.swift; sourceTree = "<group>"; };
+		C7F48199240A5D93002EBEED /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
+		C7F4819A240A5D94002EBEED /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
+		C7F4819E240A5DE1002EBEED /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localization.strings; sourceTree = "<group>"; };
+		C7F481A0240A5DE3002EBEED /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localization.strings"; sourceTree = "<group>"; };
+		C7F481A1240A5EF8002EBEED /* LocalizationTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationTool.swift; sourceTree = "<group>"; };
 		C958387DE5F93F17C6EA051C /* Pods-AChess.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AChess.debug.xcconfig"; path = "Target Support Files/Pods-AChess/Pods-AChess.debug.xcconfig"; sourceTree = "<group>"; };
 		F51A63BA5838B96F0AB20344 /* Pods_AChess.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AChess.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FE236FCB68789C2173E820BE /* Pods-AChess.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AChess.release.xcconfig"; path = "Target Support Files/Pods-AChess/Pods-AChess.release.xcconfig"; sourceTree = "<group>"; };
@@ -191,6 +200,7 @@
 		C73426A023D9E338003B7697 /* AChess */ = {
 			isa = PBXGroup;
 			children = (
+				C7F481A3240A6131002EBEED /* Localization */,
 				C72E92F423F195DD008F890F /* Datas */,
 				C7C759F023DB2B5F00274596 /* nodesClass */,
 				C7C759ED23DB291C00274596 /* utils */,
@@ -234,6 +244,7 @@
 				C792198523F66978008B6950 /* protocol.swift */,
 				C766178923FD7EF700D11EBF /* nodeColor.swift */,
 				C7DB34BA23FEC88200DBE512 /* abilities.swift */,
+				C75E6A8C240272F3000B01BD /* ComScript.swift */,
 			);
 			path = utils;
 			sourceTree = "<group>";
@@ -246,6 +257,15 @@
 				C7AFB4FB23EAF8B400B21E09 /* customPlanenode.swift */,
 			);
 			path = nodesClass;
+			sourceTree = "<group>";
+		};
+		C7F481A3240A6131002EBEED /* Localization */ = {
+			isa = PBXGroup;
+			children = (
+				C7F481A1240A5EF8002EBEED /* LocalizationTool.swift */,
+				C7F4819F240A5DE1002EBEED /* Localization.strings */,
+			);
+			path = Localization;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -340,6 +360,7 @@
 			knownRegions = (
 				en,
 				Base,
+				"zh-Hans",
 			);
 			mainGroup = C734269523D9E338003B7697;
 			productRefGroup = C734269F23D9E338003B7697 /* Products */;
@@ -359,6 +380,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C73426A423D9E338003B7697 /* art.scnassets in Resources */,
+				C7F4819D240A5DE1002EBEED /* Localization.strings in Resources */,
 				C73426AE23D9E33B003B7697 /* LaunchScreen.storyboard in Resources */,
 				C73426AB23D9E33B003B7697 /* Assets.xcassets in Resources */,
 				C73426A923D9E338003B7697 /* Main.storyboard in Resources */,
@@ -490,6 +512,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C7F481A2240A5EF8002EBEED /* LocalizationTool.swift in Sources */,
 				C709C50823DD86D100944C01 /* utils.swift in Sources */,
 				C7DD950823DE9ACE0096CE0C /* actions.swift in Sources */,
 				C7DB34BB23FEC88200DBE512 /* abilities.swift in Sources */,
@@ -504,6 +527,7 @@
 				C73426A623D9E338003B7697 /* ViewController.swift in Sources */,
 				C766178A23FD7EF700D11EBF /* nodeColor.swift in Sources */,
 				C751227423F518D7002CC4B4 /* dummyAI.swift in Sources */,
+				C75E6A8D240272F3000B01BD /* ComScript.swift in Sources */,
 				C73426A223D9E338003B7697 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -544,6 +568,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				C73426A823D9E338003B7697 /* Base */,
+				C7F48199240A5D93002EBEED /* zh-Hans */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -552,8 +577,18 @@
 			isa = PBXVariantGroup;
 			children = (
 				C73426AD23D9E33B003B7697 /* Base */,
+				C7F4819A240A5D94002EBEED /* zh-Hans */,
 			);
 			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		C7F4819F240A5DE1002EBEED /* Localization.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C7F4819E240A5DE1002EBEED /* en */,
+				C7F481A0240A5DE3002EBEED /* zh-Hans */,
+			);
+			name = Localization.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -563,6 +598,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -623,6 +659,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";

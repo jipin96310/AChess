@@ -1,0 +1,13 @@
+/* 
+  Localization.strings
+  AChess
+
+  Created by zhaoheng sun on 2/29/20.
+  Copyright © 2020 zhaoheng sun. All rights reserved.
+*/
+"BattleStage" = "战斗回合"; //战斗回合
+"ExchangeStage" = "交易回合";
+"Poison"        = "剧毒";  //剧毒
+"LiveInGroup"   = "群居";//群居
+"Furious"       = "凶猛"; //凶猛
+"Rapid"         = "迅捷";  // 迅捷
