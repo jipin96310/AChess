@@ -594,7 +594,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 }
             }
         }
-        //移除旧的棋子
+        //移除旧的棋子。todo!!!!! 写的方法可以优化
         var tempIndex = -1
         boardNode[BoardSide.allySide.rawValue] = boardNode[BoardSide.allySide.rawValue].filter{(item) in
             tempIndex += 1
@@ -651,18 +651,31 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         var curIndex = beginIndex[attSide] //拷贝的
         var nextSide = attSide == BoardSide.enemySide.rawValue ? BoardSide.allySide.rawValue : BoardSide.enemySide.rawValue
         if (curIndex < boardNode[attSide].count && boardNode[nextSide].count > 0) { //当前游标小于进攻方数量
-            let attacker = self.boardNode[attSide][curIndex]
             let randomIndex = Int.randomIntNumber(lower: 0, upper: self.boardNode[nextSide].count)
+            let attacker = self.boardNode[attSide][curIndex]
+            let victim = self.boardNode[nextSide][randomIndex]
             let attackResult = attack(attackBoard: self.boardNode[attSide], attackIndex: curIndex, victimBoard: self.boardNode[nextSide], victimIndex: randomIndex)//self.boardNode[0][curIndex], self.boardNode[1][randomIndex]
             //
             //
             if attackResult[0] == 0 { //attacker eliminated
                 self.boardNode[attSide].remove(at: curIndex)
+                if attacker.abilities.contains(EnumAbilities.inheritAddBuff.rawValue) { //有传承加buff结算一下
+                    self.boardNode[attSide].forEach{ (attChess) in
+                        //需要给attchess加buff
+                        attChess.AddBuff(AtkNumber: attacker.chessLevel, DefNumber: attacker.chessLevel)
+                    }
+                }
             } else {
                 beginIndexCopy[attSide] += 1
             }
             if attackResult[1] == 0 { //victim elinminated
                 self.boardNode[nextSide].remove(at: randomIndex)
+                if victim.abilities.contains(EnumAbilities.inheritAddBuff.rawValue) { //有传承加buff结算一下
+                    self.boardNode[nextSide].forEach{ (attChess) in
+                        //需要给attchess加buff
+                        attChess.AddBuff(AtkNumber: attacker.chessLevel, DefNumber: victim.chessLevel)
+                    }
+                }
             }
             delay(attackResult[2]) {
                 let updateTime = self.updateChessBoardPosition(attackResult)
