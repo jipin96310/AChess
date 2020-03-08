@@ -23,6 +23,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var isPlayerBoardinited = false
     var playerBoardNode = createPlayerBoard()
     var randomButtonTopNode: SCNNode = SCNNode()
+    var upgradeButtonTopNode: SCNNode = SCNNode()
+    var endButtonTopNode: SCNNode = SCNNode()
     var handPoint = SCNNode() // use for mode1 with hand
     var referencePoint = SCNNode() // use for mode0 with touching on screen
     
@@ -375,8 +377,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                 initBoardChess()
                             }
                         } else if isNameButton(hitTestResult.first!.node, "upgradeButton") {
+                            upgradeButtonTopNode.runAction(SCNAction.sequence([
+                                SCNAction.move(by: SCNVector3(0,-0.005,0), duration: 0.25),
+                                SCNAction.move(by: SCNVector3(0,0.005,0), duration: 0.25)
+                            ]))
                             upgradePlayerLevel(curPlayerId)
                         } else if isNameButton(hitTestResult.first!.node, "endButton"){
+                            endButtonTopNode.runAction(SCNAction.sequence([
+                                SCNAction.move(by: SCNVector3(0,-0.005,0), duration: 0.25),
+                                SCNAction.move(by: SCNVector3(0,0.005,0), duration: 0.25)
+                            ]))
                             switchGameStage()
                         }
                     }
@@ -1014,6 +1024,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     func initButtons() {
         if let randomButtonTopTemp = playerBoardNode.childNode(withName: "randomButtonTop", recursively: true) {
             randomButtonTopNode = randomButtonTopTemp
+        }
+        if let upgradeButtonTopTemp = playerBoardNode.childNode(withName: "upgradeButtonTop", recursively: true) {
+            upgradeButtonTopNode = upgradeButtonTopTemp
+        }
+        if let endButtonTopTemp = playerBoardNode.childNode(withName: "endButtonTop", recursively: true) {
+            endButtonTopNode = endButtonTopTemp
         }
     }
     func initGameTest() {
