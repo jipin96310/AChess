@@ -22,12 +22,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var rootNodeDefalutColor = [UIColor.red, UIColor.green]
     var isPlayerBoardinited = false
     var playerBoardNode = createPlayerBoard()
-    
+    var randomButtonTopNode: SCNNode = SCNNode()
     var handPoint = SCNNode() // use for mode1 with hand
     var referencePoint = SCNNode() // use for mode0 with touching on screen
     
     var curDragPoint: baseChessNode? = nil
     var curFocusPoint: SCNNode? = nil
+    
     //以下数据需要保存
     var boardPool : [String : Int] = ["" : 0] //卡池
     var boardNode :[[baseChessNode]] = [[],[]] //chesses
@@ -52,7 +53,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
      var levelTextNode = TextNode(textScale: SCNVector3(0.1, 0.3, 1))
      var enemyBloodTextNode = TextNode(textScale: SCNVector3(0.1, 0.3, 1))
      var playerBloodTextNode = TextNode(textScale: SCNVector3(0.1, 0.3, 1))
-
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -356,12 +357,18 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     let touchLocation = sender.location(in: sceneView)
                     let hitTestResult = sceneView.hitTest(touchLocation, options: [SCNHitTestOption.boundingBoxOnly: true, SCNHitTestOption.ignoreHiddenNodes: true])
                     if !hitTestResult.isEmpty {
+                       
                         if isNameButton(hitTestResult.first!.node, "randomButton") {
                             //点击以后randombutton下压
-                            hitTestResult.first?.node.runAction(SCNAction.sequence([
-                                SCNAction.move(by: SCNVector3(1,0.5,1), duration: 0.5),
-                                SCNAction.move(by: SCNVector3(1,2,1), duration: 0.5)
-                            ]))
+                             print("click", randomButtonTopNode)
+                             randomButtonTopNode.runAction(SCNAction.sequence([
+                                                             SCNAction.move(by: SCNVector3(0,-0.01,0), duration: 0.25),
+                                                             SCNAction.move(by: SCNVector3(0,0.01,0), duration: 0.25)
+                                                         ]))
+//                            hitTestResult.first?.node.runAction(SCNAction.sequence([
+//                                SCNAction.move(by: SCNVector3(1,0.5,1), duration: 0.5),
+//                                SCNAction.move(by: SCNVector3(1,2,1), duration: 0.5)
+//                            ]))
                             //
                             if playerStatues[curPlayerId].curCoin > 0 {
                                 playerStatues[curPlayerId].curCoin -= 1
@@ -1004,10 +1011,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             return
         }
     }
+    func initButtons() {
+        if let randomButtonTopTemp = playerBoardNode.childNode(withName: "randomButtonTop", recursively: true) {
+            randomButtonTopNode = randomButtonTopTemp
+        }
+    }
     func initGameTest() {
         initBoardRootNode()
         initBoardChess()
         initDisplay()
+        initButtons()
 //        for index in 1 ..< 7 {
 //            if let curNode = playerBoardNode.childNode(withName: "e" + String(index), recursively: true) {
 //                let tempChess = initChessWithPos(pos: curNode.position)
@@ -1047,6 +1060,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         let t2 = 0.7
         let t3 = 0.3
         if let boardTextTemp = playerBoardNode.childNode(withName: "boardTextNode", recursively: true) {
+            boardTextTemp.parent!.isHidden = false //先显示text parent
         //if let parentBound = playerBoardNode.childNode(withName: "middleLine", recursively: true) {
             let tempTextGeo: SCNText = boardTextTemp.geometry as! SCNText
             tempTextGeo.string = TextContent
@@ -1058,12 +1072,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             let dz = min.z + 0.5 * (max.z - min.z)
             boardTextTemp.pivot = SCNMatrix4MakeTranslation(dx, dy, dz)
            
-            
-            
             boardTextTemp.runAction(SCNAction.sequence([
                 SCNAction.fadeIn(duration: t1),
                 SCNAction.wait(duration: t2),
-                SCNAction.fadeOut(duration: t3)
+                SCNAction.fadeOut(duration: t3),
+                SCNAction.customAction(duration: 0, action: { _,_ in
+                    boardTextTemp.parent!.isHidden = true
+                })
             ]))
             }
            

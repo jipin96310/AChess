@@ -51,7 +51,7 @@ public func addExplosion(_ target: SCNNode) { //TODO the explosion effect doesnt
     
 }
 
-func isNameButton(_ childNode: SCNNode, _ buttonName: String) -> Bool { //不递归 默认所有按钮只有两层
+func isNameButton(_ childNode: SCNNode, _ buttonName: String) -> Bool {
     if childNode.name == buttonName {
         return true
     }
@@ -60,8 +60,9 @@ func isNameButton(_ childNode: SCNNode, _ buttonName: String) -> Bool { //不递
        }
     if childNode.parent?.name == buttonName {
         return true
+    } else {
+       return isNameButton(childNode.parent!, buttonName)//递归 查询ancestor
     }
-    return false
 }
 //find chess root node
 func findChessRootNode(_ childNode: SCNNode) -> baseChessNode?{
