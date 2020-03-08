@@ -25,6 +25,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var randomButtonTopNode: SCNNode = SCNNode()
     var upgradeButtonTopNode: SCNNode = SCNNode()
     var endButtonTopNode: SCNNode = SCNNode()
+     var allyBoardNode : SCNNode = SCNNode()
+    
+    
     var handPoint = SCNNode() // use for mode1 with hand
     var referencePoint = SCNNode() // use for mode0 with touching on screen
     
@@ -37,6 +40,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var boardRootNode :[[SCNNode]] = [[],[]] //chess holder
     var storageNode : [baseChessNode] = []
     var storageRootNode : [SCNNode] = []
+   
     //var backupBoardNode:[[baseChessNode]] = [[],[]]
     var playerStatues: [(curCoin: Int,curLevel: Int,curBlood: Int,curChesses: [baseChessNode])] = [(curCoin: GlobalNumberSettings.roundBaseCoin.rawValue + 10, curLevel: 1, curBlood: 40, curChesses: []), (curCoin: GlobalNumberSettings.roundBaseCoin.rawValue, curLevel: 1, curBlood: 40, curChesses: [])] {
         didSet {
@@ -207,11 +211,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         curPressNode.geometry?.firstMaterial?.diffuse.contents = UIColor.blue
                     } else if curPressNode.name == EnumNodeName.storagePlace.rawValue {
                         curPressNode.geometry?.firstMaterial?.diffuse.contents = UIColor.blue
+                    } else if curPressNode.name == EnumNodeName.allyBoard.rawValue {
+                       curPressNode.geometry?.firstMaterial?.diffuse.contents = UIColor.green
                     } else {
                         if let saleStage = playerBoardNode.childNode(withName: EnumNodeName.saleStage.rawValue, recursively: true) {
                             saleStage.geometry?.firstMaterial?.diffuse.contents = UIColor.black
                         }
                         if let storagePlace = playerBoardNode.childNode(withName: EnumNodeName.storagePlace.rawValue, recursively: true) {
+                            storagePlace.geometry?.firstMaterial?.diffuse.contents = UIColor.black
+                        }
+                        if let storagePlace = playerBoardNode.childNode(withName: EnumNodeName.allyBoard.rawValue, recursively: true) {
                             storagePlace.geometry?.firstMaterial?.diffuse.contents = UIColor.black
                         }
                     }
@@ -306,14 +315,41 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                 }
                                 updateStorageBoardPosition()
                             } else {
-                                if curDragPoint != nil { //storage暂时较少用到 不封装放置方法
-                                    boardNode[BoardSide.allySide.rawValue].append(curDragPoint!)
-                                    curDragPoint?.position.y = 0.01
-                                    playerBoardNode.addChildNode(curDragPoint!)
+                                if curDragPoint != nil {
+                                    appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: curDragPoint!)
                                 }
                                 updateWholeBoardPosition()
                             }
                             
+                            }
+                        } else if curPressNode.name == EnumNodeName.allyBoard.rawValue { //结束点在allyboard
+                            if curDragPoint?.chessStatus == EnumsChessStage.forSale.rawValue { //未购买
+                                if buyChess(playerID: curPlayerId, chessPrice: curDragPoint!.chessPrice) == true { //buy success
+                                        curDragPoint?.chessStatus = EnumsChessStage.owned.rawValue
+                                        if curDragPoint != nil {
+                                            appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: curDragPoint!)
+                                        }
+                                } else { //钱不够 购买时买
+                                    if curDragPoint != nil {
+                                        appendNewNodeToBoard(curBoardSide: BoardSide.enemySide.rawValue, curChess: curDragPoint!)
+                                    }
+                                }
+                                updateWholeBoardPosition()
+                            } else if curDragPoint?.chessStatus == EnumsChessStage.owned.rawValue { //已购买
+                                        if storageNode.count < GlobalCommonNumber.chessNumber { //enough space to place 还可以放
+                                                           if curDragPoint != nil {
+                                                               appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: curDragPoint!)
+                                                           }
+                                                           updateWholeBoardPosition()
+                                                       } else {//友方棋盘位置不够 放回storage
+                                                           if curDragPoint != nil { //storage暂时较少用到 不封装放置方法
+                                                               storageNode.append(curDragPoint!)
+                                                               curDragPoint?.position.y = 0.01
+                                                               playerBoardNode.addChildNode(curDragPoint!)
+                                                               updateStorageBoardPosition()
+                                                            }
+                                        }
+                                                       
                             }
                         } else { //无需判断长度 因为之前的地方肯定有位置给它
                             var pointBoardIndex = 0
@@ -563,6 +599,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
     func appendNewNodeToBoard(curBoardSide:Int, curChess: baseChessNode) {
         boardNode[curBoardSide].append(curChess)
+        curDragPoint?.position.y = 0.01
         playerBoardNode.addChildNode(curChess)
     }
     func generateUpgradeChess( _ subChessNodes : [baseChessNode]) -> baseChessNode{//用于合成高等级棋子 保留3个棋子的所有特效  待完善 todo
@@ -682,27 +719,31 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             //
             if attackResult[0] == 0 { //attacker eliminated
                 self.boardNode[attSide].remove(at: curIndex)
-                if attacker.abilities.contains(EnumAbilities.inheritAddBuff.rawValue) { //有传承加buff结算一下
-                    self.boardNode[attSide].forEach{ (attChess) in
-                        //需要给attchess加buff
-                        attChess.AddBuff(AtkNumber: attacker.chessLevel, DefNumber: attacker.chessLevel)
-                    }
-                }
             } else {
                 beginIndexCopy[attSide] += 1
             }
             if attackResult[1] == 0 { //victim elinminated
                 self.boardNode[nextSide].remove(at: randomIndex)
-                if victim.abilities.contains(EnumAbilities.inheritAddBuff.rawValue) { //有传承加buff结算一下
-                    self.boardNode[nextSide].forEach{ (attChess) in
-                        //需要给attchess加buff
-                        attChess.AddBuff(AtkNumber: attacker.chessLevel, DefNumber: victim.chessLevel)
+            }
+            delay(attackResult[2]) { //延迟攻击动作时间
+                let updateTime = self.updateChessBoardPosition(attackResult)
+                if attackResult[0] == 0 { //attacker eliminated
+                    if attacker.abilities.contains(EnumAbilities.inheritAddBuff.rawValue) { //有传承加buff结算一下
+                        self.boardNode[attSide].forEach{ (attChess) in
+                            //需要给attchess加buff
+                            attChess.AddBuff(AtkNumber: attacker.chessLevel, DefNumber: attacker.chessLevel)
+                        }
                     }
                 }
-            }
-            delay(attackResult[2]) {
-                let updateTime = self.updateChessBoardPosition(attackResult)
-                delay(updateTime + 0.10) { //
+                if attackResult[1] == 0 { //victim elinminated
+                    if victim.abilities.contains(EnumAbilities.inheritAddBuff.rawValue) { //有传承加buff结算一下
+                        self.boardNode[nextSide].forEach{ (attChess) in
+                            //需要给attchess加buff
+                            attChess.AddBuff(AtkNumber: attacker.chessLevel, DefNumber: victim.chessLevel)
+                        }
+                    }
+                }
+                delay(updateTime + 0.10) { //延迟刷新棋盘事件
                     if attacker.abilities.contains(EnumAbilities.rapid.rawValue) && self.boardNode[nextSide].count > 0 && attackResult[0] != 0 { // if alive and has rapid,attack again
                         attacker.abilityTrigger(abilityEnum: EnumString.rapid.rawValue.localized)
                         let randomNumber = Int.randomIntNumber(lower: 0, upper: self.boardNode[nextSide].count)
@@ -713,7 +754,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         if attackAgainResult[nextSide] == 0 { //victim elinminated
                             self.boardNode[nextSide].remove(at: randomNumber)
                         }
-                        delay(attackAgainResult[2]) {
+                        delay(attackAgainResult[2]) { //延迟第二次攻击时间。风怒
                             let updateAgainTime = self.updateChessBoardPosition(attackAgainResult)
                             delay(updateAgainTime + 0.10) {
                                 self.aRoundTaskAsync(&beginIndexCopy, nextSide, resolver)
@@ -791,6 +832,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
        // }
     }
     func initBoardRootNode() { //初始化底座node。是必须的 游戏开始必须调用
+        if let allyBoardTemp = playerBoardNode.childNode(withName: "allyBoard", recursively: true) {
+            allyBoardNode = allyBoardTemp
+        }
+        
         for index in 1 ... GlobalNumberSettings.chessNumber.rawValue {
             if let curNode = playerBoardNode.childNode(withName: "e" + String(index), recursively: true) {
                 //

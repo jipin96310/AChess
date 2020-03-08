@@ -50,6 +50,7 @@ enum BoardSide: Int {
 enum EnumNodeName: String {
     case saleStage = "saleStage"
     case storagePlace = "storagePlace"
+    case allyBoard = "allyBoard"
 }
 enum EnumAbilities: Int {
     case liveInGroup = 0 //群居
