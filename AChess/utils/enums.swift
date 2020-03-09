@@ -51,6 +51,7 @@ enum EnumNodeName: String {
     case saleStage = "saleStage"
     case storagePlace = "storagePlace"
     case allyBoard = "allyBoard"
+    case enemyBoard = "enemyBoard"
 }
 enum EnumAbilities: Int {
     case liveInGroup = 0 //群居
