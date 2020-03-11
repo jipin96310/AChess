@@ -373,7 +373,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     } else if curPressNode.name == EnumNodeName.enemyBoard.rawValue { //end point at enemy board
                         if curDragPoint?.chessStatus == EnumsChessStage.forSale.rawValue { //未购买
                             if curDragPoint != nil {
-                                appendNewNodeToBoard(curBoardSide: BoardSide.enemySide.rawValue, curChess: curDragPoint!)
+                                if !hitTestResult2.isEmpty {
+                                let positionOfPress = hitTestResult2.first!.worldTransform.columns.3
+                                let curPressLocation = SCNVector3(positionOfPress.x, positionOfPress.y, positionOfPress.z)
+                                    let curInsertIndex = calInsertPos(curBoardSide: BoardSide.enemySide.rawValue, positionOfBoard: curPressLocation)
+                                    if curInsertIndex == -1 || curInsertIndex - (GlobalCommonNumber.chessNumber / 2) >= boardNode[BoardSide.enemySide.rawValue].count {
+                                       appendNewNodeToBoard(curBoardSide: BoardSide.enemySide.rawValue, curChess: curDragPoint!)
+                                    } else {
+                                        insertNewNodeToBoard(curBoardSide: BoardSide.enemySide.rawValue, curBoardIndex: 0, curChess: curDragPoint!)
+                                    }
+                                    }
                             }
                             updateWholeBoardPosition()
                         } else if curDragPoint?.chessStatus == EnumsChessStage.owned.rawValue { //已购买
