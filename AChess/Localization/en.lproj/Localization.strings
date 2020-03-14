@@ -11,3 +11,5 @@
 "LiveInGroup"   = "LiveInGroup";//群居
 "Furious"       = "Furious"; //凶猛
 "Rapid"         = "Rapid";  // 迅捷
+"InheritAddBuff" = "Inherit: Gain +1/+1."; // Inherit: add buff
+"InstantAddSingleBuff" = "Instant: choose a chess to get +1/+1."

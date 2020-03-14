@@ -11,7 +11,7 @@ import Foundation
 public var chessCollectionsLevel = [
     [ //level1。15个。   18
         chessStruct(name: "山鸡", desc: "战吼:召唤一只1/1的山鸡", atkNum: 1, defNum: 2, chessRarity: 1, chessLevel: 1, abilities: [], rattleFunc: [], inheritFunc: []),
-        chessStruct(name: "白蚁", desc: "群居", atkNum: 1, defNum: 1, chessRarity: 1, chessLevel: 1, abilities:  [EnumAbilities.liveInGroup.rawValue], rattleFunc: [], inheritFunc: []),
+        chessStruct(name: "白蚁", desc: "群居", atkNum: 1, defNum: 5, chessRarity: 1, chessLevel: 1, abilities:  [EnumAbilities.liveInGroup.rawValue], rattleFunc: [], inheritFunc: []),
         chessStruct(name: "龙虾", desc: "传承+1/+1", atkNum: 1, defNum: 1, chessRarity: 2, chessLevel: 1, abilities: [EnumAbilities.inheritAddBuff.rawValue], rattleFunc: [], inheritFunc: [])
     ],
     [ //level2。 15个。   15

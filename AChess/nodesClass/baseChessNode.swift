@@ -75,7 +75,7 @@ public class baseChessNode: SCNNode {
             ]))
         }
     }
-    var abilities: [Int] = []
+    var abilities: [String] = []
     var rattleFunc: [()] = []
     var inheritFunc: [()] = []
     override init()
@@ -124,16 +124,17 @@ public class baseChessNode: SCNNode {
             sideNode.addChildNode(abilitiesTriggerTextNode)
             
         }
-        
-        
+        //最后计算棋子的描述
+        chessDesc = formatChessDesc()
+        descTextNode.string = chessDesc
        }
     convenience init(statusNum: Int, chessInfo: chessStruct) {
         self.init()
         chessStatus = statusNum
         chessName = chessInfo.name!
         nameTextNode.string = chessName
-        chessDesc = chessInfo.desc!
-        descTextNode.string = chessDesc
+        //chessDesc = chessInfo.desc!
+        //descTextNode.string = chessDesc
         atkNum = chessInfo.atkNum
         atkTextNode.string = String(atkNum!)
         defNum = chessInfo.defNum
@@ -149,6 +150,9 @@ public class baseChessNode: SCNNode {
         if let sideNode = self.childNode(withName: "side", recursively: true) {
             sideNode.geometry?.firstMaterial?.diffuse.contents = chessColorRarity[chessRarity]
         }
+        //最后计算棋子的描述
+        chessDesc = formatChessDesc()
+        descTextNode.string = chessDesc
     }
     func changeStarLabel() {
         if let curStarLabel = self.childNode(withName: "starLabel", recursively: true) {
@@ -165,7 +169,6 @@ public class baseChessNode: SCNNode {
   ///
   /// - Returns: 拷贝的对象
   func copyable() -> baseChessNode {
-    print(chessName, defNum)
       return baseChessNode(statusNum: chessStatus, chessInfo: chessStruct(name: chessName, desc: chessDesc, atkNum: atkNum!, defNum: defNum!, chessRarity: chessRarity, chessLevel: chessLevel, abilities: abilities, rattleFunc: rattleFunc, inheritFunc: inheritFunc))
   }
     func abilityTrigger(abilityEnum : String) {
@@ -192,6 +195,14 @@ public class baseChessNode: SCNNode {
             ]))
         }
        
+    }
+    func formatChessDesc() -> String{ //当前只需要abilities里面的 后期有必要可以加上战吼之类的 TODO!!
+        var tempDescStr = ""
+        abilities.forEach{(curAbi) in
+            tempDescStr += curAbi.localized
+            tempDescStr += " "
+        }
+        return tempDescStr
     }
     
     required init?(coder: NSCoder) {

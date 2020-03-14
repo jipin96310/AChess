@@ -11,3 +11,5 @@
 "LiveInGroup"   = "群居";//群居
 "Furious"       = "凶猛"; //凶猛
 "Rapid"         = "迅捷";  // 迅捷
+"InheritAddBuff" = "传承: 获得+1/+1"; // Inherit: add buff
+"InstantAddSingleBuff" = "瞬发: 选择一个棋子获得+1/+1."

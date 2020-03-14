@@ -53,20 +53,25 @@ enum EnumNodeName: String {
     case allyBoard = "allyBoard"
     case enemyBoard = "enemyBoard"
 }
-enum EnumAbilities: Int {
-    case liveInGroup = 0 //群居
-    case furious     = 1 //凶猛
-    case poison      = 2 //剧毒
-    case rapid    = 3 // 迅捷
-    case inheritAddBuff = 4 //传承加buff
+enum EnumAbilities: String {
+    case liveInGroup = "LiveInGroup" //群居
+    case furious     = "Furious" //凶猛
+    case poison      = "Poison" //剧毒
+    case rapid    = "Rapid" // 迅捷
+    case inheritAddBuff = "InheritAddBuff" //传承加buff
+    case instantAddSingleBuff = "InstantAddSingleBuff" //战吼加指定单位buff
 }
+//public let EnumAbiNumToName: [Int:String] =
+//    [0: "",
+//     1: ""]
 enum EnumString: String {
     case exchangeStage = "ExchangeStage"
     case battleStage = "BattleStage"
-    case poision    = "Poison"
-    case liveInGroup = "LiveInGroup" //群居
-    case furious    = "Furious" //凶猛
-    case rapid      = "Rapid"   //迅捷
+//    case poision    = "Poison"
+//    case liveInGroup = "LiveInGroup" //群居
+//    case furious    = "Furious" //凶猛
+//    case rapid      = "Rapid"   //迅捷
 }
+
 
 

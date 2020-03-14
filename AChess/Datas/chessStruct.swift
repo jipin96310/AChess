@@ -15,11 +15,11 @@ public struct chessStruct {
     var defNum: Int?
     var chessRarity: Int? //棋子稀有度
     var chessLevel:Int? //棋子等级
-    var abilities: [Int]
+    var abilities: [String]
     var rattleFunc: [()] //战吼方法
     var inheritFunc: [()] //传承方法
 
-    init(name: String, desc: String, atkNum: Int, defNum: Int, chessRarity: Int, chessLevel: Int, abilities:[Int],  rattleFunc: [()], inheritFunc: [()]) {
+    init(name: String, desc: String, atkNum: Int, defNum: Int, chessRarity: Int, chessLevel: Int, abilities:[String],  rattleFunc: [()], inheritFunc: [()]) {
         self.name = name
         self.desc = desc
         self.atkNum = atkNum

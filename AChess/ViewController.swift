@@ -25,13 +25,18 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var randomButtonTopNode: SCNNode = SCNNode()
     var upgradeButtonTopNode: SCNNode = SCNNode()
     var endButtonTopNode: SCNNode = SCNNode()
-     var allyBoardNode : SCNNode = SCNNode()
+    var randomButtonNode: SCNNode = SCNNode()
+    var upgradeButtonNode: SCNNode = SCNNode()
+    var endButtonNode: SCNNode = SCNNode()
+    var allyBoardNode : SCNNode = SCNNode()
+    
     
     
     var handPoint = SCNNode() // use for mode1 with hand
     var referencePoint = SCNNode() // use for mode0 with touching on screen
     
     var curDragPoint: baseChessNode? = nil
+    var curDragPos:[Int] = [] //0:棋盘 1:index
     var curFocusPoint: SCNNode? = nil
     
     //以下数据需要保存
@@ -59,8 +64,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
      var levelTextNode = TextNode(textScale: SCNVector3(0.1, 0.3, 1))
      var enemyBloodTextNode = TextNode(textScale: SCNVector3(0.1, 0.3, 1))
      var playerBloodTextNode = TextNode(textScale: SCNVector3(0.1, 0.3, 1))
-    
-    
+    //gesutre reoginzer
+    var longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action:  #selector(onLongPress))
+    var tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onTap))
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -87,15 +93,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         configuration.planeDetection = .horizontal
         
         //tap gesture added
-        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onTap))
+        longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action:  #selector(onLongPress))
+        tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onTap))
         tapGestureRecognizer.cancelsTouchesInView = false
         self.sceneView.addGestureRecognizer(tapGestureRecognizer)
         if setting.controlMethod == 0 {
             initReferenceNode()
             //control with long press
-            let longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action:  #selector(onLongPress))
             longPressGestureRecognizer.cancelsTouchesInView = false
             self.sceneView.addGestureRecognizer(longPressGestureRecognizer)
+            
             // MARK: pan gesture is unnecessary. it is included in longpress recognizer
 //            let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(onPan))
 //            panGestureRecognizer.maximumNumberOfTouches = 1
@@ -171,9 +178,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     
                     curDragPoint = rootNode
                     
+                    
                     rootNode.removeFromParentNode() //it is actually a chessNode not a root node
                     
                     if let rootNodePos = findChessPos(rootNode) {
+                        curDragPos = [rootNodePos[0]] //当前只存棋盘不存index
                         if rootNodePos[0] < 2 {
                             boardNode[rootNodePos[0]].remove(at: rootNodePos[1])
                         } else {
@@ -243,7 +252,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 if let curPressParent = findChessRootNode(curPressNode) { //按到棋子上了
                     //if curPressParent.name?.first == "a" {
                     //print("onchess")
-                    inserChessPos(insertChess: curDragPoint!, insertTo: curPressParent)
+                    insertChessPos(insertChess: curDragPoint!, insertTo: curPressParent)
                     if curDragPoint != nil {
                         curDragPoint?.position.y = 0.01
                         playerBoardNode.addChildNode(curDragPoint!)
@@ -251,7 +260,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     updateWholeBoardPosition()
                     updateStorageBoardPosition()
                     //}
-                } else { //按到空地或者底座上了
+                } else { //按到空地或者棋盘上了
                     if let curRootNodePos = findRootPos(curPressNode) { //只有购买状态时候才能操作 所以无需判断当前阶段
                         var curSideIndex = curRootNodePos[0] //阵营编号
                         var curIndex = curRootNodePos[1] //落点编号
@@ -273,6 +282,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                     referencePoint.isHidden = true
                                     //
                                     curDragPoint = nil
+                                    curDragPos = []
                                     updateWholeBoardPosition()
                                     return
                                 }
@@ -281,9 +291,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         if curDragPoint!.chessStatus == EnumsChessStage.owned.rawValue { //如果已经买过了，就移动回到ally side
                             curSideIndex = BoardSide.allySide.rawValue
                         }
-                        //                            else if curDragPoint?.chessStatus == EnumsChessStage.forSale.rawValue {
-                        //                                pointBoardIndex = 0
-                        //                            }
+                       
                         if curDragPoint != nil {
                             if curIndex < (GlobalNumberSettings.chessNumber.rawValue - curSide.count) / 2 {
                                 boardNode[curSideIndex].insert(curDragPoint!, at: 0)
@@ -299,7 +307,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     } else if curPressNode.name == EnumNodeName.storagePlace.rawValue { //放置到储藏区
                         if curDragPoint?.chessStatus == EnumsChessStage.forSale.rawValue { //未购买
                             if buyChess(playerID: curPlayerId, chessPrice: curDragPoint!.chessPrice) == true { //buy success
-                                curDragPoint?.chessStatus = EnumsChessStage.owned.rawValue
+                                //curDragPoint?.chessStatus = EnumsChessStage.owned.rawValue
                                 if curDragPoint != nil { //storage暂时较少用到 不封装放置方法
                                     storageNode.append(curDragPoint!)
                                     curDragPoint?.position.y = 0.01
@@ -312,63 +320,77 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             }
                             updateStorageBoardPosition()
                         } else if curDragPoint?.chessStatus == EnumsChessStage.owned.rawValue { //已购买
-                            
-                            if storageNode.count < GlobalCommonNumber.storageNumber { //enough space to place 还可以放
-                                if curDragPoint != nil { //storage暂时较少用到 不封装放置方法
-                                    storageNode.append(curDragPoint!)
-                                    curDragPoint?.position.y = 0.01
-                                    playerBoardNode.addChildNode(curDragPoint!)
-                                }
-                                updateStorageBoardPosition()
-                            } else {
+//                            if storageNode.count < GlobalCommonNumber.storageNumber { //enough space to place 还可以放
+//                                if curDragPoint != nil { //storage暂时较少用到 不封装放置方法
+//                                    storageNode.append(curDragPoint!)
+//                                    curDragPoint?.position.y = 0.01
+//                                    playerBoardNode.addChildNode(curDragPoint!)
+//                                }
+//                                updateStorageBoardPosition()
+//                            } else {
                                 if curDragPoint != nil {
                                     appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: curDragPoint!)
                                 }
                                 updateWholeBoardPosition()
-                            }
+//                            }
                             
                         }
                     } else if curPressNode.name == EnumNodeName.allyBoard.rawValue { //结束点在allyboard
                         if !hitTestResult2.isEmpty {
-                            let positionOfPress = hitTestResult2.first!.worldTransform.columns.3
-                            let curPressLocation = SCNVector3(positionOfPress.x, positionOfPress.y, positionOfPress.z)
-                            
-                            if curDragPoint?.chessStatus == EnumsChessStage.forSale.rawValue { //未购买
-                                if buyChess(playerID: curPlayerId, chessPrice: curDragPoint!.chessPrice) == true { //buy success
-                                    curDragPoint?.chessStatus = EnumsChessStage.owned.rawValue
-                                    if curDragPoint != nil {
-                                        let curInsertIndex = calInsertPos(curBoardSide: BoardSide.allySide.rawValue, positionOfBoard: curPressLocation)
-                                        if curInsertIndex == -1 || curInsertIndex - (GlobalCommonNumber.chessNumber / 2) >= boardNode[BoardSide.allySide.rawValue].count {
-                                           appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: curDragPoint!)
-                                        } else {
-                                            insertNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curBoardIndex: 0, curChess: curDragPoint!)
+                            if boardNode[BoardSide.allySide.rawValue].count < GlobalCommonNumber.chessNumber { //小于棋子上限数量
+                                let positionOfPress = hitTestResult2.first!.worldTransform.columns.3
+                                let curPressLocation = SCNVector3(positionOfPress.x, positionOfPress.y, positionOfPress.z)
+                                if curDragPoint?.chessStatus == EnumsChessStage.forSale.rawValue { //未购买/使用
+                                    if curDragPos[0] != 2 { //dragpoint不是储藏区拿出来的
+                                        if boardNode[BoardSide.allySide.rawValue].count < GlobalCommonNumber.chessNumber {
+                                            if buyChess(playerID: curPlayerId, chessPrice: curDragPoint!.chessPrice) == true { //buy success
+                                                curDragPoint?.chessStatus = EnumsChessStage.owned.rawValue
+                                                if curDragPoint != nil {
+                                                    let curInsertIndex = calInsertPos(curBoardSide: BoardSide.allySide.rawValue, positionOfBoard: curPressLocation)
+                                                    if curInsertIndex == -1 || curInsertIndex - (GlobalCommonNumber.chessNumber / 2) >= boardNode[BoardSide.allySide.rawValue].count {
+                                                       appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: curDragPoint!)
+                                                    } else {
+                                                        insertNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curBoardIndex: 0, curChess: curDragPoint!)
+                                                    }
+                                                    
+                                                }
+                                            } else { //钱不够 购买时买
+                                                if curDragPoint != nil {
+                                                    appendNewNodeToBoard(curBoardSide: BoardSide.enemySide.rawValue, curChess: curDragPoint!)
+                                                }
+                                            }
+                                        } else {//棋盘不够 移动回去
+                                            recoverNodeToBoard(dragPos: curDragPos)
                                         }
-                                        
+                                        updateWholeBoardPosition()
+                                    } else { //储藏区拿来的
+                                        if curDragPoint != nil && curDragPoint!.abilities.contains(EnumAbilities.instantAddSingleBuff.rawValue)  { // if chess has instant add buff TODO!!!!
+                                            curDragPoint!.abilityTrigger(abilityEnum: EnumAbilities.rapid.rawValue.localized)
+                                            
+                                        }
                                     }
-                                } else { //钱不够 购买时买
-                                    if curDragPoint != nil {
-                                        appendNewNodeToBoard(curBoardSide: BoardSide.enemySide.rawValue, curChess: curDragPoint!)
+                                } else if curDragPoint?.chessStatus == EnumsChessStage.owned.rawValue { //已购买&&使用
+                                    if boardNode[BoardSide.allySide.rawValue].count < GlobalCommonNumber.chessNumber { //enough space to place 还可以放
+                                        if curDragPoint != nil {
+                                            appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: curDragPoint!)
+                                        }
+                                        updateWholeBoardPosition()
+                                    } else {//友方棋盘位置不够 放回storage 默认不存在都不够的情况
+                                        recoverNodeToBoard(dragPos: curDragPos)
+//                                        if curDragPoint != nil { //storage暂时较少用到 不封装放置方法
+//                                            storageNode.append(curDragPoint!)
+//                                            curDragPoint?.position.y = 0.01
+//                                            playerBoardNode.addChildNode(curDragPoint!)
+//                                            updateStorageBoardPosition()
+//                                        }
                                     }
+                                    
                                 }
-                                updateWholeBoardPosition()
-                            } else if curDragPoint?.chessStatus == EnumsChessStage.owned.rawValue { //已购买
-                                if boardNode[BoardSide.allySide.rawValue].count < GlobalCommonNumber.chessNumber { //enough space to place 还可以放
-                                    if curDragPoint != nil {
-                                        appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: curDragPoint!)
-                                    }
-                                    updateWholeBoardPosition()
-                                } else {//友方棋盘位置不够 放回storage 默认不存在都不够的情况
-                                    if curDragPoint != nil { //storage暂时较少用到 不封装放置方法
-                                        storageNode.append(curDragPoint!)
-                                        curDragPoint?.position.y = 0.01
-                                        playerBoardNode.addChildNode(curDragPoint!)
-                                        updateStorageBoardPosition()
-                                    }
-                                }
-                                
+                            } else {
+                               recoverNodeToBoard(dragPos: curDragPos)
                             }
-                        } else {
-                            // 没有触摸点的情况 暂时不做处理 因为没有遇到过。之后可以想办法把棋子移动回去
+                        } else { // hit test is empty
+                            recoverNodeToBoard(dragPos: curDragPos)
                         }
                     } else if curPressNode.name == EnumNodeName.enemyBoard.rawValue { //end point at enemy board
                         if curDragPoint?.chessStatus == EnumsChessStage.forSale.rawValue { //未购买
@@ -404,14 +426,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         
                     } else { //无需判断长度 因为之前的地方肯定有位置给它
                         var pointBoardIndex = 0
-                        if curDragPoint?.chessStatus == EnumsChessStage.owned.rawValue {
-                            pointBoardIndex = 1
+                        if curDragPos[0] < 2 {
+                            appendNewNodeToBoard(curBoardSide: curDragPos[0], curChess: curDragPoint!)
+                        } else {
+                            if curDragPoint != nil { //storage暂时较少用到 不封装放置方法
+                                storageNode.append(curDragPoint!)
+                                curDragPoint?.position.y = 0.01
+                                playerBoardNode.addChildNode(curDragPoint!)
+                                updateStorageBoardPosition()
+                            }
                         }
-                        if curDragPoint != nil {
-                            curDragPoint?.position.y = 0.01
-                            playerBoardNode.addChildNode(curDragPoint!)
-                        }
-                        boardNode[pointBoardIndex].append(curDragPoint!)
                         updateWholeBoardPosition()
                     }
                     
@@ -511,7 +535,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         }
          return nodePos
       }
-    func inserChessPos(insertChess: baseChessNode, insertTo: baseChessNode) -> Bool{
+    func insertChessPos(insertChess: baseChessNode, insertTo: baseChessNode) -> Bool{
         var inserToPos:[Int] = [] //0和1是boardnode上的 2是storagenode
         for index in 0 ..< boardNode.count {
             let curBoard = boardNode[index]
@@ -660,14 +684,30 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         return insertIndex
     }
     func insertNewNodeToBoard(curBoardSide:Int,curBoardIndex: Int, curChess: baseChessNode) {
-        boardNode[curBoardSide].insert(curChess, at: curBoardIndex)
-        curDragPoint?.position.y = 0.01
-        playerBoardNode.addChildNode(curChess)
+        if(boardNode[curBoardSide].count < GlobalCommonNumber.chessNumber) {
+            boardNode[curBoardSide].insert(curChess, at: curBoardIndex)
+            curDragPoint?.position.y = 0.01
+            playerBoardNode.addChildNode(curChess)
+        }
     }
     func appendNewNodeToBoard(curBoardSide:Int, curChess: baseChessNode) {
-        boardNode[curBoardSide].append(curChess)
-        curDragPoint?.position.y = 0.01
-        playerBoardNode.addChildNode(curChess)
+        if(boardNode[curBoardSide].count < GlobalCommonNumber.chessNumber) {
+            boardNode[curBoardSide].append(curChess)
+            curDragPoint?.position.y = 0.01
+            playerBoardNode.addChildNode(curChess)
+        }
+    }
+    func recoverNodeToBoard(dragPos: [Int]) {
+        if dragPos[0] == 0 {
+            appendNewNodeToBoard(curBoardSide: BoardSide.enemySide.rawValue, curChess: curDragPoint!)
+        } else if dragPos[0] == 2{
+            if curDragPoint != nil { //storage暂时较少用到 不封装放置方法
+                storageNode.append(curDragPoint!)
+                curDragPoint?.position.y = 0.01
+                playerBoardNode.addChildNode(curDragPoint!)
+                updateStorageBoardPosition()
+            }
+        }
     }
     func generateUpgradeChess( _ subChessNodes : [baseChessNode]) -> baseChessNode{//用于合成高等级棋子 保留3个棋子的所有特效  待完善 todo
         //之后可以增加一些判断是否超过2级
@@ -695,7 +735,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 let startIndex = (GlobalNumberSettings.chessNumber.rawValue - boardNode[index].count) / 2
                 let curChessNode = boardNode[index][innerIndex]
                 
-                if (index == BoardSide.allySide.rawValue && curChessNode.chessLevel < 3) { //只有己方才触发
+                if (curStage == EnumsGameStage.exchangeStage.rawValue && index == BoardSide.allySide.rawValue && curChessNode.chessLevel < 3) { //只有己方 echange stage才触发
                     if chessTimesDic[curChessNode.chessLevel][curChessNode.chessName] != nil {
                         chessTimesDic[curChessNode.chessLevel][curChessNode.chessName]!.append(innerIndex)
                         if chessTimesDic[curChessNode.chessLevel][curChessNode.chessName]!.count >= 3 { //合成
@@ -781,7 +821,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             let randomIndex = Int.randomIntNumber(lower: 0, upper: self.boardNode[nextSide].count)
             let attacker = self.boardNode[attSide][curIndex]
             let victim = self.boardNode[nextSide][randomIndex]
-            let attackResult = attack(attackBoard: self.boardNode[attSide], attackIndex: curIndex, victimBoard: self.boardNode[nextSide], victimIndex: randomIndex)//self.boardNode[0][curIndex], self.boardNode[1][randomIndex]
+            let attackResult = attack(attackBoard: &self.boardNode[attSide], attackIndex: curIndex, victimBoard: self.boardNode[nextSide], victimIndex: randomIndex)//self.boardNode[0][curIndex], self.boardNode[1][randomIndex]
             //
             //
             if attackResult[0] == 0 { //attacker eliminated
@@ -812,9 +852,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 }
                 delay(updateTime + 0.10) { //延迟刷新棋盘事件
                     if attacker.abilities.contains(EnumAbilities.rapid.rawValue) && self.boardNode[nextSide].count > 0 && attackResult[0] != 0 { // if alive and has rapid,attack again
-                        attacker.abilityTrigger(abilityEnum: EnumString.rapid.rawValue.localized)
+                        attacker.abilityTrigger(abilityEnum: EnumAbilities.rapid.rawValue.localized)
                         let randomNumber = Int.randomIntNumber(lower: 0, upper: self.boardNode[nextSide].count)
-                        let attackAgainResult = attack(attackBoard: self.boardNode[attSide], attackIndex: curIndex, victimBoard: self.boardNode[nextSide], victimIndex: randomNumber)
+                        let attackAgainResult = self.attack(attackBoard: &self.boardNode[attSide], attackIndex: curIndex, victimBoard: self.boardNode[nextSide], victimIndex: randomNumber)
                         if attackAgainResult[0] == 0 { //attacker eliminated
                             self.boardNode[attSide].remove(at: curIndex)
                         }
@@ -933,22 +973,23 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         }
     }
     func switchGameStage() {
-        if curStage == EnumsGameStage.exchangeStage.rawValue {
+        if curStage == EnumsGameStage.exchangeStage.rawValue {  //交易转战斗
+            disableButtons() //禁止buttons点击和手势事件
             let delayTime = PlayerBoardTextAppear(TextContent: "BattleStage".localized) //弹出切换回合提示
             delay(delayTime) {
                 var totalTime = 0.00
                 //处理abilities beforeround事件
-                for index in 0 ..< self.boardNode[1].count {
-                    let curBoard = self.boardNode[1]
-                    let curChess = self.boardNode[1][index]
-                    if curChess.abilities.contains(EnumAbilities.liveInGroup.rawValue) {
-                        let copyChess = curChess.copyable()
-                        curChess.abilities = [] //empty ability,in case it keep adding
-                        self.boardNode[1].append(copyChess)
-                        self.playerBoardNode.addChildNode(copyChess)
-                        curChess.abilityTrigger(abilityEnum: EnumString.liveInGroup.rawValue.localized)
-                    }
-                }
+//                for index in 0 ..< self.boardNode[1].count {
+//                    let curBoard = self.boardNode[1]
+//                    let curChess = self.boardNode[1][index]
+//                    if curChess.abilities.contains(EnumAbilities.liveInGroup.rawValue) {
+//                        let copyChess = curChess.copyable()
+//                        curChess.abilities = [] //empty ability,in case it keep adding
+//                        self.boardNode[1].append(copyChess)
+//                        self.playerBoardNode.addChildNode(copyChess)
+//                        curChess.abilityTrigger(abilityEnum: EnumString.liveInGroup.rawValue.localized)
+//                    }
+//                }
                 let actionTime = self.updateWholeBoardPosition()
                 totalTime += actionTime
                 //
@@ -969,9 +1010,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     }
                 }
             }
-        } else if curStage == EnumsGameStage.battleStage.rawValue {
+        } else if curStage == EnumsGameStage.battleStage.rawValue { //战斗转交易
             let delayTime = PlayerBoardTextAppear(TextContent: "ExchangeStage".localized) //弹出切换回合提示
             delay(delayTime){
+                self.recoverButtons()
                 self.curStage = EnumsGameStage.exchangeStage.rawValue
                 self.boardNode[1].forEach{(curChess) in
                     curChess.removeFromParentNode()
@@ -1133,6 +1175,78 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             return
         }
     }
+    //chessnode actions
+
+    public func attack(attackBoard: inout [baseChessNode] , attackIndex: Int, victimBoard: [baseChessNode], victimIndex: Int) -> [Double] {
+        let attacker = attackBoard[attackIndex]
+        let victim = victimBoard[victimIndex]
+        let atkStartPos = attacker.position
+        var attackAtt = attacker.atkNum!
+        if attacker.abilities.contains(EnumAbilities.furious.rawValue) { //如果有furious的话 有概率暴击
+            let randomNumber = Int.randomIntNumber(lower: 1, upper: 5 - attacker.chessLevel)
+            if randomNumber == 1 {
+                attackAtt *= 2
+                attacker.abilityTrigger(abilityEnum: EnumAbilities.furious.rawValue.localized)
+            }
+        }
+        
+        //blood calculate
+        var attRstBlood = attacker.defNum! - victim.atkNum!
+        var vicRstBlood = victim.defNum! - attackAtt
+        var actionResult = [1.00, 1.00] //1 represents alive, 0 represents the opposite
+        var attackSequence: [SCNAction] = []
+        var totalTime = 0.00
+        
+        //
+        //alive test
+        actionResult[0] = attRstBlood > 0 ? 1 : 0
+        actionResult[1] = vicRstBlood > 0 ? 1 : 0
+        
+        attackSequence = [attackAction(atkStartPos, victim.position),
+                          damageAppearAction([attacker, victim], [victim.atkNum! , attackAtt]),
+                          bloodChangeAction([attacker, victim], [attRstBlood, vicRstBlood])
+                          ]
+            
+    //    }
+        if attRstBlood > 0 {
+            attackSequence += [backToAction(atkStartPos, attacker)]
+            if attacker.abilities.contains(EnumAbilities.liveInGroup.rawValue) && attackBoard.count < GlobalCommonNumber.chessNumber { // <7
+                let copyChess = attacker.copyable()
+                attacker.abilities = [] //empty ability,in case it keep adding
+                attackBoard.append(copyChess)
+                attacker.position.y = 0.01
+                attackSequence.append(SCNAction.customAction(duration: 0.5, action: { _,_ in
+                    self.playerBoardNode.addChildNode(copyChess)
+                    attacker.abilityTrigger(abilityEnum: EnumAbilities.liveInGroup.rawValue.localized)
+                }))
+            }
+        }
+        //计算动作用时 calculate the total time of all the actions
+        attackSequence.forEach { (action) in
+            totalTime += action.duration
+        }
+        actionResult.append(totalTime)
+        //
+        attacker.runAction(SCNAction.sequence(attackSequence))
+        return actionResult
+    }
+    func recoverButtons() {
+        randomButtonNode.runAction(SCNAction.fadeIn(duration: 1))
+        upgradeButtonNode.runAction(SCNAction.fadeIn(duration: 1))
+        endButtonNode.runAction(SCNAction.fadeIn(duration: 1))
+        longPressGestureRecognizer.cancelsTouchesInView = false
+        self.sceneView.addGestureRecognizer(longPressGestureRecognizer)
+        tapGestureRecognizer.cancelsTouchesInView = false
+        self.sceneView.addGestureRecognizer(tapGestureRecognizer)
+    }
+    func disableButtons() {
+        randomButtonNode.runAction(SCNAction.fadeOut(duration: 1))
+        upgradeButtonNode.runAction(SCNAction.fadeOut(duration: 1))
+        endButtonNode.runAction(SCNAction.fadeOut(duration: 1))
+        self.sceneView.removeGestureRecognizer(longPressGestureRecognizer)
+        self.sceneView.removeGestureRecognizer(tapGestureRecognizer)
+        
+    }
     func initButtons() {
         if let randomButtonTopTemp = playerBoardNode.childNode(withName: "randomButtonTop", recursively: true) {
             randomButtonTopNode = randomButtonTopTemp
@@ -1142,6 +1256,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         }
         if let endButtonTopTemp = playerBoardNode.childNode(withName: "endButtonTop", recursively: true) {
             endButtonTopNode = endButtonTopTemp
+        }
+        if let randomButtonTemp = playerBoardNode.childNode(withName: "randomButton", recursively: true) {
+            randomButtonNode = randomButtonTemp
+        }
+        if let upgradeButtonTemp = playerBoardNode.childNode(withName: "upgradeButton", recursively: true) {
+            upgradeButtonNode = upgradeButtonTemp
+        }
+        if let endButtonTemp = playerBoardNode.childNode(withName: "endButton", recursively: true) {
+            endButtonNode = endButtonTemp
         }
     }
     func initGameTest() {

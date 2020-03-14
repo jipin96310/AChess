@@ -52,7 +52,7 @@ func bloodChangeAction(_ changeNodes: [baseChessNode], _ changeNums: [Int]) -> S
                 //剧毒
                 if otherNode.abilities.contains(EnumAbilities.poison.rawValue) { //如果att有poison的话 直接秒杀
                     curBlood = -1 //把victim血量modify to -1
-                    otherNode.abilityTrigger(abilityEnum: EnumString.poision.rawValue.localized)
+                    otherNode.abilityTrigger(abilityEnum: EnumAbilities.poison.rawValue.localized)
                 }
             
                 addExplosion(curNode)

@@ -79,51 +79,7 @@ func findChessRootNode(_ childNode: SCNNode) -> baseChessNode?{
     return findChessRootNode(childNode.parent!)
 }
 
-//chessnode actions
 
-public func attack(attackBoard: [baseChessNode], attackIndex: Int, victimBoard: [baseChessNode], victimIndex: Int) -> [Double] {
-    let attacker = attackBoard[attackIndex]
-    let victim = victimBoard[victimIndex]
-    let atkStartPos = attacker.position
-    var attackAtt = attacker.atkNum!
-    if attacker.abilities.contains(EnumAbilities.furious.rawValue) { //如果有furious的话 有概率暴击
-        let randomNumber = Int.randomIntNumber(lower: 1, upper: 5 - attacker.chessLevel)
-        if randomNumber == 1 {
-            attackAtt *= 2
-            attacker.abilityTrigger(abilityEnum: EnumString.furious.rawValue.localized)
-        }
-    }
-    
-    //blood calculate
-    var attRstBlood = attacker.defNum! - victim.atkNum!
-    var vicRstBlood = victim.defNum! - attackAtt
-    var actionResult = [1.00, 1.00] //1 represents alive, 0 represents the opposite
-    var attackSequence: [SCNAction] = []
-    var totalTime = 0.00
-    
-    //
-    //alive test
-    actionResult[0] = attRstBlood > 0 ? 1 : 0
-    actionResult[1] = vicRstBlood > 0 ? 1 : 0
-    
-    attackSequence = [attackAction(atkStartPos, victim.position),
-                      damageAppearAction([attacker, victim], [victim.atkNum! , attackAtt]),
-                      bloodChangeAction([attacker, victim], [attRstBlood, vicRstBlood])
-                      ]
-        
-//    }
-    if attRstBlood > 0 {
-        attackSequence += [backToAction(atkStartPos, attacker)]
-    }
-    //计算动作用时 calculate the total time of all the actions
-    attackSequence.forEach { (action) in
-        totalTime += action.duration
-    }
-    actionResult.append(totalTime)
-    //
-    attacker.runAction(SCNAction.sequence(attackSequence))
-    return actionResult
-}
 //public func adjustChessPosition(_ rootNodes: [SCNNode], _ chessNodes: [baseChessNode]) {
 //    
 //}
