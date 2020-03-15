@@ -225,23 +225,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     } else if curPressNode.name == EnumNodeName.enemyBoard.rawValue {
                         curPressNode.geometry?.firstMaterial?.diffuse.contents = UIColor.red
                     } else {
-                        if let saleStage = playerBoardNode.childNode(withName: EnumNodeName.saleStage.rawValue, recursively: true) {
-                            saleStage.geometry?.firstMaterial?.diffuse.contents = UIColor.black
-                        }
-                        if let storagePlace = playerBoardNode.childNode(withName: EnumNodeName.storagePlace.rawValue, recursively: true) {
-                            storagePlace.geometry?.firstMaterial?.diffuse.contents = UIColor.black
-                        }
-                        if let allyBoard = playerBoardNode.childNode(withName: EnumNodeName.allyBoard.rawValue, recursively: true) {
-                            allyBoard.geometry?.firstMaterial?.diffuse.contents = UIColor.black
-                        }
-                        if let enemyBoard = playerBoardNode.childNode(withName: EnumNodeName.enemyBoard.rawValue, recursively: true) {
-                            enemyBoard.geometry?.firstMaterial?.diffuse.contents = UIColor.black
-                        }
+                       recoverBoardColor()
                     }
                 }
             }
         } else if sender.state == .ended
         {
+            recoverBoardColor() //放置动作结束 恢复board颜色
+            //
             let touchLocation = sender.location(in: sceneView)
             let hitTestResult = sceneView.hitTest(touchLocation, options: [SCNHitTestOption.ignoreHiddenNodes: true, SCNHitTestOption.rootNode: playerBoardNode]) //用于检测触摸的node
             let hitTestResult2 = sceneView.hitTest(touchLocation, types: [.existingPlaneUsingExtent]) //用于检测触摸点的pos
@@ -269,39 +260,35 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             if curDragPoint!.chessStatus == EnumsChessStage.forSale.rawValue { //not yet owned, first deducts the money
                                 if buyChess(playerID: curPlayerId, chessPrice: curDragPoint!.chessPrice) == true { //buy success
                                     curDragPoint?.chessStatus = EnumsChessStage.owned.rawValue
-                                } else {
-                                    if curIndex < (GlobalNumberSettings.chessNumber.rawValue - curSide.count) / 2 {
-                                        boardNode[curSideIndex].insert(curDragPoint!, at: 0)
-                                    } else {
-                                        boardNode[curSideIndex].append(curDragPoint!)
-                                    }
                                     if curDragPoint != nil {
+                                        if curIndex < (GlobalNumberSettings.chessNumber.rawValue - curSide.count) / 2 {
+                                            boardNode[curSideIndex].insert(curDragPoint!, at: 0)
+                                        } else {
+                                            boardNode[curSideIndex].append(curDragPoint!)
+                                        }
                                         curDragPoint?.position.y = 0.01
                                         playerBoardNode.addChildNode(curDragPoint!)
                                     }
-                                    referencePoint.isHidden = true
-                                    //
-                                    curDragPoint = nil
-                                    curDragPos = []
                                     updateWholeBoardPosition()
-                                    return
+                                } else { //购买失败 放回去
+                                    if curDragPos[0] < 2 {
+                                        appendNewNodeToBoard(curBoardSide: curDragPos[0], curChess: curDragPoint!)
+                                    } else {
+                                        if curDragPoint != nil { //storage暂时较少用到 不封装放置方法
+                                            storageNode.append(curDragPoint!)
+                                            curDragPoint?.position.y = 0.01
+                                            playerBoardNode.addChildNode(curDragPoint!)
+                                            updateStorageBoardPosition()
+                                        }
+                                    }
+                                    updateWholeBoardPosition()
                                 }
                             }
                         }
                         if curDragPoint!.chessStatus == EnumsChessStage.owned.rawValue { //如果已经买过了，就移动回到ally side
                             curSideIndex = BoardSide.allySide.rawValue
                         }
-                       
-                        if curDragPoint != nil {
-                            if curIndex < (GlobalNumberSettings.chessNumber.rawValue - curSide.count) / 2 {
-                                boardNode[curSideIndex].insert(curDragPoint!, at: 0)
-                            } else {
-                                boardNode[curSideIndex].append(curDragPoint!)
-                            }
-                            curDragPoint?.position.y = 0.01
-                            playerBoardNode.addChildNode(curDragPoint!)
-                        }
-                        updateWholeBoardPosition()
+                                               
                     } else if curPressNode.name == EnumNodeName.saleStage.rawValue && curDragPoint?.chessStatus == EnumsChessStage.owned.rawValue{
                         sellChess(playerID: curPlayerId, curChess: curDragPoint!)
                     } else if curPressNode.name == EnumNodeName.storagePlace.rawValue { //放置到储藏区
@@ -320,14 +307,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             }
                             updateStorageBoardPosition()
                         } else if curDragPoint?.chessStatus == EnumsChessStage.owned.rawValue { //已购买
-//                            if storageNode.count < GlobalCommonNumber.storageNumber { //enough space to place 还可以放
-//                                if curDragPoint != nil { //storage暂时较少用到 不封装放置方法
-//                                    storageNode.append(curDragPoint!)
-//                                    curDragPoint?.position.y = 0.01
-//                                    playerBoardNode.addChildNode(curDragPoint!)
-//                                }
-//                                updateStorageBoardPosition()
-//                            } else {
                                 if curDragPoint != nil {
                                     appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: curDragPoint!)
                                 }
@@ -340,51 +319,51 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             if boardNode[BoardSide.allySide.rawValue].count < GlobalCommonNumber.chessNumber { //小于棋子上限数量
                                 let positionOfPress = hitTestResult2.first!.worldTransform.columns.3
                                 let curPressLocation = SCNVector3(positionOfPress.x, positionOfPress.y, positionOfPress.z)
-                                if curDragPoint?.chessStatus == EnumsChessStage.forSale.rawValue { //未购买/使用
-                                    if curDragPos[0] != 2 { //dragpoint不是储藏区拿出来的
-                                        if boardNode[BoardSide.allySide.rawValue].count < GlobalCommonNumber.chessNumber {
+                                if curDragPoint?.chessStatus == EnumsChessStage.forSale.rawValue { //未使用 forSale包含storage的状态
+                                    if curDragPos[0] != 2 { //dragpoint不是储藏区拿出来的 所以需要购买一下
                                             if buyChess(playerID: curPlayerId, chessPrice: curDragPoint!.chessPrice) == true { //buy success
+                                               //continue
                                                 curDragPoint?.chessStatus = EnumsChessStage.owned.rawValue
-                                                if curDragPoint != nil {
-                                                    let curInsertIndex = calInsertPos(curBoardSide: BoardSide.allySide.rawValue, positionOfBoard: curPressLocation)
-                                                    if curInsertIndex == -1 || curInsertIndex - (GlobalCommonNumber.chessNumber / 2) >= boardNode[BoardSide.allySide.rawValue].count {
-                                                       appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: curDragPoint!)
-                                                    } else {
-                                                        insertNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curBoardIndex: 0, curChess: curDragPoint!)
-                                                    }
-                                                    
-                                                }
                                             } else { //钱不够 购买时买
                                                 if curDragPoint != nil {
                                                     appendNewNodeToBoard(curBoardSide: BoardSide.enemySide.rawValue, curChess: curDragPoint!)
+                                                    updateWholeBoardPosition()
+                                                    return
                                                 }
                                             }
-                                        } else {//棋盘不够 移动回去
-                                            recoverNodeToBoard(dragPos: curDragPos)
-                                        }
-                                        updateWholeBoardPosition()
-                                    } else { //储藏区拿来的
-                                        if curDragPoint != nil && curDragPoint!.abilities.contains(EnumAbilities.instantAddSingleBuff.rawValue)  { // if chess has instant add buff TODO!!!!
-                                            curDragPoint!.abilityTrigger(abilityEnum: EnumAbilities.rapid.rawValue.localized)
+                                       }
+                                    //储藏区来的不需要购买
+                                        if curDragPoint != nil && curDragPoint!.abilities.contains(EnumAbilities.instantAddSingleBuff.rawValue)  { // if chess has INSTANT add buff TODO!!!!
+                                            removeGestureRecoginzer()
+                                            PlayerBoardTextShow(TextContent: EnumString.chooseAnChess.rawValue.localized)
+                                            curDragPoint?.isHidden = true //隐藏当前的拖拽棋子 方便选择
+                                            //
+                                            tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onChooseChessTap))
+                                            self.sceneView.addGestureRecognizer(tapGestureRecognizer)
+                                            boardNode[BoardSide.allySide.rawValue].forEach{(curChess)in
+                                                curChess.setActive()
+                                            }
+                                        } else {//没有特殊的战吼之类的触发 直接放置入 allyboard
+                                            let curInsertIndex = calInsertPos(curBoardSide: BoardSide.allySide.rawValue, positionOfBoard: curPressLocation)
                                             
+                                            if curInsertIndex == -1 || curInsertIndex - (GlobalCommonNumber.chessNumber / 2) >= boardNode[BoardSide.allySide.rawValue].count {
+                                               appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: curDragPoint!)
+                                            } else {
+                                                insertNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curBoardIndex: 0, curChess: curDragPoint!)
+                                            }
+                                            updateWholeBoardPosition()
                                         }
-                                    }
+                                    
                                 } else if curDragPoint?.chessStatus == EnumsChessStage.owned.rawValue { //已购买&&使用
-                                    if boardNode[BoardSide.allySide.rawValue].count < GlobalCommonNumber.chessNumber { //enough space to place 还可以放
                                         if curDragPoint != nil {
-                                            appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: curDragPoint!)
+                                            let curInsertIndex = calInsertPos(curBoardSide: BoardSide.allySide.rawValue, positionOfBoard: curPressLocation)
+                                            if curInsertIndex == -1 || curInsertIndex - (GlobalCommonNumber.chessNumber / 2) >= boardNode[BoardSide.allySide.rawValue].count {
+                                               appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: curDragPoint!)
+                                            } else {
+                                                insertNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curBoardIndex: 0, curChess: curDragPoint!)
+                                            }
                                         }
                                         updateWholeBoardPosition()
-                                    } else {//友方棋盘位置不够 放回storage 默认不存在都不够的情况
-                                        recoverNodeToBoard(dragPos: curDragPos)
-//                                        if curDragPoint != nil { //storage暂时较少用到 不封装放置方法
-//                                            storageNode.append(curDragPoint!)
-//                                            curDragPoint?.position.y = 0.01
-//                                            playerBoardNode.addChildNode(curDragPoint!)
-//                                            updateStorageBoardPosition()
-//                                        }
-                                    }
-                                    
                                 }
                             } else {
                                recoverNodeToBoard(dragPos: curDragPos)
@@ -407,13 +386,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                     }
                             }
                             updateWholeBoardPosition()
-                        } else if curDragPoint?.chessStatus == EnumsChessStage.owned.rawValue { //已购买
-                            if boardNode[BoardSide.enemySide.rawValue].count < GlobalCommonNumber.chessNumber { //enough space to place 还可以放
-                                if curDragPoint != nil {
-                                    appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: curDragPoint!)
-                                }
-                                updateWholeBoardPosition()
-                            } else {//友方棋盘位置不够 放回storage
+                        } else if curDragPoint?.chessStatus == EnumsChessStage.owned.rawValue { //已购买放回原位
+                           if curDragPos[0] < 2 {
+                                appendNewNodeToBoard(curBoardSide: curDragPos[0], curChess: curDragPoint!)
+                            } else {
                                 if curDragPoint != nil { //storage暂时较少用到 不封装放置方法
                                     storageNode.append(curDragPoint!)
                                     curDragPoint?.position.y = 0.01
@@ -421,6 +397,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                     updateStorageBoardPosition()
                                 }
                             }
+                            updateWholeBoardPosition()
                             
                         }
                         
@@ -441,10 +418,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     
                 }
                 //}
-                //let positionOfPress = hitTestResult.first!.worldTransform.columns.3
-                
-                //let curPressLocation = SCNVector3(positionOfPress.x, positionOfPress.y, positionOfPress.z)
-                //
+             
                 
             }
             //
@@ -452,8 +426,44 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 saleStage.geometry?.firstMaterial?.diffuse.contents = UIColor.black
             }
             referencePoint.isHidden = true
-            curDragPoint = nil
+           
+            //curDragPoint = nil
         }
+    }
+    @objc func onChooseChessTap(sender: UITapGestureRecognizer) { //用于战吼等选择棋子的操作的tap
+        guard let sceneView = sender.view as? ARSCNView else {return}
+                    let touchLocation = sender.location(in: sceneView)
+                    let hitTestResult = sceneView.hitTest(touchLocation, types: [.existingPlaneUsingExtent])
+                    if !hitTestResult.isEmpty {
+                      
+                            //self.addChessTest(hitTestResult: hitTestResult.first!)
+                            guard let sceneView = sender.view as? ARSCNView else {return}
+                            let touchLocation = sender.location(in: sceneView)
+                            let hitTestResult = sceneView.hitTest(touchLocation, options: [SCNHitTestOption.boundingBoxOnly: true, SCNHitTestOption.ignoreHiddenNodes: true])
+                            if !hitTestResult.isEmpty {
+                                let curNode = hitTestResult.first?.node
+                                if let curBaseChess = findChessRootNode(curNode!) {
+                                    if curDragPoint != nil {
+                                        if curDragPoint!.abilities.contains(EnumAbilities.instantAddSingleBuff.rawValue) {
+                                            curBaseChess.AddBuff(AtkNumber: 1, DefNumber: 1)
+                                        }
+                                        //恢复buttons   恢复点击事件
+                                        appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: curDragPoint!)
+                                        recoverGestureRecoginzer()
+                                        updateWholeBoardPosition()
+                                        curDragPoint?.isHidden = false
+                                        boardNode[BoardSide.allySide.rawValue].forEach{(curSubChess) in
+                                            curSubChess.cancelActive()
+                                        }
+                                        curDragPoint = nil
+                                        PlayerBoardTextOff()
+                                    }
+                                    
+                                }
+                            }
+                                    
+                    }
+        return
     }
     @objc func onTap(sender: UITapGestureRecognizer) {
             guard let sceneView = sender.view as? ARSCNView else {return}
@@ -473,7 +483,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                        
                         if isNameButton(hitTestResult.first!.node, "randomButton") {
                             //点击以后randombutton下压
-                             print("click", randomButtonTopNode)
+                        
                              randomButtonTopNode.runAction(SCNAction.sequence([
                                                              SCNAction.move(by: SCNVector3(0,-0.01,0), duration: 0.25),
                                                              SCNAction.move(by: SCNVector3(0,0.01,0), duration: 0.25)
@@ -707,6 +717,20 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 playerBoardNode.addChildNode(curDragPoint!)
                 updateStorageBoardPosition()
             }
+        }
+    }
+    func recoverBoardColor() {
+        if let saleStage = playerBoardNode.childNode(withName: EnumNodeName.saleStage.rawValue, recursively: true) {
+            saleStage.geometry?.firstMaterial?.diffuse.contents = UIColor.black
+        }
+        if let storagePlace = playerBoardNode.childNode(withName: EnumNodeName.storagePlace.rawValue, recursively: true) {
+            storagePlace.geometry?.firstMaterial?.diffuse.contents = UIColor.black
+        }
+        if let allyBoard = playerBoardNode.childNode(withName: EnumNodeName.allyBoard.rawValue, recursively: true) {
+            allyBoard.geometry?.firstMaterial?.diffuse.contents = UIColor.black
+        }
+        if let enemyBoard = playerBoardNode.childNode(withName: EnumNodeName.enemyBoard.rawValue, recursively: true) {
+            enemyBoard.geometry?.firstMaterial?.diffuse.contents = UIColor.black
         }
     }
     func generateUpgradeChess( _ subChessNodes : [baseChessNode]) -> baseChessNode{//用于合成高等级棋子 保留3个棋子的所有特效  待完善 todo
@@ -1234,6 +1258,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         randomButtonNode.runAction(SCNAction.fadeIn(duration: 1))
         upgradeButtonNode.runAction(SCNAction.fadeIn(duration: 1))
         endButtonNode.runAction(SCNAction.fadeIn(duration: 1))
+        //
+        longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action:  #selector(onLongPress))
+        tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onTap))
         longPressGestureRecognizer.cancelsTouchesInView = false
         self.sceneView.addGestureRecognizer(longPressGestureRecognizer)
         tapGestureRecognizer.cancelsTouchesInView = false
@@ -1243,10 +1270,22 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         randomButtonNode.runAction(SCNAction.fadeOut(duration: 1))
         upgradeButtonNode.runAction(SCNAction.fadeOut(duration: 1))
         endButtonNode.runAction(SCNAction.fadeOut(duration: 1))
-        self.sceneView.removeGestureRecognizer(longPressGestureRecognizer)
-        self.sceneView.removeGestureRecognizer(tapGestureRecognizer)
+        removeGestureRecoginzer()
         
     }
+    func recoverGestureRecoginzer() {
+        longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action:  #selector(onLongPress))
+        tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onTap))
+        longPressGestureRecognizer.cancelsTouchesInView = false
+        self.sceneView.addGestureRecognizer(longPressGestureRecognizer)
+        tapGestureRecognizer.cancelsTouchesInView = false
+        self.sceneView.addGestureRecognizer(tapGestureRecognizer)
+    }
+    func removeGestureRecoginzer() {
+        self.sceneView.removeGestureRecognizer(longPressGestureRecognizer)
+        self.sceneView.removeGestureRecognizer(tapGestureRecognizer)
+    }
+    
     func initButtons() {
         if let randomButtonTopTemp = playerBoardNode.childNode(withName: "randomButtonTop", recursively: true) {
             randomButtonTopNode = randomButtonTopTemp
@@ -1305,6 +1344,31 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 //        })
            
        }
+    func PlayerBoardTextShow(TextContent: String) -> Double{
+           let t1 = 0.1
+           if let boardTextTemp = playerBoardNode.childNode(withName: "boardTextNode", recursively: true) {
+               boardTextTemp.parent!.isHidden = false //先显示text parent
+           //if let parentBound = playerBoardNode.childNode(withName: "middleLine", recursively: true) {
+               let tempTextGeo: SCNText = boardTextTemp.geometry as! SCNText
+               tempTextGeo.string = TextContent
+               let (min, max) = boardTextTemp.parent!.boundingBox
+               let dx = min.x + 0.5 * (max.x - min.x)
+               let dy = min.y + 0.5 * (max.y - min.y)
+               let dz = min.z + 0.5 * (max.z - min.z)
+               boardTextTemp.pivot = SCNMatrix4MakeTranslation(dx, dy, dz)
+              
+               boardTextTemp.runAction(SCNAction.sequence([
+                   SCNAction.fadeIn(duration: t1)
+               ]))
+               }
+           return t1
+       }
+    func PlayerBoardTextOff(){
+        if let boardTextTemp = playerBoardNode.childNode(withName: "boardTextNode", recursively: true) {
+                    boardTextTemp.parent!.isHidden = true
+             
+            }
+    }
     /////////////////end////////
     func PlayerBoardTextAppear(TextContent: String) -> Double{
         let t1 = 0.1
