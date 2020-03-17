@@ -331,7 +331,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                             }
                                        }
                                     //储藏区来的不需要购买
-                                        if curDragPoint != nil && curDragPoint!.abilities.contains(EnumAbilities.instantAddSingleBuff.rawValue)  { // if chess has INSTANT add buff TODO!!!!
+                                        if curDragPoint!.abilities.contains(EnumAbilities.instantAddSingleBuff.rawValue)  { // if chess has INSTANT add buff TODO!!!!
                                             removeGestureRecoginzer()
                                             PlayerBoardTextShow(TextContent: EnumString.chooseAnChess.rawValue.localized)
                                             curDragPoint?.isHidden = true //隐藏当前的拖拽棋子 方便选择
@@ -341,6 +341,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                             boardNode[BoardSide.allySide.rawValue].forEach{(curChess)in
                                                 curChess.setActive()
                                             }
+                                        } else if curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbility.rawValue) {
+                                            removeGestureRecoginzer()
+                                            PlayerBoardTextShow(TextContent: EnumString.chooseAnOption.rawValue.localized)
+                                            curDragPoint?.isHidden = true //隐藏当前的拖拽棋子 方便选择
+                                            //
+                                            tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onChooseChessTap))
+                                            self.sceneView.addGestureRecognizer(tapGestureRecognizer)
+                                            //
+                                            //randomDiffNumsFromArrs(outputNums: 3, inputArr: EvolveAbilities)
                                         } else {//没有特殊的战吼之类的触发 直接放置入 allyboard
                                             let curInsertIndex = calInsertPos(curBoardSide: BoardSide.allySide.rawValue, positionOfBoard: curPressLocation)
                                             
@@ -443,6 +452,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                 
                                 if curDragPoint!.abilities.contains(EnumAbilities.instantAddSingleBuff.rawValue) {
                                     curBaseChess.AddBuff(AtkNumber: 1, DefNumber: 1)
+                                } else if curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbility.rawValue) {
+                                    //curBaseChess.AddAbilities()
                                 }
                                 //使用完毕修改棋子状态
                                 curDragPoint?.chessStatus = EnumsChessStage.owned.rawValue
