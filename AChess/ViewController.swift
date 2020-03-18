@@ -345,11 +345,28 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                             removeGestureRecoginzer()
                                             PlayerBoardTextShow(TextContent: EnumString.chooseAnOption.rawValue.localized)
                                             curDragPoint?.isHidden = true //隐藏当前的拖拽棋子 方便选择
+                                            self.playerStatues[self.curPlayerId].curChesses = [] //备份当前棋子
+                                            self.boardNode[BoardSide.allySide.rawValue].forEach{(curChess) in
+                                                self.playerStatues[self.curPlayerId].curChesses.append(curChess.copyable())
+                                            }
+                                            let randomAbiArr = randomDiffNumsFromArrs(outputNums: 3, inputArr: EvolveAbilities)
+                                            self.boardNode[BoardSide.allySide.rawValue] = [] //为我方放置3种类型能力的棋子
+                                            randomAbiArr.forEach{ (curAbi) in
+                                                let newChess = baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: chessStruct(name: curAbi, desc: curAbi, atkNum: 1, defNum: 1, chessRarity: 1, chessLevel: 1, abilities: [curAbi], rattleFunc: [], inheritFunc: []))
+                                                appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: newChess)
+                                                
+                                            }
+                                            updateWholeBoardPosition()
+//                                            self.playerStatues[self.curPlayerId].curChesses.forEach{(curChess) in   //备份当前棋子
+//                                                self.boardNode[BoardSide.allySide.rawValue].append(curChess.copyable())
+//                                            }
+                                           
+                                            
                                             //
                                             tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onChooseChessTap))
                                             self.sceneView.addGestureRecognizer(tapGestureRecognizer)
                                             //
-                                            //randomDiffNumsFromArrs(outputNums: 3, inputArr: EvolveAbilities)
+                                            
                                         } else {//没有特殊的战吼之类的触发 直接放置入 allyboard
                                             let curInsertIndex = calInsertPos(curBoardSide: BoardSide.allySide.rawValue, positionOfBoard: curPressLocation)
                                             
