@@ -65,7 +65,7 @@ func isNameButton(_ childNode: SCNNode, _ buttonName: String) -> Bool {
     }
 }
 //find chess root node
-func findChessRootNode(_ childNode: SCNNode) -> baseChessNode?{
+func findChessRootNode(_ childNode: SCNNode) -> baseChessNode?{   //递归返回当前的basechessnode
     if childNode is baseChessNode {
         return childNode as? baseChessNode // this is the node you're looking for
     }
@@ -135,4 +135,16 @@ func delay(_ time: TimeInterval, task: @escaping ()->()) ->  Task? {
 
 func cancel(_ task: Task?) {
     task?(true)
+}
+
+func randomDiffNumsFromArrs(outputNums: Int, inputArr: [String]) -> [String]{
+    var curArr = inputArr
+    var tempArr:[String] = []
+    var flag = 0
+    while flag < outputNums {
+        let curNumber = Int.randomIntNumber(lower: 0, upper: curArr.count)
+        tempArr.append(curArr.remove(at: curNumber))
+        flag += 1
+    }
+    return tempArr
 }

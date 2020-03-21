@@ -75,6 +75,7 @@ public class baseChessNode: SCNNode {
             ]))
         }
     }
+    var chessKind: String = EnumChessKind.mountain.rawValue
     var abilities: [String] = []
     var rattleFunc: [()] = []
     var inheritFunc: [()] = []
@@ -144,6 +145,7 @@ public class baseChessNode: SCNNode {
         changeStarLabel()
         chessPrice = (chessRarity / 2) + 2
         priceTextNode.string = String(chessPrice)
+        chessKind = chessInfo.chessKind
         abilities = chessInfo.abilities
         rattleFunc = chessInfo.rattleFunc
         inheritFunc = chessInfo.inheritFunc
@@ -169,7 +171,7 @@ public class baseChessNode: SCNNode {
   ///
   /// - Returns: 拷贝的对象
   func copyable() -> baseChessNode {
-      return baseChessNode(statusNum: chessStatus, chessInfo: chessStruct(name: chessName, desc: chessDesc, atkNum: atkNum!, defNum: defNum!, chessRarity: chessRarity, chessLevel: chessLevel, abilities: abilities, rattleFunc: rattleFunc, inheritFunc: inheritFunc))
+      return baseChessNode(statusNum: chessStatus, chessInfo: chessStruct(name: chessName, desc: chessDesc, atkNum: atkNum!, defNum: defNum!, chessRarity: chessRarity, chessLevel: chessLevel,chessKind: chessKind, abilities: abilities, rattleFunc: rattleFunc, inheritFunc: inheritFunc))
   }
     func abilityTrigger(abilityEnum : String) {
         abilitiesTriggerTextNode.string = abilityEnum //之后要改成多语言
@@ -196,6 +198,11 @@ public class baseChessNode: SCNNode {
         }
        
     }
+    func AddBilities(Abilities: [String]) { //添加所属能力 需要加上一个字从空中飘到描述里的动画
+        abilities += Abilities
+        //最后计算棋子的描述
+        chessDesc = formatChessDesc()
+    }
     func formatChessDesc() -> String{ //当前只需要abilities里面的 后期有必要可以加上战吼之类的 TODO!!
         var tempDescStr = ""
         abilities.forEach{(curAbi) in
@@ -203,6 +210,16 @@ public class baseChessNode: SCNNode {
             tempDescStr += " "
         }
         return tempDescStr
+    }
+    func setActive() { //用于标识棋子可被选择 用于战吼 等场景。当前的操作就是把棋子变绿 之后确定棋子模型后优化
+        if let sideNode = self.childNode(withName: "side", recursively: true) {
+            sideNode.opacity = 0.5
+        }        
+    }
+    func cancelActive() {
+       if let sideNode = self.childNode(withName: "side", recursively: true) {
+            sideNode.opacity = 1
+        }
     }
     
     required init?(coder: NSCoder) {

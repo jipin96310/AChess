@@ -12,4 +12,15 @@
 "Furious"       = "凶猛"; //凶猛
 "Rapid"         = "迅捷";  // 迅捷
 "InheritAddBuff" = "传承: 获得+1/+1"; // Inherit: add buff
-"InstantAddSingleBuff" = "瞬发: 选择一个棋子获得+1/+1."
+"InstantAddSingleBuff" = "瞬发: 选择一个棋子获得+1/+1.";
+"InstantChooseAnAbility" = "瞬发: 选择一个棋子获得一个能力";
+"InstantChooseAnAbilityForMountain" = "瞬发: 选择一个山川的棋子获得一个能力";
+"ChooseAnChess" = "请选择一个棋子.";
+"ChooseAnOption" = "请选择一个选项.";
+//以下为卡牌类型
+"Mountain" = "山川"; //山
+"Ocean" = "海洋"; //海洋
+"Plain" = "平原"; //平原
+"Frost" = "森林"; //森林
+"Desert" = "沙漠"; //沙漠
+"Polar" = "极地"; //极地

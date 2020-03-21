@@ -12,4 +12,15 @@
 "Furious"       = "Furious"; //凶猛
 "Rapid"         = "Rapid";  // 迅捷
 "InheritAddBuff" = "Inherit: Gain +1/+1."; // Inherit: add buff
-"InstantAddSingleBuff" = "Instant: choose a chess to get +1/+1."
+"InstantAddSingleBuff" = "Instant: choose a chess to get +1/+1.";
+"InstantChooseAnAbility" = "Instant: choose a chess to get an ability";
+"InstantChooseAnAbilityForMountain" = "Instant: choose a mountain chess to get an ability";
+"ChooseAnChess" = "Please choose an chess.";
+"ChooseAnOption" = "Please choose an option.";
+//以下为卡牌类型
+"Mountain" = "Mountain"; //山
+"Ocean" = "Ocean"; //海洋
+"Plain" = "Plain"; //平原
+"Frost" = "Frost"; //森林
+"Desert" = "Desert"; //沙漠
+"Polar" = "Polar"; //极地

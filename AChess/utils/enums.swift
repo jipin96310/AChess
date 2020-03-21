@@ -60,6 +60,8 @@ enum EnumAbilities: String {
     case rapid    = "Rapid" // 迅捷
     case inheritAddBuff = "InheritAddBuff" //传承加buff
     case instantAddSingleBuff = "InstantAddSingleBuff" //战吼加指定单位buff
+    case instantChooseAnAbility = "InstantChooseAnAbility" //战吼进化
+    case instantChooseAnAbilityForMountain = "InstantChooseAnAbilityForMountain" //战吼种族进化
 }
 //public let EnumAbiNumToName: [Int:String] =
 //    [0: "",
@@ -67,10 +69,20 @@ enum EnumAbilities: String {
 enum EnumString: String {
     case exchangeStage = "ExchangeStage"
     case battleStage = "BattleStage"
+    case chooseAnChess = "ChooseAnChess"
+    case chooseAnOption = "ChooseAnOption"
 //    case poision    = "Poison"
 //    case liveInGroup = "LiveInGroup" //群居
 //    case furious    = "Furious" //凶猛
 //    case rapid      = "Rapid"   //迅捷
+}
+enum EnumChessKind: String {
+    case mountain = "Mountain"
+    case ocean = "Ocean"
+    case plain = "Plain"
+    case frost = "Frost"
+    case desert = "Desert"
+    case polar = "Polar"
 }
 
 

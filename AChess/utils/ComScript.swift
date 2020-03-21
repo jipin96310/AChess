@@ -13,3 +13,8 @@ public let GlobalCommonNumber = (
     chessNumber : 7,
     maxLevel : 5
 )
+public let EvolveAbilities = [
+    EnumAbilities.furious.rawValue,
+    EnumAbilities.poison.rawValue,
+    EnumAbilities.rapid.rawValue
+]

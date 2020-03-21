@@ -36,6 +36,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var referencePoint = SCNNode() // use for mode0 with touching on screen
     
     var curDragPoint: baseChessNode? = nil
+    var curChoosePoint: baseChessNode? = nil
     var curDragPos:[Int] = [] //0:棋盘 1:index
     var curFocusPoint: SCNNode? = nil
     
@@ -331,43 +332,29 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                             }
                                        }
                                     //储藏区来的不需要购买
-                                        if curDragPoint!.abilities.contains(EnumAbilities.instantAddSingleBuff.rawValue)  { // if chess has INSTANT add buff TODO!!!!
+                                        if curDragPoint!.abilities.contains(EnumAbilities.instantAddSingleBuff.rawValue) || //具有特殊战吼的棋子
+                                            curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbility.rawValue) ||
+                                            curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbilityForMountain.rawValue)
+                                            { // if chess has INSTANT add buff TODO!!!!
                                             removeGestureRecoginzer()
                                             PlayerBoardTextShow(TextContent: EnumString.chooseAnChess.rawValue.localized)
                                             curDragPoint?.isHidden = true //隐藏当前的拖拽棋子 方便选择
                                             //
                                             tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onChooseChessTap))
                                             self.sceneView.addGestureRecognizer(tapGestureRecognizer)
-                                            boardNode[BoardSide.allySide.rawValue].forEach{(curChess)in
-                                                curChess.setActive()
-                                            }
-                                        } else if curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbility.rawValue) {
-                                            removeGestureRecoginzer()
-                                            PlayerBoardTextShow(TextContent: EnumString.chooseAnOption.rawValue.localized)
-                                            curDragPoint?.isHidden = true //隐藏当前的拖拽棋子 方便选择
-                                            self.playerStatues[self.curPlayerId].curChesses = [] //备份当前棋子
-                                            self.boardNode[BoardSide.allySide.rawValue].forEach{(curChess) in
-                                                self.playerStatues[self.curPlayerId].curChesses.append(curChess.copyable())
-                                            }
-                                            let randomAbiArr = randomDiffNumsFromArrs(outputNums: 3, inputArr: EvolveAbilities)
-                                            self.boardNode[BoardSide.allySide.rawValue] = [] //为我方放置3种类型能力的棋子
-                                            randomAbiArr.forEach{ (curAbi) in
-                                                let newChess = baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: chessStruct(name: curAbi, desc: curAbi, atkNum: 1, defNum: 1, chessRarity: 1, chessLevel: 1, abilities: [curAbi], rattleFunc: [], inheritFunc: []))
-                                                appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: newChess)
-                                                
-                                            }
-                                            updateWholeBoardPosition()
-//                                            self.playerStatues[self.curPlayerId].curChesses.forEach{(curChess) in   //备份当前棋子
-//                                                self.boardNode[BoardSide.allySide.rawValue].append(curChess.copyable())
-//                                            }
+                                                if curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbilityForMountain.rawValue) {
+                                                    boardNode[BoardSide.allySide.rawValue].forEach{(curChess)in
+                                                        if curChess.chessKind == EnumChessKind.mountain.rawValue {
+                                                            curChess.setActive()
+                                                        }
+                                                    }
+                                                } else {
+                                                    boardNode[BoardSide.allySide.rawValue].forEach{(curChess)in
+                                                        curChess.setActive()
+                                                    }
+                                                }
                                            
-                                            
-                                            //
-                                            tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onChooseChessTap))
-                                            self.sceneView.addGestureRecognizer(tapGestureRecognizer)
-                                            //
-                                            
-                                        } else {//没有特殊的战吼之类的触发 直接放置入 allyboard
+                                        }  else {//没有特殊的战吼之类的触发 直接放置入 allyboard
                                             let curInsertIndex = calInsertPos(curBoardSide: BoardSide.allySide.rawValue, positionOfBoard: curPressLocation)
                                             
                                             if curInsertIndex == -1 || curInsertIndex - (GlobalCommonNumber.chessNumber / 2) >= boardNode[BoardSide.allySide.rawValue].count {
@@ -453,6 +440,65 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             //curDragPoint = nil
         }
     }
+    @objc func onChooseOptionTap(sender: UITapGestureRecognizer) { //用于战吼等选择option的操作的tap
+        guard let sceneView = sender.view as? ARSCNView else {return}
+                    let touchLocation = sender.location(in: sceneView)
+                    let hitTestResult = sceneView.hitTest(touchLocation, types: [.existingPlaneUsingExtent])
+                    if !hitTestResult.isEmpty && curDragPoint != nil {
+                      
+                            //self.addChessTest(hitTestResult: hitTestResult.first!)
+                            guard let sceneView = sender.view as? ARSCNView else {return}
+                            let touchLocation = sender.location(in: sceneView)
+                            let hitTestResult = sceneView.hitTest(touchLocation, options: [SCNHitTestOption.boundingBoxOnly: true, SCNHitTestOption.ignoreHiddenNodes: true])
+                        if !hitTestResult.isEmpty {
+                            let curNode = hitTestResult.first?.node
+                            if let curBaseChess = findChessRootNode(curNode!) {
+                                
+                                if curDragPoint!.abilities.contains(EnumAbilities.instantAddSingleBuff.rawValue) {
+                                    
+                                } else if curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbility.rawValue) {
+                                    if curChoosePoint != nil {
+                                        curChoosePoint?.AddBilities(Abilities: curBaseChess.abilities)
+                                    }
+                                }
+                                //使用完毕修改棋子状态
+                                curDragPoint?.chessStatus = EnumsChessStage.owned.rawValue
+                                appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: curDragPoint!)
+                                
+                            } else { //点击点不在
+                                sellChess(playerID: curPlayerId, curChess: curDragPoint!)
+                               
+                                
+                                if curDragPos[0] == 0 { //新买的棋子
+                                    appendNewNodeToBoard(curBoardSide: BoardSide.enemySide.rawValue, curChess: curDragPoint!)
+                                } else if curDragPos[0] == 2 { //储藏区的棋子
+                                    appendNewNodeToStorage(curChess: curDragPoint!)
+                                    updateStorageBoardPosition()
+                                }
+                                
+                                
+                            }
+                            
+                            emptyBoardSide(curBoardSide: BoardSide.allySide.rawValue) //清空棋盘
+                            self.playerStatues[self.curPlayerId].curChesses.forEach{(curChess) in
+                                appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: curChess)
+                            }
+                            appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: curDragPoint!) //恢复拖拽的棋子到棋盘
+                            updateWholeBoardPosition()
+                            ///以下为恢复操作
+                            recoverGestureRecoginzer()
+                            curDragPoint?.isHidden = false
+                            
+                            boardNode[BoardSide.allySide.rawValue].forEach{(curSubChess) in
+                                curSubChess.cancelActive()
+                            }
+                            curDragPoint = nil
+                            PlayerBoardTextOff()
+                        }
+                                    
+                    }
+        return
+    }
     @objc func onChooseChessTap(sender: UITapGestureRecognizer) { //用于战吼等选择棋子的操作的tap
         guard let sceneView = sender.view as? ARSCNView else {return}
                     let touchLocation = sender.location(in: sceneView)
@@ -469,16 +515,39 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                 
                                 if curDragPoint!.abilities.contains(EnumAbilities.instantAddSingleBuff.rawValue) {
                                     curBaseChess.AddBuff(AtkNumber: 1, DefNumber: 1)
-                                } else if curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbility.rawValue) {
-                                    //curBaseChess.AddAbilities()
+                                } else if curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbility.rawValue) ||
+                                    curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbilityForMountain.rawValue)
+                                {
+                                    if curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbilityForMountain.rawValue) &&
+                                        curBaseChess.chessKind != EnumChessKind.mountain.rawValue
+                                    { //不是特定种族的不做处理
+                                        return
+                                    }
+                                    curChoosePoint = curBaseChess // 保存当前选择的需要进化的棋子
+                                    self.playerStatues[self.curPlayerId].curChesses = [] //备份当前棋子
+                                    self.boardNode[BoardSide.allySide.rawValue].forEach{(curChess) in
+                                        self.playerStatues[self.curPlayerId].curChesses.append(curChess)
+                                        curChess.removeFromParentNode()
+                                    }
+                                    let randomAbiArr = randomDiffNumsFromArrs(outputNums: 3, inputArr: EvolveAbilities)
+                                    self.boardNode[BoardSide.allySide.rawValue] = [] //为我方放置3种类型能力的棋子
+                                    randomAbiArr.forEach{ (curAbi) in
+                                        let newChess = baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: chessStruct(name: curAbi, desc: curAbi, atkNum: 1, defNum: 1, chessRarity: 1, chessLevel: 1, chessKind: EnumChessKind.mountain.rawValue, abilities: [curAbi], rattleFunc: [], inheritFunc: []))
+                                        appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: newChess)
+                                        
+                                    }
+                                    updateWholeBoardPosition()
+                                    //修改点击事件为choose option事件
+                                    removeGestureRecoginzer()
+                                    tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onChooseOptionTap))
+                                    self.sceneView.addGestureRecognizer(tapGestureRecognizer)
+                                    //启用新的点击事件 选择还未结束 直接return
+                                    return
                                 }
                                 //使用完毕修改棋子状态
                                 curDragPoint?.chessStatus = EnumsChessStage.owned.rawValue
                                 appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: curDragPoint!)
                                 updateWholeBoardPosition()
-                                
-                                
-                                
                             } else { //点击点不在
                                 sellChess(playerID: curPlayerId, curChess: curDragPoint!)
                                 if curDragPos[0] == 0 { //新买的棋子
@@ -753,6 +822,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             playerBoardNode.addChildNode(curChess)
         }
     }
+    func emptyBoardSide(curBoardSide: Int) {
+       if(boardNode[curBoardSide].count > 0) {
+        boardNode[curBoardSide].forEach{(curChess) in
+            curChess.removeFromParentNode()
+        }
+        }
+        boardNode[curBoardSide] = []
+    }
     func recoverNodeToBoard(dragPos: [Int]) {
         if dragPos[0] == 0 {
             appendNewNodeToBoard(curBoardSide: BoardSide.enemySide.rawValue, curChess: curDragPoint!)
@@ -781,7 +858,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
     func generateUpgradeChess( _ subChessNodes : [baseChessNode]) -> baseChessNode{//用于合成高等级棋子 保留3个棋子的所有特效  待完善 todo
         //之后可以增加一些判断是否超过2级
-        return baseChessNode(statusNum: EnumsChessStage.owned.rawValue , chessInfo: chessStruct(name: subChessNodes[0].chessName, desc: subChessNodes[0].chessDesc, atkNum: subChessNodes[0].atkNum! * 2, defNum: subChessNodes[0].defNum! * 2, chessRarity: subChessNodes[0].chessRarity, chessLevel: subChessNodes[0].chessLevel + 1, abilities: subChessNodes[0].abilities, rattleFunc: subChessNodes[0].rattleFunc, inheritFunc: subChessNodes[0].inheritFunc))
+        return baseChessNode(statusNum: EnumsChessStage.owned.rawValue , chessInfo: chessStruct(name: subChessNodes[0].chessName, desc: subChessNodes[0].chessDesc, atkNum: subChessNodes[0].atkNum! * 2, defNum: subChessNodes[0].defNum! * 2, chessRarity: subChessNodes[0].chessRarity, chessLevel: subChessNodes[0].chessLevel + 1,chessKind: subChessNodes[0].chessKind, abilities: subChessNodes[0].abilities, rattleFunc: subChessNodes[0].rattleFunc, inheritFunc: subChessNodes[0].inheritFunc))
     }
     func updateStorageBoardPosition() -> Double{
         let totalTime = 0.5
