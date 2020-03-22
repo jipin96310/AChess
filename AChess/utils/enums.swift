@@ -58,10 +58,12 @@ enum EnumAbilities: String {
     case furious     = "Furious" //凶猛
     case poison      = "Poison" //剧毒
     case rapid    = "Rapid" // 迅捷
+    case fly = "Fly"
     case inheritAddBuff = "InheritAddBuff" //传承加buff
     case instantAddSingleBuff = "InstantAddSingleBuff" //战吼加指定单位buff
     case instantChooseAnAbility = "InstantChooseAnAbility" //战吼进化
     case instantChooseAnAbilityForMountain = "InstantChooseAnAbilityForMountain" //战吼种族进化
+    case instantAllGainAbilityForMountain = "InstantAllGainAbilityForMountain" //战吼全体山川生物获得能力
 }
 //public let EnumAbiNumToName: [Int:String] =
 //    [0: "",

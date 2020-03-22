@@ -9,4 +9,9 @@
 import Foundation
 import UIKit
 
-public let chessColorRarity = [ 1 : UIColor.gray, 2 : UIColor.white, 3 : UIColor.cyan, 4 : UIColor.purple, 5 : UIColor.orange]
+public let chessColorRarity = [ 1 : UIImage(named: "normalChess"), 2 : UIImage(named: "eliteChess"), 3 : UIImage(named: "rareChess"), 4 : UIImage(named: "epicChess"), 5 : UIImage(named: "legndChess")]
+public let chessKindBgImage = [
+    EnumChessKind.mountain.rawValue : UIImage(named: "mountainBg"),
+    EnumChessKind.ocean.rawValue : UIImage(named: "oceanBg"),
+    EnumChessKind.plain.rawValue : UIImage(named: "plainBg")
+]

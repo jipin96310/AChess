@@ -37,7 +37,24 @@ public class baseChessNode: SCNNode {
                 
         }
     }
-    var chessStatus: Int = EnumsChessStage.forSale.rawValue
+    var chessStatus: Int = EnumsChessStage.forSale.rawValue {
+        didSet {
+            if let priceLabelNode = self.childNode(withName: "priceLabel", recursively: true) {
+                if chessStatus == EnumsChessStage.owned.rawValue {
+                    priceLabelNode.isHidden = true
+                } else if chessStatus == EnumsChessStage.forSale.rawValue {
+                    priceLabelNode.isHidden = false
+                }
+            }
+            if let nameLabelNode = self.childNode(withName: "nameLabel", recursively: true) {
+                if chessStatus == EnumsChessStage.owned.rawValue {
+                    nameLabelNode.isHidden = true
+                } else if chessStatus == EnumsChessStage.forSale.rawValue {
+                    nameLabelNode.isHidden = false
+                }
+            }
+        }
+    }
     var chessPrice: Int = 3 {
         didSet {
             priceTextNode.string = String(chessPrice)
@@ -113,7 +130,6 @@ public class baseChessNode: SCNNode {
             priceTextNode.string = String(chessPrice)
             priceLabelNode.addChildNode(priceTextNode)
         }
-        
         if let sideNode = curNode.childNode(withName: "side", recursively: true) {
             sideNode.geometry?.firstMaterial?.diffuse.contents = chessColorRarity[chessRarity] //control chess color
             damgeTextNode.position = SCNVector3(0, 0.5 , 0)
@@ -150,7 +166,10 @@ public class baseChessNode: SCNNode {
         rattleFunc = chessInfo.rattleFunc
         inheritFunc = chessInfo.inheritFunc
         if let sideNode = self.childNode(withName: "side", recursively: true) {
-            sideNode.geometry?.firstMaterial?.diffuse.contents = chessColorRarity[chessRarity]
+            sideNode.geometry?.firstMaterial?.diffuse.contents = chessColorRarity[chessRarity]!
+        }
+        if let bgPicNode = self.childNode(withName: "bgpic", recursively: true) {
+            bgPicNode.geometry?.firstMaterial?.diffuse.contents = chessKindBgImage[chessKind]!
         }
         //最后计算棋子的描述
         chessDesc = formatChessDesc()

@@ -1356,6 +1356,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         let victim = victimBoard[victimIndex]
         let atkStartPos = attacker.position
         var attackAtt = attacker.atkNum!
+        var defAtt = victim.atkNum!
+        var attackSequence: [SCNAction] = [] //攻击动作action sequence
+        attackSequence = [attackAction(atkStartPos, victim.position)]
         if attacker.abilities.contains(EnumAbilities.furious.rawValue) { //如果有furious的话 有概率暴击
             let randomNumber = Int.randomIntNumber(lower: 1, upper: 5 - attacker.chessLevel)
             if randomNumber == 1 {
@@ -1363,12 +1366,18 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 attacker.abilityTrigger(abilityEnum: EnumAbilities.furious.rawValue.localized)
             }
         }
+        if attacker.abilities.contains(EnumAbilities.fly.rawValue) { //如果有飞行的话 victim的伤害为0
+            defAtt = 0
+            attackSequence.append(SCNAction.customAction(duration: 0.5, action: { _,_ in
+                attacker.abilityTrigger(abilityEnum: EnumAbilities.fly.rawValue.localized)
+            }))
+        }
         
         //blood calculate
-        var attRstBlood = attacker.defNum! - victim.atkNum!
+        var attRstBlood = attacker.defNum! - defAtt
         var vicRstBlood = victim.defNum! - attackAtt
         var actionResult = [1.00, 1.00] //1 represents alive, 0 represents the opposite
-        var attackSequence: [SCNAction] = []
+        
         var totalTime = 0.00
         
         //
@@ -1376,7 +1385,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         actionResult[0] = attRstBlood > 0 ? 1 : 0
         actionResult[1] = vicRstBlood > 0 ? 1 : 0
         
-        attackSequence = [attackAction(atkStartPos, victim.position),
+        attackSequence += [
                           damageAppearAction([attacker, victim], [victim.atkNum! , attackAtt]),
                           bloodChangeAction([attacker, victim], [attRstBlood, vicRstBlood])
                           ]

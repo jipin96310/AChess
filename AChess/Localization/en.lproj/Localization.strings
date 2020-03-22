@@ -11,10 +11,13 @@
 "LiveInGroup"   = "LiveInGroup";//群居
 "Furious"       = "Furious"; //凶猛
 "Rapid"         = "Rapid";  // 迅捷
+"Fly"           = "Fly";    //飞行
 "InheritAddBuff" = "Inherit: Gain +1/+1."; // Inherit: add buff
+///////战吼
 "InstantAddSingleBuff" = "Instant: choose a chess to get +1/+1.";
-"InstantChooseAnAbility" = "Instant: choose a chess to get an ability";
-"InstantChooseAnAbilityForMountain" = "Instant: choose a mountain chess to get an ability";
+"InstantChooseAnAbility" = "Instant: choose a chess to get an ability.";
+"InstantChooseAnAbilityForMountain" = "Instant: choose a mountain chess to get an ability.";
+"InstantAllGainAbilityForMountain" = "Instant：All mountain chesses gain a new ability.";
 "ChooseAnChess" = "Please choose an chess.";
 "ChooseAnOption" = "Please choose an option.";
 //以下为卡牌类型
