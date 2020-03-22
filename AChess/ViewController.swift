@@ -332,7 +332,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                             }
                                        }
                                     //储藏区来的不需要购买
-                                        if curDragPoint!.abilities.contains(EnumAbilities.instantAddSingleBuff.rawValue) || //具有特殊战吼的棋子
+                                        if curDragPoint!.abilities.contains(EnumAbilities.instantAddSingleBuff.rawValue) || //具有特殊战吼需要选择指定s的棋子
                                             curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbility.rawValue) ||
                                             curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbilityForMountain.rawValue)
                                             { // if chess has INSTANT add buff TODO!!!!
@@ -354,7 +354,32 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                                     }
                                                 }
                                            
-                                        }  else {//没有特殊的战吼之类的触发 直接放置入 allyboard
+                                        } else if curDragPoint!.abilities.contains(EnumAbilities.instantAllGainAbilityForMountain.rawValue)
+                                        {
+                                            removeGestureRecoginzer()
+                                            PlayerBoardTextShow(TextContent: EnumString.chooseAnOption.rawValue.localized)
+                                            curDragPoint?.isHidden = true //隐藏当前的拖拽棋子 方便选择
+                                            //备份当前棋子
+                                            self.playerStatues[self.curPlayerId].curChesses = []
+                                            self.boardNode[BoardSide.allySide.rawValue].forEach{(curChess) in
+                                                self.playerStatues[self.curPlayerId].curChesses.append(curChess)
+                                                curChess.removeFromParentNode()
+                                            }
+                                            //为我方放置3种类型能力的棋子
+                                            let randomAbiArr = randomDiffNumsFromArrs(outputNums: 3, inputArr: EvolveAbilities)
+                                            self.boardNode[BoardSide.allySide.rawValue] = []
+                                            randomAbiArr.forEach{ (curAbi) in
+                                                let newChess = baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: chessStruct(name: curAbi, desc: curAbi, atkNum: 1, defNum: 1, chessRarity: 1, chessLevel: 1, chessKind: EnumChessKind.mountain.rawValue, abilities: [curAbi], rattleFunc: [], inheritFunc: []))
+                                                appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: newChess)
+                                                
+                                            }
+                                            updateWholeBoardPosition()
+                                            //
+                                            tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onChooseOptionTap))
+                                            self.sceneView.addGestureRecognizer(tapGestureRecognizer)
+
+                                        }
+                                        else {//没有特殊的战吼之类的触发 直接放置入 allyboard
                                             let curInsertIndex = calInsertPos(curBoardSide: BoardSide.allySide.rawValue, positionOfBoard: curPressLocation)
                                             
                                             if curInsertIndex == -1 || curInsertIndex - (GlobalCommonNumber.chessNumber / 2) >= boardNode[BoardSide.allySide.rawValue].count {
@@ -454,8 +479,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             let curNode = hitTestResult.first?.node
                             if let curBaseChess = findChessRootNode(curNode!) {
                                 
-                                if curDragPoint!.abilities.contains(EnumAbilities.instantAddSingleBuff.rawValue) {
-                                    
+                                if curDragPoint!.abilities.contains(EnumAbilities.instantAllGainAbilityForMountain.rawValue) {
+                                    self.playerStatues[self.curPlayerId].curChesses.forEach{(curChess) in
+                                        curChess.AddBilities(Abilities: curBaseChess.abilities)
+                                    }
                                 } else if curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbility.rawValue) {
                                     if curChoosePoint != nil {
                                         curChoosePoint?.AddBilities(Abilities: curBaseChess.abilities)
