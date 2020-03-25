@@ -12,12 +12,15 @@
 "Furious"       = "Furious"; //凶猛
 "Rapid"         = "Rapid";  // 迅捷
 "Fly"           = "Fly";    //飞行
+"ImmunePoison"   = "Immune To Poison"; //免疫剧毒
 "InheritAddBuff" = "Inherit: Gain +1/+1."; // Inherit: add buff
+"EndRoundAddBuffForGreen" = "Give all other green covered chess +1 / +1 at the end of sale stage, including mountain, plain, frost.";
 ///////战吼
 "InstantAddSingleBuff" = "Instant: choose a chess to get +1/+1.";
 "InstantChooseAnAbility" = "Instant: choose a chess to get an ability.";
 "InstantChooseAnAbilityForMountain" = "Instant: choose a mountain chess to get an ability.";
 "InstantAllGainAbilityForMountain" = "Instant：All mountain chesses gain a new ability.";
+"InstantDestroyAllyGainBuff" = "Instant: Destroy one friend chess and gain its attack and life.";
 "ChooseAnChess" = "Please choose an chess.";
 "ChooseAnOption" = "Please choose an option.";
 //以下为卡牌类型

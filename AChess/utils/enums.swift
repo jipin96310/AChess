@@ -60,10 +60,13 @@ enum EnumAbilities: String {
     case rapid    = "Rapid" // 迅捷
     case fly = "Fly"
     case inheritAddBuff = "InheritAddBuff" //传承加buff
+    case endRoundAddBuffForGreen = "EndRoundAddBuffForGreen" //回合结束获得buff
     case instantAddSingleBuff = "InstantAddSingleBuff" //战吼加指定单位buff
     case instantChooseAnAbility = "InstantChooseAnAbility" //战吼进化
     case instantChooseAnAbilityForMountain = "InstantChooseAnAbilityForMountain" //战吼种族进化
     case instantAllGainAbilityForMountain = "InstantAllGainAbilityForMountain" //战吼全体山川生物获得能力
+    case instantDestroyAllyGainBuff = "InstantDestroyAllyGainBuff" //消灭一个友方棋子（不会获得金钱）获得该棋子的身材
+    case immunePoison = "ImmunePoison" //免疫剧毒
 }
 //public let EnumAbiNumToName: [Int:String] =
 //    [0: "",

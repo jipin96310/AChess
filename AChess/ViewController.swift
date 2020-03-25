@@ -334,7 +334,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                     //储藏区来的不需要购买
                                         if curDragPoint!.abilities.contains(EnumAbilities.instantAddSingleBuff.rawValue) || //具有特殊战吼需要选择指定s的棋子
                                             curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbility.rawValue) ||
-                                            curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbilityForMountain.rawValue)
+                                            curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbilityForMountain.rawValue) ||
+                                            curDragPoint!.abilities.contains(EnumAbilities.instantDestroyAllyGainBuff.rawValue)
                                             { // if chess has INSTANT add buff TODO!!!!
                                             removeGestureRecoginzer()
                                             PlayerBoardTextShow(TextContent: EnumString.chooseAnChess.rawValue.localized)
@@ -542,7 +543,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                 
                                 if curDragPoint!.abilities.contains(EnumAbilities.instantAddSingleBuff.rawValue) {
                                     curBaseChess.AddBuff(AtkNumber: 1, DefNumber: 1)
-                                } else if curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbility.rawValue) ||
+                                } else if curDragPoint!.abilities.contains(EnumAbilities.instantDestroyAllyGainBuff.rawValue) {
+                                    removeNodeFromBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: curBaseChess)
+                                }
+                                else if curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbility.rawValue) ||
                                     curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbilityForMountain.rawValue)
                                 {
                                     if curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbilityForMountain.rawValue) &&
@@ -574,7 +578,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                 //使用完毕修改棋子状态
                                 curDragPoint?.chessStatus = EnumsChessStage.owned.rawValue
                                 appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: curDragPoint!)
-                                updateWholeBoardPosition()
+                                let appendIndex = boardNode[BoardSide.allySide.rawValue].count - 1
+                                let updateTime = updateWholeBoardPosition()
+                                if curDragPoint!.abilities.contains(EnumAbilities.instantDestroyAllyGainBuff.rawValue) {
+                                    delay(updateTime){
+                                        if self.boardNode[BoardSide.allySide.rawValue][appendIndex] != nil {
+                                            self.boardNode[BoardSide.allySide.rawValue][appendIndex].AddBuff(AtkNumber: curBaseChess.atkNum, DefNumber: curBaseChess.defNum)
+                                        }
+                                    }
+                                }
                             } else { //点击点不在
                                 sellChess(playerID: curPlayerId, curChess: curDragPoint!)
                                 if curDragPos[0] == 0 { //新买的棋子
@@ -847,6 +859,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             boardNode[curBoardSide].append(curChess)
             curDragPoint?.position.y = 0.01
             playerBoardNode.addChildNode(curChess)
+        }
+    }
+    func removeNodeFromBoard(curBoardSide:Int, curChess: baseChessNode) {
+        for index in 0 ..< boardNode[curBoardSide].count {
+            if boardNode[curBoardSide][index] == curChess {
+                curChess.removeFromParentNode()
+                boardNode[curBoardSide].remove(at: index)
+                break
+            }
         }
     }
     func emptyBoardSide(curBoardSide: Int) {
@@ -1153,24 +1174,35 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             delay(delayTime) {
                 var totalTime = 0.00
                 //处理abilities beforeround事件
-//                for index in 0 ..< self.boardNode[1].count {
-//                    let curBoard = self.boardNode[1]
-//                    let curChess = self.boardNode[1][index]
-//                    if curChess.abilities.contains(EnumAbilities.liveInGroup.rawValue) {
+                for index in 0 ..< self.boardNode[BoardSide.allySide.rawValue].count {
+                    let curBoard = self.boardNode[BoardSide.allySide.rawValue]
+                    let curChess = self.boardNode[BoardSide.allySide.rawValue][index]
+                    if curChess.abilities.contains(EnumAbilities.endRoundAddBuffForGreen.rawValue) {
+                        for innerIndex in 0 ..< self.boardNode[BoardSide.allySide.rawValue].count {
+                            let curChess = self.boardNode[BoardSide.allySide.rawValue][innerIndex]
+                            if innerIndex != index && (
+                                curChess.chessKind == EnumChessKind.frost.rawValue ||
+                                curChess.chessKind == EnumChessKind.plain.rawValue ||
+                                curChess.chessKind == EnumChessKind.mountain.rawValue
+                                ) {
+                                curChess.AddBuff(AtkNumber: 1, DefNumber: 1) //当前hard code +1 /+1
+                            }
+                        }
 //                        let copyChess = curChess.copyable()
 //                        curChess.abilities = [] //empty ability,in case it keep adding
 //                        self.boardNode[1].append(copyChess)
 //                        self.playerBoardNode.addChildNode(copyChess)
-//                        curChess.abilityTrigger(abilityEnum: EnumString.liveInGroup.rawValue.localized)
-//                    }
-//                }
+                        curChess.abilityTrigger(abilityEnum: EnumAbilities.endRoundAddBuffForGreen.rawValue.localized)
+                    }
+                }
+                //
                 let actionTime = self.updateWholeBoardPosition()
                 totalTime += actionTime
                 //
                 self.curStage = EnumsGameStage.battleStage.rawValue
                 //copy the backup data
                 self.playerStatues[self.curPlayerId].curChesses = []
-                self.boardNode[1].forEach{(curChess) in
+                self.boardNode[BoardSide.allySide.rawValue].forEach{(curChess) in
                     self.playerStatues[self.curPlayerId].curChesses.append(curChess.copyable())
                 }
                 //playerStatues[curPlayerId].curChesses = boardNode[1]
