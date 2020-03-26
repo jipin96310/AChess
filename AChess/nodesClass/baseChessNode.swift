@@ -94,6 +94,7 @@ public class baseChessNode: SCNNode {
     }
     var chessKind: String = EnumChessKind.mountain.rawValue
     var abilities: [String] = []
+    var temporaryBuff: [String] = [] //临时性的Buff 类似硬壳 攻击 生命之类
     var rattleFunc: [()] = []
     var inheritFunc: [()] = []
     override init()
@@ -163,6 +164,7 @@ public class baseChessNode: SCNNode {
         priceTextNode.string = String(chessPrice)
         chessKind = chessInfo.chessKind
         abilities = chessInfo.abilities
+        temporaryBuff = chessInfo.temporaryBuff
         rattleFunc = chessInfo.rattleFunc
         inheritFunc = chessInfo.inheritFunc
         if let sideNode = self.childNode(withName: "side", recursively: true) {
@@ -170,6 +172,14 @@ public class baseChessNode: SCNNode {
         }
         if let bgPicNode = self.childNode(withName: "bgpic", recursively: true) {
             bgPicNode.geometry?.firstMaterial?.diffuse.contents = chessKindBgImage[chessKind]!
+        }
+        
+        if let shellNode = self.childNode(withName: "shell", recursively: true) {
+            if temporaryBuff.contains(EnumAbilities.shell.rawValue) {
+                shellNode.isHidden = false
+            } else {
+                shellNode.isHidden = true
+            }
         }
         //最后计算棋子的描述
         chessDesc = formatChessDesc()
@@ -190,7 +200,7 @@ public class baseChessNode: SCNNode {
   ///
   /// - Returns: 拷贝的对象
   func copyable() -> baseChessNode {
-      return baseChessNode(statusNum: chessStatus, chessInfo: chessStruct(name: chessName, desc: chessDesc, atkNum: atkNum!, defNum: defNum!, chessRarity: chessRarity, chessLevel: chessLevel,chessKind: chessKind, abilities: abilities, rattleFunc: rattleFunc, inheritFunc: inheritFunc))
+      return baseChessNode(statusNum: chessStatus, chessInfo: chessStruct(name: chessName, desc: chessDesc, atkNum: atkNum!, defNum: defNum!, chessRarity: chessRarity, chessLevel: chessLevel,chessKind: chessKind, abilities: abilities, temporaryBuff: temporaryBuff, rattleFunc: rattleFunc, inheritFunc: inheritFunc))
   }
     func abilityTrigger(abilityEnum : String) {
         abilitiesTriggerTextNode.string = abilityEnum //之后要改成多语言
@@ -217,6 +227,32 @@ public class baseChessNode: SCNNode {
         }
        
     }
+    func toggleShell(status: Bool) { //control shell turn on/off
+        if let shellNode = self.childNode(withName: "shell", recursively: true) {
+             if status == true {
+                       if !temporaryBuff.contains(EnumAbilities.shell.rawValue) {
+                          temporaryBuff.append(EnumAbilities.shell.rawValue)
+                          shellNode.runAction(SCNAction.sequence([
+                            SCNAction.fadeIn(duration: 0.5),
+                            SCNAction.customAction(duration: 0, action: { _,_ in
+                                shellNode.isHidden = false
+                            })
+                          ]))
+                       }
+                   } else {
+                      if temporaryBuff.contains(EnumAbilities.shell.rawValue) {
+                          temporaryBuff.remove(at: temporaryBuff.lastIndex(of: EnumAbilities.shell.rawValue)!) //已经判断必定能找到
+                          shellNode.runAction(SCNAction.sequence([
+                            SCNAction.fadeOut(duration: 0.5),
+                            SCNAction.customAction(duration: 0, action: { _,_ in
+                                shellNode.isHidden = true
+                            })
+                          ]))
+                       }
+                }
+        }
+    }
+    
     func AddBilities(Abilities: [String]) { //添加所属能力 需要加上一个字从空中飘到描述里的动画
         abilities += Abilities
         //最后计算棋子的描述

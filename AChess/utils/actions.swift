@@ -46,18 +46,18 @@ func bloodChangeAction(_ changeNodes: [baseChessNode], _ changeNums: [Int]) -> S
     return SCNAction.customAction(duration: 1, action: { _,_ in
            for index in 0 ..< changeNodes.count {
                let curNode = changeNodes[index]
-               let otherNode = index == 0 ? changeNodes[1] : changeNodes[0]
-               var curBlood = changeNums[index]
+               //let otherNode = index == 0 ? changeNodes[1] : changeNodes[0]
+               let curBlood = changeNums[index]
                 //add explosion effect
                 //剧毒
-                if otherNode.abilities.contains(EnumAbilities.poison.rawValue) { //如果att有poison的话 直接秒杀
-                    otherNode.abilityTrigger(abilityEnum: EnumAbilities.poison.rawValue.localized)
-                    if curNode.abilities.contains(EnumAbilities.immunePoison.rawValue) {
-                        otherNode.abilityTrigger(abilityEnum: EnumAbilities.immunePoison.rawValue.localized)
-                    } else {
-                        curBlood = -1 //把victim血量modify to -1
-                    }
-                }
+//                if otherNode.abilities.contains(EnumAbilities.poison.rawValue) { //如果att有poison的话 直接秒杀
+//                    otherNode.abilityTrigger(abilityEnum: EnumAbilities.poison.rawValue.localized)
+//                    if curNode.abilities.contains(EnumAbilities.immunePoison.rawValue) {
+//                        otherNode.abilityTrigger(abilityEnum: EnumAbilities.immunePoison.rawValue.localized)
+//                    } else {
+//                        curBlood = -1 //把victim血量modify to -1
+//                    }
+//                }
             
                 addExplosion(curNode)
                if curBlood > 0 {

@@ -59,6 +59,7 @@ enum EnumAbilities: String {
     case poison      = "Poison" //剧毒
     case rapid    = "Rapid" // 迅捷
     case fly = "Fly"
+    case shell = "Shell"
     case inheritAddBuff = "InheritAddBuff" //传承加buff
     case endRoundAddBuffForGreen = "EndRoundAddBuffForGreen" //回合结束获得buff
     case instantAddSingleBuff = "InstantAddSingleBuff" //战吼加指定单位buff
