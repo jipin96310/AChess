@@ -1016,8 +1016,19 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         var beginIndexCopy = beginIndex
         var curIndex = beginIndex[attSide] //拷贝的
         var nextSide = attSide == BoardSide.enemySide.rawValue ? BoardSide.allySide.rawValue : BoardSide.enemySide.rawValue
+        //统计当前有嘲讽的地方随从
+        var baitIndex: [Int] = []
+        for index in 0 ..< self.boardNode[nextSide].count {
+            if self.boardNode[nextSide][index].abilities.contains(EnumAbilities.bait.rawValue) {
+                baitIndex.append(index)
+            }
+        }
+        //
         if (curIndex < boardNode[attSide].count && boardNode[nextSide].count > 0) { //当前游标小于进攻方数量
-            let randomIndex = Int.randomIntNumber(lower: 0, upper: self.boardNode[nextSide].count)
+            var randomIndex = Int.randomIntNumber(lower: 0, upper: self.boardNode[nextSide].count)
+            if baitIndex.count > 0 { //如果有嘲讽 随机挑一个进行攻击
+                randomIndex = baitIndex[Int.randomIntNumber(lower: 0, upper: baitIndex.count)]
+            }
             let attacker = self.boardNode[attSide][curIndex]
             let victim = self.boardNode[nextSide][randomIndex]
             let attackResult = attack(attackBoard: &self.boardNode[attSide], attackIndex: curIndex, victimBoard: self.boardNode[nextSide], victimIndex: randomIndex)//self.boardNode[0][curIndex], self.boardNode[1][randomIndex]
