@@ -1104,25 +1104,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         }
     }
     
-    //    func aRoundTask( _ beginIndex: inout Int) { //指针传递inout
-    //        var curIndex = beginIndex
-    //        if (beginIndex < boardNode[0].count) {
-    //            let randomIndex = Int.randomIntNumber(lower: 0, upper: self.boardNode[1].count)
-    //            let attackResult = attack(self.boardNode[0][beginIndex], self.boardNode[1][randomIndex])
-    //
-    //            if attackResult[0] == 0 { //attacker eliminated
-    //                self.boardNode[0].remove(at: beginIndex)
-    //            }
-    //            if attackResult[1] == 0 { //victim elinminated
-    //                self.boardNode[1].remove(at: randomIndex)
-    //            }
-    //            curIndex += 1
-    //            delay(5) { self.aRoundTask(&curIndex) }
-    //        } else if boardNode[0].count > 0 && boardNode[1].count > 0 {
-    //            var beginIndex = 0
-    //            delay(5) { self.aRoundTask(&beginIndex) } //从头开始
-    //        }
-    //    }
+    
     func dealWithDamage() -> Promise<Any>{ //伤害清算
         return Promise<Any>( resolver: { (resolver) in
             if boardNode[0].count > 0 || boardNode[1].count > 0 { //平局的话就不处理了 do nth if its a draw+
@@ -1547,6 +1529,27 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 ]
                 
             }
+            if attacker.abilities.contains(EnumAbilities.inheritDamage.rawValue) {
+                if case let curRattleDamage as Int = attacker.inheritFunc[EnumKeyName.baseDamage.rawValue] {
+                    if case let curRattleNum as Int = attacker.inheritFunc[EnumKeyName.summonNum.rawValue] {
+                        let damageChess = randomDiffNumsFromArrs(outputNums: curRattleNum, inputArr: boardNode[victimBoardIndex])
+                        
+                        attackSequence += [
+                            SCNAction.customAction(duration: 0.5, action: {_,_ in
+                                attacker.abilityTrigger(abilityEnum: EnumAbilities.inheritAddBuff.rawValue.localized)
+                                for vIndex in 0 ..< damageChess.count { //appendnewnode里会计算数量 多余的棋子会被砍掉
+                                    let curChess = damageChess[vIndex] as! baseChessNode
+                                    let result = curChess.getDamage(damageNumber: curRattleDamage)
+                                    if !result {
+                                        self.removeNodeFromBoard(curBoardSide: victimBoardIndex, curChess: curChess)
+                                    }
+                                }
+                                //self.updateWholeBoardPosition()
+                            })
+                        ]
+                    }
+                }
+            }
             if attacker.abilities.contains(EnumAbilities.inheritSummonSth.rawValue) {
                 if case let curRattleChess as chessStruct = attacker.inheritFunc[EnumKeyName.summonChess.rawValue] {
                     if case let curRattleNum as Int = attacker.inheritFunc[EnumKeyName.summonNum.rawValue] {
@@ -1594,6 +1597,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 }
             }
         }
+        
+//        actionResult[0] = attRstBlood > 0 ? 1 : 0
+//        actionResult[1] = vicRstBlood > 0 ? 1 : 0
         //计算动作用时 calculate the total time of all the actions
         attackSequence.forEach { (action) in
             totalTime += action.duration
