@@ -95,8 +95,8 @@ public class baseChessNode: SCNNode {
     var chessKind: String = EnumChessKind.mountain.rawValue
     var abilities: [String] = []
     var temporaryBuff: [String] = [] //临时性的Buff 类似硬壳 攻击 生命之类
-    var rattleFunc: [()] = []
-    var inheritFunc: [()] = []
+    var rattleFunc: [Int : Any] = [:]
+    var inheritFunc: [Int : Any] = [:]
     override init()
        {
         super.init()
@@ -167,18 +167,39 @@ public class baseChessNode: SCNNode {
         temporaryBuff = chessInfo.temporaryBuff
         rattleFunc = chessInfo.rattleFunc
         inheritFunc = chessInfo.inheritFunc
-        if let sideNode = self.childNode(withName: "side", recursively: true) {
+        if let sideNode = self.childNode(withName: "side", recursively: true) { //control the side color/image
             sideNode.geometry?.firstMaterial?.diffuse.contents = chessColorRarity[chessRarity]!
         }
-        if let bgPicNode = self.childNode(withName: "bgpic", recursively: true) {
+        if let bgPicNode = self.childNode(withName: "bgpic", recursively: true) { //control the pic of bottom
             bgPicNode.geometry?.firstMaterial?.diffuse.contents = chessKindBgImage[chessKind]!
         }
         
-        if let shellNode = self.childNode(withName: "shell", recursively: true) {
+        if let shellNode = self.childNode(withName: "shell", recursively: true) { //control the shield
             if temporaryBuff.contains(EnumAbilities.shell.rawValue) {
                 shellNode.isHidden = false
             } else {
                 shellNode.isHidden = true
+            }
+        }
+        if let shellNode = self.childNode(withName: "baitLine", recursively: true) { // contol the bait line
+            if abilities.contains(EnumAbilities.bait.rawValue) {
+                shellNode.isHidden = false
+            } else {
+                shellNode.isHidden = true
+            }
+        }
+        if let priceLabelNode = self.childNode(withName: "priceLabel", recursively: true) { //如果owned就把棋子的价格标签隐藏
+            if chessStatus == EnumsChessStage.owned.rawValue {
+                priceLabelNode.isHidden = true
+            } else if chessStatus == EnumsChessStage.forSale.rawValue {
+                priceLabelNode.isHidden = false
+            }
+        }
+        if let nameLabelNode = self.childNode(withName: "nameLabel", recursively: true) { //if owned, hide the name label
+            if chessStatus == EnumsChessStage.owned.rawValue {
+                nameLabelNode.isHidden = true
+            } else if chessStatus == EnumsChessStage.forSale.rawValue {
+                nameLabelNode.isHidden = false
             }
         }
         //最后计算棋子的描述

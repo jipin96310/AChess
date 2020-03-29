@@ -13,6 +13,8 @@
 "Rapid"         = "迅捷";  // 迅捷
 "Fly"           = "飞行";    //飞行
 "Shell"         = "硬壳";  //硬壳
+"bait"          = "诱饵"; //诱饵
+"spine"         = "尖刺";  //尖刺
 "ImmunePoison"   = "免疫剧毒"; //免疫剧毒
 "InheritAddBuff" = "传承: 获得+1/+1"; // Inherit: add buff
 "EndRoundAddBuffForGreen" = "给所有其它的绿植覆盖的棋子+1/+1, 包括山川、平原、森林.";
@@ -31,3 +33,15 @@
 "Frost" = "森林"; //森林
 "Desert" = "沙漠"; //沙漠
 "Polar" = "极地"; //极地
+//below is chess name
+"MountainBird" = "山雀"; //山雀
+"WildRabbit" = "野兔"; //野兔
+"Hedgehog" = "刺猬"; //刺猬
+"Tarsier"  = "眼镜猴"; //眼镜猴
+"SnubNosedMonkey" = "金丝猴"; //金丝猴
+"WolfSpider"    = "狼蛛"; //狼蛛
+"Pheasant"      = "山鸡"; //山鸡
+"AlpDog"        = "高山犬"; //高山犬
+"Argali"        = "盘羊"; //盘羊
+"PygmyTarsier" = "侏儒眼镜猴"; //侏儒眼镜猴
+

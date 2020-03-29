@@ -18,10 +18,10 @@ public struct chessStruct {
     var chessKind: String //棋子类型
     var abilities: [String]
     var temporaryBuff: [String]
-    var rattleFunc: [()] //战吼方法
-    var inheritFunc: [()] //传承方法
+    var rattleFunc: [Int : Any] //战吼方法
+    var inheritFunc: [Int : Any] //传承方法
 
-    init(name: String, desc: String, atkNum: Int, defNum: Int, chessRarity: Int,chessLevel: Int, chessKind: String, abilities:[String], temporaryBuff: [String],  rattleFunc: [()], inheritFunc: [()]) {
+    init(name: String, desc: String, atkNum: Int, defNum: Int, chessRarity: Int,chessLevel: Int, chessKind: String, abilities:[String], temporaryBuff: [String],  rattleFunc: [Int : Any], inheritFunc: [Int : Any]) {
         self.name = name
         self.desc = desc
         self.atkNum = atkNum

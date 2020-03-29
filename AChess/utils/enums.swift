@@ -57,10 +57,13 @@ enum EnumAbilities: String {
     case liveInGroup = "LiveInGroup" //群居
     case furious     = "Furious" //凶猛
     case poison      = "Poison" //剧毒
-    case rapid    = "Rapid" // 迅捷
+    case rapid    = "Rapid" // 疾速
     case fly = "Fly"
     case shell = "Shell"
+    case bait = "Bait" //诱饵
+    case spine = "Spine" //尖刺
     case inheritAddBuff = "InheritAddBuff" //传承加buff
+    case inheritSummonSth = "InheritSummonSth" //传承召唤
     case endRoundAddBuffForGreen = "EndRoundAddBuffForGreen" //回合结束获得buff
     case instantAddSingleBuff = "InstantAddSingleBuff" //战吼加指定单位buff
     case instantChooseAnAbility = "InstantChooseAnAbility" //战吼进化
@@ -68,6 +71,7 @@ enum EnumAbilities: String {
     case instantAllGainAbilityForMountain = "InstantAllGainAbilityForMountain" //战吼全体山川生物获得能力
     case instantDestroyAllyGainBuff = "InstantDestroyAllyGainBuff" //消灭一个友方棋子（不会获得金钱）获得该棋子的身材
     case immunePoison = "ImmunePoison" //免疫剧毒
+    case instantSummonSth = "InstantSummonSth" //战吼召唤生物
 }
 //public let EnumAbiNumToName: [Int:String] =
 //    [0: "",
@@ -89,6 +93,24 @@ enum EnumChessKind: String {
     case frost = "Frost"
     case desert = "Desert"
     case polar = "Polar"
+}
+enum EnumKeyName: Int {
+    case summonChess = 0
+    case summonNum = 1
+}
+
+//棋子名字
+enum EnumChessName: String {
+    case mountainBird = "MountainBird" //山雀
+    case wildRabbit = "WildRabbit" //野兔
+    case hedgehog = "Hedgehog" //刺猬
+    case tarsier = "Tarsier" //眼镜猴
+    case snubNosedMonkey = "SnubNosedMonkey" //金丝猴
+    case wolfSpider = "WolfSpider" //狼蛛
+    case pheasant = "Pheasant" //山鸡
+    case alpDog = "AlpDog" //高山犬
+    case argali = "Argali" //盘羊
+    case pygmyTarsier = "Pygmy Tarsier" //侏儒眼镜猴
 }
 
 
