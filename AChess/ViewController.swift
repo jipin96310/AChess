@@ -48,7 +48,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var storageRootNode : [SCNNode] = []
    
     //var backupBoardNode:[[baseChessNode]] = [[],[]]
-    var playerStatues: [(curCoin: Int,curLevel: Int,curBlood: Int,curChesses: [baseChessNode])] = [(curCoin: GlobalNumberSettings.roundBaseCoin.rawValue + 10, curLevel: 1, curBlood: 40, curChesses: []), (curCoin: GlobalNumberSettings.roundBaseCoin.rawValue, curLevel: 1, curBlood: 40, curChesses: [])] {
+    var playerStatues: [(curCoin: Int,curLevel: Int,curBlood: Int,curChesses: [baseChessNode])] = [(curCoin: GlobalNumberSettings.roundBaseCoin.rawValue + 20, curLevel: 1, curBlood: 40, curChesses: []), (curCoin: GlobalNumberSettings.roundBaseCoin.rawValue, curLevel: 1, curBlood: 40, curChesses: [])] {
         didSet {
             moneyTextNode.string = String(playerStatues[curPlayerId].curCoin)
             levelTextNode.string = String(playerStatues[curPlayerId].curLevel)
@@ -110,7 +110,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 //            self.sceneView.addGestureRecognizer(panGestureRecognizer)
         }
         //only for test
-        self.sceneView.debugOptions = [ARSCNDebugOptions.showPhysicsShapes]
+        self.sceneView.debugOptions = [] //ARSCNDebugOptions.showPhysicsShapes
         // We want to receive the frames from the video
         sceneView.session.delegate = self
         sceneView.scene.physicsWorld.contactDelegate = self
@@ -900,6 +900,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
         }
     }
+    func removeNodeFromBoardArr(curBoardSide:Int, curChess: baseChessNode) {
+        for index in 0 ..< boardNode[curBoardSide].count {
+            if boardNode[curBoardSide][index] == curChess {
+                boardNode[curBoardSide].remove(at: index)
+                break
+            }
+        }
+    }
     func emptyBoardSide(curBoardSide: Int) {
        if(boardNode[curBoardSide].count > 0) {
         boardNode[curBoardSide].forEach{(curChess) in
@@ -1077,9 +1085,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     //
                     if attackResult[curSide] == 0 { //如果当前棋子被消灭了 则触发亡语
                         if curChessPoint.abilities.contains(EnumAbilities.inheritAddBuff.rawValue) { //有传承加buff结算一下
-                            self.boardNode[curBoardSide].forEach{ (attChess) in
+                            let curRandomArr = randomDiffNumsFromArrs(outputNums:  curChessPoint.inheritFunc[EnumKeyName.summonNum.rawValue] as! Int, inputArr: self.boardNode[curBoardSide])
+                            curRandomArr.forEach{ (attChess) in
                                 //需要给attchess加buff
-                                attChess.AddBuff(AtkNumber: curChessPoint.chessLevel, DefNumber: curChessPoint.chessLevel)
+                                attChess.AddBuff(AtkNumber: curChessPoint.chessLevel * (curChessPoint.inheritFunc[EnumKeyName.baseAttack.rawValue] as! Int), DefNumber: curChessPoint.chessLevel * (curChessPoint.inheritFunc[EnumKeyName.baseDef.rawValue] as! Int))
                             }
                         }
                         
@@ -1093,9 +1102,21 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                     for vIndex in 0 ..< damageChess.count { //appendnewnode里会计算数量 多余的棋子会被砍掉
                                         let curChess = damageChess[vIndex] as! baseChessNode
                                         let result = curChess.getDamage(damageNumber: curRattleDamage)
+                                        
+                                        var damageAction = [
+                                            SCNAction.customAction(duration: 1, action: { _,_ in
+                                                
+                                            })
+                                        ]
+                                       
                                         if !result {
-                                            self.removeNodeFromBoard(curBoardSide: oppositeSide, curChess: curChess)
+                                            self.removeNodeFromBoardArr(curBoardSide: oppositeSide, curChess: curChess)
+                                            damageAction.append(SCNAction.fadeOut(duration: 0.5))
+                                            damageAction.append(SCNAction.customAction(duration: 0, action: { _,_ in
+                                                curChess.removeFromParentNode()
+                                            }))
                                         }
+                                        curChess.runAction(SCNAction.sequence(damageAction))
                                     }
                                     //self.updateWholeBoardPosition()
                                     
@@ -1465,6 +1486,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 attacker.abilityTrigger(abilityEnum: EnumAbilities.fly.rawValue.localized)
             }))
         }
+        /*剧毒*/
         if attacker.abilities.contains(EnumAbilities.poison.rawValue) { //如果att有poison的话 直接秒杀
                attackSequence.append(SCNAction.customAction(duration: 0.5, action: { _,_ in
                     attacker.abilityTrigger(abilityEnum: EnumAbilities.poison.rawValue.localized)
@@ -1478,11 +1500,19 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }))
             defAtt = attacker.defNum! + 1
         }
+        /*闪避 敏锐*/
+        if victim.abilities.contains(EnumAbilities.acute.rawValue) { //如果vic有闪避的话 有概率躲闪攻击
+            
+            let randomNumber = Int.randomIntNumber(lower: 0, upper: 10) //0-9
+            if randomNumber < 2 * victim.chessLevel { //20% 40% 60%
+                attackSequence.append(SCNAction.customAction(duration: 0.5, action: { _,_ in
+                    victim.abilityTrigger(abilityEnum: (EnumAbilities.acute.rawValue + "Short").localized)
+                }))
+                attackAtt = 0
+            }
+        }
         
-        
-        
-        
-        
+     
         
         //shell比剧毒完结算 优先级更高
         if attacker.temporaryBuff.contains(EnumAbilities.shell.rawValue) { //如果攻击者有shell
