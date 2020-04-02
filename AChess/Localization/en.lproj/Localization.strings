@@ -10,7 +10,9 @@
 "Poison"        = "Poison";  //剧毒
 "LiveInGroup"   = "LiveInGroup";//群居
 "Furious"       = "Furious"; //凶猛
-"Rapid"         = "Rapid";  // 迅捷
+"Rapid"         = "Rapid(Attack Twice by <percent>%)";  // 迅捷
+"Acute"         = "Acute(Dodge attack by <percent>%)";   //敏锐
+"AcuteShort"    = "Acute";      //敏锐
 "Fly"           = "Fly";    //飞行
 "Shell"         = "Shell";  //硬壳
 "bait"          = "Bait"; //诱饵
@@ -45,3 +47,9 @@
 "Argali"        = "Argali"; //盘羊
 //below is chess derivate name
 "PygmyTarsier" = "Pygmy Tarsier"; //侏儒眼镜猴
+"Yak"          = "Yak";  //牦牛
+"SnowLeopard"  = "Snow Leopard"; //雪豹
+"Pangolin"     = "Pangolin"; //穿山甲
+"MountainWolf" = "Mountain Wolf" //落基山狼
+"Boar"         = "Boar" //野猪
+"Quasipaa"     = "Quasipaa" //石蛙

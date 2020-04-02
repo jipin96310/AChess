@@ -58,12 +58,14 @@ enum EnumAbilities: String {
     case furious     = "Furious" //凶猛
     case poison      = "Poison" //剧毒
     case rapid    = "Rapid" // 疾速
+    case acute    = "Acute" //敏锐
     case fly = "Fly"
     case shell = "Shell"
     case bait = "Bait" //诱饵
     case spine = "Spine" //尖刺
     case inheritAddBuff = "InheritAddBuff" //传承加buff
     case inheritSummonSth = "InheritSummonSth" //传承召唤
+    case inheritDamage = "InheritDamage" //亡语伤害
     case endRoundAddBuffForGreen = "EndRoundAddBuffForGreen" //回合结束获得buff
     case instantAddSingleBuff = "InstantAddSingleBuff" //战吼加指定单位buff
     case instantChooseAnAbility = "InstantChooseAnAbility" //战吼进化
@@ -97,6 +99,9 @@ enum EnumChessKind: String {
 enum EnumKeyName: Int {
     case summonChess = 0
     case summonNum = 1
+    case baseDamage = 2
+    case baseAttack = 3
+    case baseDef = 4
 }
 
 //棋子名字
@@ -111,6 +116,12 @@ enum EnumChessName: String {
     case alpDog = "AlpDog" //高山犬
     case argali = "Argali" //盘羊
     case pygmyTarsier = "Pygmy Tarsier" //侏儒眼镜猴
+    case yak = "Yak" //牦牛
+    case snowLeopard = "SnowLeopard" //雪豹
+    case pangolin = "Pangolin" //雪豹
+    case mountainWolf = "MountainWolf" //落基山狼
+    case boar         = "Boar" //野猪
+    case quasipaa     = "Quasipaa" //石蛙
 }
 
 

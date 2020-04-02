@@ -10,7 +10,9 @@
 "Poison"        = "剧毒";  //剧毒
 "LiveInGroup"   = "群居";//群居
 "Furious"       = "凶猛"; //凶猛
-"Rapid"         = "迅捷";  // 迅捷
+"Rapid"         = "迅捷(<percent>% 攻击两次)";  // 迅捷
+"Acute"         = "敏锐(<percent>% 闪避攻击)";   //敏锐
+"AcuteShort"    = "敏锐";      //敏锐
 "Fly"           = "飞行";    //飞行
 "Shell"         = "硬壳";  //硬壳
 "bait"          = "诱饵"; //诱饵
@@ -44,4 +46,9 @@
 "AlpDog"        = "高山犬"; //高山犬
 "Argali"        = "盘羊"; //盘羊
 "PygmyTarsier" = "侏儒眼镜猴"; //侏儒眼镜猴
-
+"Yak"          = "牦牛";  //牦牛
+"SnowLeopard"  = "雪豹"; //雪豹
+"Pangolin"     = "穿山甲"; //穿山甲
+"MountainWolf" = "落基山狼" //落基山狼
+"Boar"         = "野猪" //野猪
+"Quasipaa"     = "石蛙" //石蛙

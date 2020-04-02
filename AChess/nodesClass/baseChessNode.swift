@@ -248,6 +248,14 @@ public class baseChessNode: SCNNode {
         }
        
     }
+    func getDamage(damageNumber: Int) -> Bool{
+        damageNum = damageNumber
+        defNum = defNum! - damageNumber
+        if defNum! < 0 {
+            return false
+        }
+        return true
+    }
     func toggleShell(status: Bool) { //control shell turn on/off
         if let shellNode = self.childNode(withName: "shell", recursively: true) {
              if status == true {
@@ -282,8 +290,16 @@ public class baseChessNode: SCNNode {
     func formatChessDesc() -> String{ //当前只需要abilities里面的 后期有必要可以加上战吼之类的 TODO!!
         var tempDescStr = ""
         abilities.forEach{(curAbi) in
-            tempDescStr += curAbi.localized
-            tempDescStr += " "
+            if curAbi == EnumAbilities.acute.rawValue {
+                tempDescStr += curAbi.localized.replacingOccurrences(of: "<percent>", with: String(chessLevel * 20))
+                tempDescStr += " "
+            } else if curAbi == EnumAbilities.liveInGroup.rawValue {
+                tempDescStr += curAbi.localized.replacingOccurrences(of: "<percent>", with: String(chessLevel * 20))
+                tempDescStr += " "
+            } else {
+                tempDescStr += curAbi.localized
+                tempDescStr += " "
+            }
         }
         return tempDescStr
     }

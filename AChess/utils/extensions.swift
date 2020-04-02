@@ -15,6 +15,14 @@ extension Int {
 extension Double {
     var degreesToRadius: Double { return Double(self) * .pi/180}
 }
+extension String {
+    func getPrefixStr(symbol: String) -> String{
+        let range: Range = self.range(of: symbol)!
+        let location: Int = self.distance(from: self.startIndex, to: range.lowerBound)
+        let subStr = self.prefix(location)
+        return String(subStr)
+    }
+}
 extension SCNNode {
     func hasAncestor(_ node: SCNNode) -> Bool {
         if self === node {

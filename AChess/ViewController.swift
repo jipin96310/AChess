@@ -1587,18 +1587,20 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     //    }
         if attRstBlood > 0 {
             attackSequence += [backToAction(atkStartPos, attacker)]
+            let randomNumber = Int.randomIntNumber(lower: 0, upper: 10) //0-9
+            
             if attacker.abilities.contains(EnumAbilities.liveInGroup.rawValue) && attackBoard.count < GlobalCommonNumber.chessNumber { // <7
-                let copyChess = attacker.copyable()
-                attacker.abilities = [] //empty ability,in case it keep adding
-                attackBoard.append(copyChess)
-                attacker.position.y = 0.01
-                attackSequence.append(SCNAction.customAction(duration: 0.5, action: { _,_ in
-                    self.playerBoardNode.addChildNode(copyChess)
-                    attacker.abilityTrigger(abilityEnum: EnumAbilities.liveInGroup.rawValue.localized)
-                }))
+                if randomNumber < 2 * victim.chessLevel { //20% 40% 60%
+                    let copyChess = attacker.copyable()
+                    attacker.abilities = [] //empty ability,in case it keep adding
+                    attackBoard.append(copyChess)
+                    attacker.position.y = 0.01
+                    attackSequence.append(SCNAction.customAction(duration: 0.5, action: { _,_ in
+                        self.playerBoardNode.addChildNode(copyChess)
+                        attacker.abilityTrigger(abilityEnum: EnumAbilities.liveInGroup.rawValue.localized.getPrefixStr(symbol: "("))
+                    }))
+                }
             }
-        } else {
-            //
         }
 //        if vicRstBlood > 0 {
 //            //
