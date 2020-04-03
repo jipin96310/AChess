@@ -386,7 +386,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                     } else if curDragPoint!.abilities.contains(EnumAbilities.instantSummonSth.rawValue) { //战吼召唤
                                         curDragPoint?.chessStatus = EnumsChessStage.owned.rawValue //直接修改状态
                                         appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: curDragPoint!)
-                                        if curDragPoint!.rattleFunc != nil { //如果有战吼方法
+                                        
                                             if case let curRattleChess as chessStruct = curDragPoint?.rattleFunc[EnumKeyName.summonChess.rawValue] {
                                                 if case let curRattleNum as Int = curDragPoint?.rattleFunc[EnumKeyName.summonNum.rawValue] {
                                                     for index in 0 ..< curRattleNum { //appendnewnode里会计算数量 多余的棋子会被砍掉
@@ -394,8 +394,19 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                                     }
                                                 }
                                             }
-                                        }
+                                        
                                         updateWholeBoardPosition()
+                                    } else if curDragPoint!.abilities.contains(EnumAbilities.instantSummonSth.rawValue) {
+                                        curDragPoint?.chessStatus = EnumsChessStage.owned.rawValue //直接修改状态
+                                       
+                                            if case let curRattleChess as chessStruct = curDragPoint?.rattleFunc[EnumKeyName.summonChess.rawValue] {
+                                                if case let curRattleNum as Int = curDragPoint?.rattleFunc[EnumKeyName.summonNum.rawValue] {
+                                                    for index in 0 ..< curRattleNum { //appendnewnode里会计算数量 多余的棋子会被砍掉
+                                                        appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: curRattleChess))
+                                                    }
+                                                }
+                                            }
+                                        
                                     } else {//没有特殊的战吼之类的触发 直接放置入 allyboard
                                             let curInsertIndex = calInsertPos(curBoardSide: BoardSide.allySide.rawValue, positionOfBoard: curPressLocation)
                                             
@@ -1060,10 +1071,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         //
         if (curIndex < boardNode[attSide].count && boardNode[nextSide].count > 0) { //当前游标小于进攻方数量
             var randomIndex = Int.randomIntNumber(lower: 0, upper: self.boardNode[nextSide].count)
-            if baitIndex.count > 0 { //如果有嘲讽 随机挑一个进行攻击
+            
+            let attacker = self.boardNode[attSide][curIndex]
+            
+            if baitIndex.count > 0 && !attacker.abilities.contains(EnumAbilities.ignoreBait.rawValue) { //如果有嘲讽敌人且没有己方无视嘲讽技能 随机挑一个进行攻击
                 randomIndex = baitIndex[Int.randomIntNumber(lower: 0, upper: baitIndex.count)]
             }
-            let attacker = self.boardNode[attSide][curIndex]
+            
             let victim = self.boardNode[nextSide][randomIndex]
             let attackResult = attack(attackBoardIndex: attSide, attackIndex: curIndex, victimBoardIndex: nextSide, victimIndex: randomIndex)//self.boardNode[0][curIndex], self.boardNode[1][randomIndex]
             //
