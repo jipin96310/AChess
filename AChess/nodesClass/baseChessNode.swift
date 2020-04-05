@@ -12,7 +12,7 @@ public class baseChessNode: SCNNode {
     // MARK: - Lifecycle
     //var atk = 0
     //var def = 1
-    private let nameTextNode = TextNode()
+    private let nameTextNode = TextNode(textScale: SCNVector3(0.005, 0.005, 0.005))
     private let descTextNode = TextNode(textScale: SCNVector3(0.1, 0.1, 0.1))
     private let atkTextNode = TextNode()
     private let defTextNode = TextNode()
@@ -248,13 +248,24 @@ public class baseChessNode: SCNNode {
         }
        
     }
-    func getDamage(damageNumber: Int) -> Bool{
+    func getDamage(damageNumber: Int) -> Double{
+        let totalTime = 0.5
         damageNum = damageNumber
         defNum = defNum! - damageNumber
         if defNum! < 0 {
-            return false
+            var damageAction = [
+                SCNAction.customAction(duration: 1, action: { _,_ in
+                    
+                })
+            ]
+            damageAction.append(SCNAction.fadeOut(duration: totalTime))
+            damageAction.append(SCNAction.customAction(duration: 0, action: { _,_ in
+                self.removeFromParentNode()
+            }))
+            self.runAction(SCNAction.sequence(damageAction))
+            return totalTime
         }
-        return true
+        return 0
     }
     func toggleShell(status: Bool) { //control shell turn on/off
         if let shellNode = self.childNode(withName: "shell", recursively: true) {

@@ -8,7 +8,7 @@
 "BattleStage" = "战斗回合"; //战斗回合
 "ExchangeStage" = "交易回合";
 "Poison"        = "剧毒";  //剧毒
-"LiveInGroup"   = "群居";//群居
+"LiveInGroup"   = "群居(<percent>% 攻击后创建一个白板镜像)";//群居
 "Furious"       = "凶猛"; //凶猛
 "Rapid"         = "迅捷(<percent>% 攻击两次)";  // 迅捷
 "Acute"         = "敏锐(<percent>% 闪避攻击)";   //敏锐
@@ -16,18 +16,23 @@
 "Fly"           = "飞行";    //飞行
 "Shell"         = "硬壳";  //硬壳
 "bait"          = "诱饵"; //诱饵
+"IgnoreBait"    = "无视诱饵"; //无视诱饵
 "spine"         = "尖刺";  //尖刺
 "ImmunePoison"   = "免疫剧毒"; //免疫剧毒
 "InheritAddBuff" = "传承: 获得+1/+1"; // Inherit: add buff
 "EndRoundAddBuffForGreen" = "给所有其它的绿植覆盖的棋子+1/+1, 包括山川、平原、森林.";
+
 ///////战吼
 "InstantAddSingleBuff" = "瞬发: 选择一个棋子获得+1/+1.";
 "InstantChooseAnAbility" = "瞬发: 选择一个棋子获得一个能力";
 "InstantChooseAnAbilityForMountain" = "瞬发: 选择一个山川的棋子获得一个能力";
-"InstantAllGainAbilityForMountain" = "顺发：所有山川的棋子获得一个能力";
-"InstantDestroyAllyGainBuff" = "顺发: 摧毁一个友方棋子获得其攻击和生命.";
+"InstantAllGainAbilityForMountain" = "瞬发：所有山川的棋子获得一个能力";
+"InstantDestroyAllyGainBuff" = "瞬发: 摧毁一个友方棋子获得其攻击和生命.";
 "ChooseAnChess" = "请选择一个棋子.";
 "ChooseAnOption" = "请选择一个选项.";
+"InstantRandomAddBuff"      = "瞬发: 给予 <num> 随机队友 +<att>/+<def>";
+//summon
+"SummonChessAddMountainBuff" = "在你召唤一个具有诱饵的棋子后，给予所有山川棋子 +<att>/ +<def>.";
 //以下为卡牌类型
 "Mountain" = "山川"; //山
 "Ocean" = "海洋"; //海洋
@@ -49,6 +54,11 @@
 "Yak"          = "牦牛";  //牦牛
 "SnowLeopard"  = "雪豹"; //雪豹
 "Pangolin"     = "穿山甲"; //穿山甲
-"MountainWolf" = "落基山狼" //落基山狼
-"Boar"         = "野猪" //野猪
-"Quasipaa"     = "石蛙" //石蛙
+"MountainWolf" = "落基山狼"; //落基山狼
+"Boar"         = "野猪"; //野猪
+"Quasipaa"     = "石蛙"; //石蛙
+"GoldenEagle" = "金雕"; //金雕
+"WhiteTiger"  = "白虎"; //白虎
+"BlackBear"   = "黑熊"; //黑熊
+"Panda"       = "熊猫"; //熊猫
+"TigerSnake"  = "虎蛇"; //虎蛇

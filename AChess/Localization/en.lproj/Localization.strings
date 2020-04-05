@@ -8,15 +8,16 @@
 "BattleStage" = "Battle Round"; //战斗回合
 "ExchangeStage" = "Trade Round";
 "Poison"        = "Poison";  //剧毒
-"LiveInGroup"   = "LiveInGroup";//群居
+"LiveInGroup"   = "LiveInGroup(<percent>% create a copy with no ability after an attack)";//群居
 "Furious"       = "Furious"; //凶猛
-"Rapid"         = "Rapid(Attack Twice by <percent>%)";  // 迅捷
+"Rapid"         = "Rapid";  // 迅捷
 "Acute"         = "Acute(Dodge attack by <percent>%)";   //敏锐
 "AcuteShort"    = "Acute";      //敏锐
 "Fly"           = "Fly";    //飞行
 "Shell"         = "Shell";  //硬壳
-"bait"          = "Bait"; //诱饵
-"spine"         = "Spine";   //尖刺
+"Bait"          = "Bait"; //诱饵
+"IgnoreBait"    = "Ignore Bait"; //无视诱饵
+"Spine"         = "Spine";   //尖刺
 "ImmunePoison"   = "Immune To Poison"; //免疫剧毒
 "InheritAddBuff" = "Inherit: Gain +1/+1."; // Inherit: add buff
 "EndRoundAddBuffForGreen" = "Give all other green covered chess +1 / +1 at the end of sale stage, including mountain, plain, frost.";
@@ -26,8 +27,11 @@
 "InstantChooseAnAbilityForMountain" = "Instant: choose a mountain chess to get an ability.";
 "InstantAllGainAbilityForMountain" = "Instant：All mountain chesses gain a new ability.";
 "InstantDestroyAllyGainBuff" = "Instant: Destroy one friend chess and gain its attack and life.";
+"InstantRandomAddBuff"      = "Instant: Give <num> random allies +<att>/+<def>";
 "ChooseAnChess" = "Please choose an chess.";
 "ChooseAnOption" = "Please choose an option.";
+//summon
+"SummonChessAddMountainBuff" = "Give All mountain chesses +<att>/ +<def> after summon a chess with bait.";
 //以下为卡牌类型
 "Mountain" = "Mountain"; //山
 "Ocean" = "Ocean"; //海洋
@@ -42,7 +46,7 @@
 "Tarsier"  = "Tarsier"; //眼镜猴
 "SnubNosedMonkey" = "Snub-Nosed Monkey"; //金丝猴
 "WolfSpider"    = "WolfSpider"; //狼蛛
-"Pheasant"      = "山Pheasant"; //山鸡
+"Pheasant"      = "Pheasant"; //山鸡
 "AlpDog"        = "Alp Dog"; //高山犬
 "Argali"        = "Argali"; //盘羊
 //below is chess derivate name
@@ -50,6 +54,11 @@
 "Yak"          = "Yak";  //牦牛
 "SnowLeopard"  = "Snow Leopard"; //雪豹
 "Pangolin"     = "Pangolin"; //穿山甲
-"MountainWolf" = "Mountain Wolf" //落基山狼
-"Boar"         = "Boar" //野猪
-"Quasipaa"     = "Quasipaa" //石蛙
+"MountainWolf" = "Mountain Wolf"; //落基山狼
+"Boar"         = "Boar"; //野猪
+"Quasipaa"     = "Quasipaa"; //石蛙
+"GoldenEagle" = "Golden Eagle"; //金雕
+"WhiteTiger"  = "White Tiger"; //白虎
+"BlackBear"   = "Black Bear"; //黑熊
+"Panda"       = "Panda"; //熊猫
+"TigerSnake"  = "Tiger Snake"; //虎蛇

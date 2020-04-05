@@ -62,6 +62,7 @@ enum EnumAbilities: String {
     case fly = "Fly"
     case shell = "Shell"
     case bait = "Bait" //诱饵
+    case ignoreBait = "IgnoreBait" //无视诱饵
     case spine = "Spine" //尖刺
     case inheritAddBuff = "InheritAddBuff" //传承加buff
     case inheritSummonSth = "InheritSummonSth" //传承召唤
@@ -74,6 +75,9 @@ enum EnumAbilities: String {
     case instantDestroyAllyGainBuff = "InstantDestroyAllyGainBuff" //消灭一个友方棋子（不会获得金钱）获得该棋子的身材
     case immunePoison = "ImmunePoison" //免疫剧毒
     case instantSummonSth = "InstantSummonSth" //战吼召唤生物
+    case instantRandomAddBuff = "InstantRandomAddBuff" //战吼随机加buff
+    //summon case
+    case summonChessAddMountainBuff = "SummonChessAddMountainBuff" //熊猫专属技能 无需适配扩展性
 }
 //public let EnumAbiNumToName: [Int:String] =
 //    [0: "",
@@ -102,6 +106,8 @@ enum EnumKeyName: Int {
     case baseDamage = 2
     case baseAttack = 3
     case baseDef = 4
+    case baseKind = 5
+    case baseRarity = 6
 }
 
 //棋子名字
@@ -122,6 +128,11 @@ enum EnumChessName: String {
     case mountainWolf = "MountainWolf" //落基山狼
     case boar         = "Boar" //野猪
     case quasipaa     = "Quasipaa" //石蛙
+    case goldenEagle  = "GoldenEagle" //金雕
+    case whiteTiger = "WhiteTiger" //白虎
+    case blackBear = "BlackBear" //黑熊
+    case panda     = "Panda" //熊猫
+    case tigerSnake = "TigerSnake" //虎蛇
 }
 
 
