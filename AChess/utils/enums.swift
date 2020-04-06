@@ -45,6 +45,7 @@ enum GlobalNumberSettings: Int {
 enum BoardSide: Int {
     case enemySide = 0
     case allySide = 1
+    case storageSide = 2
 }
 
 enum EnumNodeName: String {

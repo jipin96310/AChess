@@ -45,16 +45,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var boardNode :[[baseChessNode]] = [[],[]] //chesses
         {
             didSet(oldBoard) {
-                for boardIndex in 0 ..< boardNode.count {
-                    for innerIndex in 0 ..< boardNode[boardIndex].count {
-                        if !oldBoard[boardIndex].contains(boardNode[boardIndex][innerIndex]) {
-                            boardNode[boardIndex][innerIndex].position.y = 0.01
-                            playerBoardNode.addChildNode(boardNode[boardIndex][innerIndex])
-                        }
-                    }
-                }
-                
-                
+  
                 if (curStage == EnumsGameStage.exchangeStage.rawValue) {
                     var chessTimesDic:[[String : [Int]]] = [[:],[:],[:]] //棋子map 刷新问题
                     var newCombineChess: [baseChessNode] = []
@@ -91,9 +82,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         var newAllyBoard:[baseChessNode] = [] //新期盼
                         newAllyBoard = boardNode[BoardSide.allySide.rawValue].filter{(item) in
                             tempIndex += 1
-                            if oldSubChessIndex.contains(tempIndex) {
-                                item.removeFromParentNode()
-                            }
                             return !oldSubChessIndex.contains(tempIndex)
                         }
                         
@@ -106,10 +94,28 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         }
                         //赋值更新
                         boardNode[BoardSide.allySide.rawValue] = newAllyBoard
+                        if (curDragPoint != nil) {
+                            curDragPoint!.removeFromParentNode()
+                        }
                     }
   
                 }
-                updateWholeBoardPosition()
+                for boardIndex in 0 ..< boardNode.count {
+                    for innerIndex in 0 ..< boardNode[boardIndex].count {
+                        if !oldBoard[boardIndex].contains(boardNode[boardIndex][innerIndex]) {
+                            boardNode[boardIndex][innerIndex].position.y = 0.01
+                            playerBoardNode.addChildNode(boardNode[boardIndex][innerIndex])
+                        }
+                    }
+                }
+                for boardIndex in 0 ..< oldBoard.count {
+                    for innerIndex in 0 ..< oldBoard[boardIndex].count {
+                        if !boardNode[boardIndex].contains(oldBoard[boardIndex][innerIndex]) {
+                            oldBoard[boardIndex][innerIndex].removeFromParentNode()
+                        }
+                    }
+                }
+                updateWholeBoardPosition() //dont delete
                 
                         
             }
@@ -124,7 +130,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         playerBoardNode.addChildNode(storageNode[innerIndex])
                     }
                 }
-                updateStorageBoardPosition()
+                updateStorageBoardPosition()  //dont delete
         }
     }
     var storageRootNode : [SCNNode] = []
@@ -357,7 +363,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         }
                                                
                     } else if curPressNode.name == EnumNodeName.saleStage.rawValue && curDragPoint?.chessStatus == EnumsChessStage.owned.rawValue{//放置到贩卖点
-                        sellChess(playerID: curPlayerId, curChess: curDragPoint!)
+                        sellChess(playerID: curPlayerId, curChess: curDragPoint!, curBoardSide: curDragPos[0])
                     } else if curPressNode.name == EnumNodeName.storagePlace.rawValue { //放置到储藏区
                         if curDragPoint?.chessStatus == EnumsChessStage.forSale.rawValue { //未购买
                             if buyChess(playerID: curPlayerId, chessPrice: curDragPoint!.chessPrice) == true { //buy success
@@ -588,14 +594,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                 summonToAllyBoard(newNode: curDragPoint!, curBoardIndex: nil)
                                 
                             } else { //点击点不在
-                                sellChess(playerID: curPlayerId, curChess: curDragPoint!)
-                               
-                                
+                                sellChess(playerID: curPlayerId, curChess: curDragPoint!, curBoardSide: curDragPos[0])
                                 if curDragPos[0] == 0 { //新买的棋子
                                     appendNewNodeToBoard(curBoardSide: BoardSide.enemySide.rawValue, curChess: curDragPoint!)
                                 } else if curDragPos[0] == 2 { //储藏区的棋子
                                     appendNewNodeToStorage(curChess: curDragPoint!)
-                                    updateStorageBoardPosition()
                                 }
                                 
                                 
@@ -682,13 +685,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                     }
                                 }
                             } else { //点击点不在
-                                sellChess(playerID: curPlayerId, curChess: curDragPoint!)
+                                sellChess(playerID: curPlayerId, curChess: curDragPoint!, curBoardSide: curDragPos[0]) //dragpoint现在是找不到的
                                 if curDragPos[0] == 0 { //新买的棋子
                                     appendNewNodeToBoard(curBoardSide: BoardSide.enemySide.rawValue, curChess: curDragPoint!)
                                     updateWholeBoardPosition()
                                 } else if curDragPos[0] == 2 { //储藏区的棋子
                                     appendNewNodeToStorage(curChess: curDragPoint!)
-                                    updateStorageBoardPosition()
                                 }
                                 
                             }
@@ -871,9 +873,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         }
         return false
     }
-    func sellChess(playerID: Int, curChess: baseChessNode) {
+    func sellChess(playerID: Int, curChess: baseChessNode, curBoardSide: Int) {
         playerStatues[playerID].curCoin += curChess.chessPrice
         curChess.removeFromParentNode()
+        
     }
     func checkCollisionWithChess(_ pressLocation: SCNVector3) {
 //        let node = SCNNode()
@@ -988,29 +991,27 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             curBoard.append(curChess)
         }
     }
+    //删除棋子
     func removeNodeFromBoard(curBoardSide:Int, curChess: baseChessNode) {
-        for index in 0 ..< boardNode[curBoardSide].count {
-            if boardNode[curBoardSide][index] == curChess {
-                curChess.removeFromParentNode()
-                boardNode[curBoardSide].remove(at: index)
-                break
+        if curBoardSide < BoardSide.storageSide.rawValue {
+            for index in 0 ..< boardNode[curBoardSide].count {
+                if boardNode[curBoardSide][index] == curChess {
+                    boardNode[curBoardSide].remove(at: index)
+                    break
+                }
+            }
+        } else if curBoardSide == BoardSide.storageSide.rawValue {
+            for index in 0 ..< storageNode.count {
+                if storageNode[index] == curChess {
+                    storageNode.remove(at: index)
+                    break
+                }
             }
         }
     }
-    func removeNodeFromBoardArr(curBoardSide:Int, curChess: baseChessNode) {
-        for index in 0 ..< boardNode[curBoardSide].count {
-            if boardNode[curBoardSide][index] == curChess {
-                boardNode[curBoardSide].remove(at: index)
-                break
-            }
-        }
-    }
+
+    
     func emptyBoardSide(curBoardSide: Int) {
-       if(boardNode[curBoardSide].count > 0) {
-        boardNode[curBoardSide].forEach{(curChess) in
-            curChess.removeFromParentNode()
-        }
-        }
         boardNode[curBoardSide] = []
     }
     func recoverNodeToBoard(dragPos: [Int]) {
@@ -1019,7 +1020,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         } else if dragPos[0] == 2{
             if curDragPoint != nil { //storage暂时较少用到 不封装放置方法
                 storageNode.append(curDragPoint!)
-                updateStorageBoardPosition()
             }
         }
     }
@@ -1066,6 +1066,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 curChessNode.runAction(updateAction)
             }
         }
+        
         recoverRootNodeColor()
        return totalTime
     }
@@ -1087,9 +1088,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
         }
     }
-    func attackActivity() {
-        
-    }
+ 
     func aRoundTaskAsync(_ beginIndex: inout [Int],_ attSide: Int, _ resolver: Resolver<Any>) {
         var beginIndexCopy = beginIndex
         var curIndex = beginIndex[attSide] //拷贝的
@@ -1166,7 +1165,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                         let result = curChess.getDamage(damageNumber: curRattleDamage)
                                        
                                         if result != 0 { //有动画
-                                            self.removeNodeFromBoardArr(curBoardSide: oppositeSide, curChess: curChess)
+                                            self.removeNodeFromBoard(curBoardSide: oppositeSide, curChess: curChess)
                                             inheritTime += result
                                         }
                                        
