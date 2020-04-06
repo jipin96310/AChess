@@ -307,6 +307,9 @@ public class baseChessNode: SCNNode {
             } else if curAbi == EnumAbilities.liveInGroup.rawValue {
                 tempDescStr += curAbi.localized.replacingOccurrences(of: "<percent>", with: String(chessLevel * 20))
                 tempDescStr += " "
+            } else if curAbi == EnumAbilities.instantAddBuff.rawValue {
+               tempDescStr += curAbi.localized.replacingOccurrences(of: "<kind>", with: String(chessLevel * 1))
+               tempDescStr += " "
             } else {
                 tempDescStr += curAbi.localized
                 tempDescStr += " "
@@ -315,13 +318,15 @@ public class baseChessNode: SCNNode {
         return tempDescStr
     }
     func setActive() { //用于标识棋子可被选择 用于战吼 等场景。当前的操作就是把棋子变绿 之后确定棋子模型后优化
+        
         if let sideNode = self.childNode(withName: "side", recursively: true) {
-            sideNode.opacity = 0.5
-        }        
+            sideNode.geometry?.firstMaterial?.diffuse.contents = UIColor.green
+        }
     }
     func cancelActive() {
+      
        if let sideNode = self.childNode(withName: "side", recursively: true) {
-            sideNode.opacity = 1
+           sideNode.geometry?.firstMaterial?.diffuse.contents = chessColorRarity[chessRarity]
         }
     }
     

@@ -22,7 +22,7 @@
 "InheritAddBuff" = "Inherit: Gain +1/+1."; // Inherit: add buff
 "EndRoundAddBuffForGreen" = "Give all other green covered chess +1 / +1 at the end of sale stage, including mountain, plain, frost.";
 ///////战吼
-"InstantAddSingleBuff" = "Instant: choose a chess to get +1/+1.";
+"InstantAddBuff" = "Instant: choose a <kind> chess to gain +<att>/+<def>.";
 "InstantChooseAnAbility" = "Instant: choose a chess to get an ability.";
 "InstantChooseAnAbilityForMountain" = "Instant: choose a mountain chess to get an ability.";
 "InstantAllGainAbilityForMountain" = "Instant：All mountain chesses gain a new ability.";

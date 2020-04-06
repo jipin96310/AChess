@@ -394,10 +394,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                         }
                                     }
                                     //储藏区来的不需要购买
-                                    if (curDragPoint!.abilities.contains(EnumAbilities.instantAddSingleBuff.rawValue) || //具有特殊战吼需要选择指定s的棋子
-                                        curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbility.rawValue) ||
-                                        curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbilityForMountain.rawValue) ||
-                                        curDragPoint!.abilities.contains(EnumAbilities.instantDestroyAllyGainBuff.rawValue)) &&
+                                    /*//具有特殊战吼需要选择指定s的棋子
+                                     curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbility.rawValue) ||
+                                     curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbilityForMountain.rawValue) ||
+                                     curDragPoint!.abilities.contains(EnumAbilities.instantDestroyAllyGainBuff.rawValue)) &&
+                                     */
+                                    if curDragPoint!.abilities.contains(EnumAbilities.instantAddBuff.rawValue) &&
                                         boardNode[BoardSide.allySide.rawValue].count > 0
                                     { // if chess has INSTANT add buff TODO!!!!
                                         removeGestureRecoginzer()
@@ -406,17 +408,26 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                         //
                                         tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onChooseChessTap))
                                         self.sceneView.addGestureRecognizer(tapGestureRecognizer)
-                                        if curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbilityForMountain.rawValue) {
-                                            boardNode[BoardSide.allySide.rawValue].forEach{(curChess)in
-                                                if curChess.chessKind == EnumChessKind.mountain.rawValue {
+                                        
+                                        //根据种族判断需要激活变绿效果的棋子
+                                      
+                                            if case let curInstantKindArr as [String] = curDragPoint?.rattleFunc[EnumKeyName.baseKind.rawValue] {
+
+                                                    boardNode[BoardSide.allySide.rawValue].forEach{(curChess)in
+                                                        if curInstantKindArr.contains(curChess.chessKind) {
+                                                            curChess.setActive()
+                                                        }
+                                                    }
+                    
+                                            } else {
+                                                boardNode[BoardSide.allySide.rawValue].forEach{(curChess)in
                                                     curChess.setActive()
                                                 }
                                             }
-                                        } else {
-                                            boardNode[BoardSide.allySide.rawValue].forEach{(curChess)in
-                                                curChess.setActive()
-                                            }
-                                        }
+                                        
+                                        
+                                        
+                                        
                                         
                                     } else if curDragPoint!.abilities.contains(EnumAbilities.instantAllGainAbilityForMountain.rawValue) &&
                                         boardNode[BoardSide.allySide.rawValue].count > 0
@@ -638,8 +649,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             let curNode = hitTestResult.first?.node
                             if let curBaseChess = findChessRootNode(curNode!) {
                                 
-                                if curDragPoint!.abilities.contains(EnumAbilities.instantAddSingleBuff.rawValue) {
-                                    curBaseChess.AddBuff(AtkNumber: 1, DefNumber: 1)
+                                if curDragPoint!.abilities.contains(EnumAbilities.instantAddBuff.rawValue) {
+                                    if case let curBaseAtt as Int = curDragPoint?.rattleFunc[EnumKeyName.baseAttack.rawValue] {
+                                        if case let curBaseDef as Int = curDragPoint?.rattleFunc[EnumKeyName.baseDef.rawValue] {
+                                            curBaseChess.AddBuff(AtkNumber: curDragPoint!.chessLevel * curBaseAtt , DefNumber: curDragPoint!.chessLevel * curBaseDef)
+                                        }
+                                    }
+                                    
                                 } else if curDragPoint!.abilities.contains(EnumAbilities.instantDestroyAllyGainBuff.rawValue) {
                                     removeNodeFromBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: curBaseChess)
                                 }
@@ -1393,7 +1409,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         return dummyAICrew[curRound]
     }
     func getRandomChessStructFromPool(_ curLevel : Int) -> chessStruct { //不可能出现所有都小于等于0的情况 出现了就直接用现有的
-        var randomLevel = 2//Int.randomIntNumber(lower: 1, upper: curLevel + 1)
+        var randomLevel = 3//Int.randomIntNumber(lower: 1, upper: curLevel + 1)
         var randomNum =  Int.randomIntNumber(lower: 0, upper: chessCollectionsLevel[randomLevel - 1].count)
         var curChessInfo =  chessCollectionsLevel[randomLevel - 1][randomNum]
         var randomTime = 1

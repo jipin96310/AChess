@@ -69,7 +69,7 @@ enum EnumAbilities: String {
     case inheritSummonSth = "InheritSummonSth" //传承召唤
     case inheritDamage = "InheritDamage" //亡语伤害
     case endRoundAddBuffForGreen = "EndRoundAddBuffForGreen" //回合结束获得buff
-    case instantAddSingleBuff = "InstantAddSingleBuff" //战吼加指定单位buff
+    case instantAddBuff = "InstantAddBuff" //战吼加指定单位buff
     case instantChooseAnAbility = "InstantChooseAnAbility" //战吼进化
     case instantChooseAnAbilityForMountain = "InstantChooseAnAbilityForMountain" //战吼种族进化
     case instantAllGainAbilityForMountain = "InstantAllGainAbilityForMountain" //战吼全体山川生物获得能力

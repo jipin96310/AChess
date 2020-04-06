@@ -23,7 +23,7 @@
 "EndRoundAddBuffForGreen" = "给所有其它的绿植覆盖的棋子+1/+1, 包括山川、平原、森林.";
 
 ///////战吼
-"InstantAddSingleBuff" = "瞬发: 选择一个棋子获得+1/+1.";
+"InstantAddBuff" = "瞬发: 选择一个<kind>棋子获得 +<att>/+<def>.";
 "InstantChooseAnAbility" = "瞬发: 选择一个棋子获得一个能力";
 "InstantChooseAnAbilityForMountain" = "瞬发: 选择一个山川的棋子获得一个能力";
 "InstantAllGainAbilityForMountain" = "瞬发：所有山川的棋子获得一个能力";
