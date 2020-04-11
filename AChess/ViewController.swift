@@ -103,6 +103,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 for boardIndex in 0 ..< boardNode.count {
                     for innerIndex in 0 ..< boardNode[boardIndex].count {
                         if !oldBoard[boardIndex].contains(boardNode[boardIndex][innerIndex]) {
+                            
+                            if (curStage == EnumsGameStage.battleStage.rawValue) {
+                                print(oldBoard[1].count)
+                            }
+                            
                             boardNode[boardIndex][innerIndex].position.y = 0.01
                             playerBoardNode.addChildNode(boardNode[boardIndex][innerIndex])
                         }
@@ -115,6 +120,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         }
                     }
                 }
+                
                 DispatchQueue.main.async{
                     self.updateWholeBoardPosition() //dont delete
                 }                   
@@ -1113,7 +1119,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             var victimBoard = self.boardNode[victimBoardIndex]
             let attacker = attackBoard[attackIndex]
             let victim = victimBoard[victimIndex]
-            var attackerActions: [SCNAction] = []
+            //var attackerActions: [SCNAction] = []
             /*进行亡语或群居结算*/
             for curSide in 0 ... 1 { //0为攻击者 1为防守方
                 let curBoardSide = curSide == 0 ? attackBoardIndex : victimBoardIndex
@@ -1171,11 +1177,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 
                             curChessPoint.abilityTrigger(abilityEnum: EnumAbilities.inheritAddBuff.rawValue.localized)
                             for index in 0 ..< curRattleChess.count { //appendnewnode里会计算数量 多余的棋子会被砍掉
-                                attackerActions += [
-                                    SCNAction.customAction(duration: 0.5, action: { _,_ in
+                                
+                                    
                                         self.appendNewNodeToBoard(curBoardSide: curBoardSide, curChess: baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: curRattleChess[index]))
-                                    })
-                                ]
+                                    
+                                
                             }
 
                         } else if case let curRattleRarity as Int = curChessPoint.inheritFunc[EnumKeyName.baseRarity.rawValue] {
@@ -1183,11 +1189,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             if case let curRattleNum as Int = curChessPoint.inheritFunc[EnumKeyName.summonNum.rawValue] {
                                 let randomChessStruct = randomDiffNumsFromArrs(outputNums: curRattleNum, inputArr: chessCollectionsLevel[curRattleRarity - 1])
                                 randomChessStruct.forEach{ (curChessStruct) in
-                                    attackerActions += [
-                                        SCNAction.customAction(duration: 0.5, action: { _,_ in
+                                    
+                                      
                                             self.appendNewNodeToBoard(curBoardSide: curBoardSide, curChess: baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: curChessStruct))
-                                        })
-                                    ]
+                                    
+                                    
                                    
                                 }
 
@@ -1199,12 +1205,19 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 }
 
             }
-            attackerActions += [
-                SCNAction.customAction(duration: 0.5, action: { _,_ in
-                    resolver.fulfill(attackResult)
-                })
-            ]
-            attacker.runAction(SCNAction.sequence(attackerActions))
+            
+            // resolve promise
+            delay(totalUpdateTime , task: {
+                
+                resolver.fulfill(attackResult)
+            })
+            if attackResult[0] == 0 { //attacker eliminated
+                self.boardNode[attackBoardIndex].remove(at: attackIndex)
+            }
+            if attackResult[1] == 0 { //victim elinminated
+                self.boardNode[victimBoardIndex].remove(at: victimIndex)
+            }
+            //attacker.runAction(SCNAction.sequence(attackerActions))
             
         })
     }
@@ -1259,6 +1272,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 // 如果攻击动作完成了
                 return self.updateInherit(attackResult: res, attackBoardIndex: attSide, attackIndex: curIndex, victimBoardIndex: nextSide, victimIndex: randomIndex)
             }.done{ (res) in
+                print("Done!!!", beginIndexCopy, self.boardNode[1].count)
                 if res[0] == 0 { //attacker eliminated
                     //index不动
                 } else {
@@ -1566,9 +1580,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     //chessnode actions
 
     public func attack(attackBoardIndex: Int , attackIndex: Int, victimBoardIndex: Int, victimIndex: Int) -> Promise<[Double]> {
-        return Promise<[Double]>(resolver: { (resolve) in
-            var attackBoard = self.boardNode[attackBoardIndex]
-            var victimBoard = self.boardNode[victimBoardIndex]
+        return Promise<[Double]>(resolver: { (resolver) in
+            let attackBoard = self.boardNode[attackBoardIndex]
+            let victimBoard = self.boardNode[victimBoardIndex]
             let attacker = attackBoard[attackIndex]
             let victim = victimBoard[victimIndex]
             let atkStartPos = attacker.position
@@ -1674,19 +1688,30 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
             actionResult.append(totalTime)
             //
-            attackSequence += [
-                SCNAction.customAction(duration: 0.5, action: {_,_ in
-                    /*进行攻击结束后的结算*/
-//                    if actionResult[0] == 0 { //attacker eliminated
-//                        attackBoard.remove(at: attackIndex)
-//                    }
-//                    if actionResult[1] == 0 { //victim elinminated
-//                        victimBoard.remove(at: victimIndex)
-//                    }
-                    resolve.fulfill(actionResult)
-                }),
-            ]
+//            attackSequence += [
+//                SCNAction.customAction(duration: 0.5, action: {_,_ in
+//                    /*进行攻击结束后的结算*/
+////                    if actionResult[0] == 0 { //attacker eliminated
+////                        attackBoard.remove(at: attackIndex)
+////                    }
+////                    if actionResult[1] == 0 { //victim elinminated
+////                        victimBoard.remove(at: victimIndex)
+////                    }
+//                    resolve.fulfill(actionResult)
+//                }),
+//            ]
+            
+            
+            //resolve promise
+            delay(SCNAction.sequence(attackSequence).duration , task: {
+
+                resolver.fulfill(actionResult)
+            })
             attacker.runAction(SCNAction.sequence(attackSequence))
+            
+            
+            
+            
         })
     }
     func recoverButtons() {
