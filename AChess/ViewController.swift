@@ -454,8 +454,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                         curChoosePoint = curDragPoint
                                         tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onChooseOptionTap))
                                         self.sceneView.addGestureRecognizer(tapGestureRecognizer)
-                                    } else if curDragPoint!.abilities.contains(EnumAbilities.instantAddBuff.rawValue) &&
-                                        boardNode[BoardSide.allySide.rawValue].count > 0
+                                    } else if (
+                                            curDragPoint!.abilities.contains(EnumAbilities.instantAddBuff.rawValue) ||
+                                            curDragPoint!.abilities.contains(EnumAbilities.instantAddAbility.rawValue)
+                                        ) && boardNode[BoardSide.allySide.rawValue].count > 0
                                     { // if chess has INSTANT add buff!!!!
                                         removeGestureRecoginzer()
                                         PlayerBoardTextShow(TextContent: EnumString.chooseAnChess.rawValue.localized)
@@ -710,6 +712,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                         }
                                     }
                                     
+                                } else if curDragPoint!.abilities.contains(EnumAbilities.instantAddAbility.rawValue) {
+                                    if case let curBaseAbility as String = curDragPoint?.rattleFunc[EnumKeyName.abilityKind.rawValue] {
+                                        curBaseChess.AddBilities(Abilities: [curBaseAbility])
+                                    }
                                 } else if curDragPoint!.abilities.contains(EnumAbilities.instantDestroyAllyGainBuff.rawValue) {
                                     removeNodeFromBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: curBaseChess)
                                 }
@@ -1412,22 +1418,18 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 for index in 0 ..< self.boardNode[BoardSide.allySide.rawValue].count {
                     let curBoard = self.boardNode[BoardSide.allySide.rawValue]
                     let curChess = self.boardNode[BoardSide.allySide.rawValue][index]
-                    if curChess.abilities.contains(EnumAbilities.endRoundAddBuffForGreen.rawValue) {
-                        for innerIndex in 0 ..< self.boardNode[BoardSide.allySide.rawValue].count {
-                            let curChess = self.boardNode[BoardSide.allySide.rawValue][innerIndex]
-                            if innerIndex != index && (
-                                curChess.chessKind == EnumChessKind.frost.rawValue ||
-                                curChess.chessKind == EnumChessKind.plain.rawValue ||
-                                curChess.chessKind == EnumChessKind.mountain.rawValue
-                                ) {
-                                curChess.AddBuff(AtkNumber: 1, DefNumber: 1) //当前hard code +1 /+1
+                    if curChess.abilities.contains(EnumAbilities.endRoundAddBuff.rawValue) {
+                        if case let curEndKindArr as [String] = curChess.rattleFunc[EnumKeyName.baseKind.rawValue] {
+                            for innerIndex in 0 ..< self.boardNode[BoardSide.allySide.rawValue].count {
+                                let curInnerChess = self.boardNode[BoardSide.allySide.rawValue][innerIndex]
+                                if innerIndex != index && (
+                                    curEndKindArr.contains(curInnerChess.chessKind)
+                                    ) {
+                                    curInnerChess.AddBuff(AtkNumber: 1, DefNumber: 1) //当前hard code +1 /+1
+                                }
                             }
                         }
-//                        let copyChess = curChess.copyable()
-//                        curChess.abilities = [] //empty ability,in case it keep adding
-//                        self.boardNode[1].append(copyChess)
-//                        self.playerBoardNode.addChildNode(copyChess)
-                        curChess.abilityTrigger(abilityEnum: EnumAbilities.endRoundAddBuffForGreen.rawValue.localized)
+                        curChess.abilityTrigger(abilityEnum: EnumAbilities.endRoundAddBuff.rawValue.localized)
                     }
                 }
                 //

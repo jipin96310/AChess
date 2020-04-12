@@ -68,8 +68,9 @@ enum EnumAbilities: String {
     case inheritAddBuff = "InheritAddBuff" //传承加buff
     case inheritSummonSth = "InheritSummonSth" //传承召唤
     case inheritDamage = "InheritDamage" //亡语伤害
-    case endRoundAddBuffForGreen = "EndRoundAddBuffForGreen" //回合结束获得buff
+    case endRoundAddBuff = "EndRoundAddBuff" //回合结束获得buff
     case instantAddBuff = "InstantAddBuff" //战吼加指定单位buff
+    case instantAddAbility = "InstantAddAbility" //战吼加指定单位ability
     case instantChooseAnAbility = "InstantChooseAnAbility" //战吼进化
     case instantChooseAnAbilityForMountain = "InstantChooseAnAbilityForMountain" //战吼种族进化
     case instantAllGainAbilityForMountain = "InstantAllGainAbilityForMountain" //战吼全体山川生物获得能力
@@ -109,10 +110,12 @@ enum EnumKeyName: Int {
     case baseDef = 4
     case baseKind = 5
     case baseRarity = 6
+    case abilityKind = 7 //能力类型
 }
 
 //棋子名字
 enum EnumChessName: String {
+    /*mountain*/
     case mountainBird = "MountainBird" //山雀
     case wildRabbit = "WildRabbit" //野兔
     case hedgehog = "Hedgehog" //刺猬
@@ -122,7 +125,7 @@ enum EnumChessName: String {
     case pheasant = "Pheasant" //山鸡
     case alpDog = "AlpDog" //高山犬
     case argali = "Argali" //盘羊
-    case pygmyTarsier = "Pygmy Tarsier" //侏儒眼镜猴
+    case pygmyTarsier = "PygmyTarsier" //侏儒眼镜猴
     case yak = "Yak" //牦牛
     case snowLeopard = "SnowLeopard" //雪豹
     case pangolin = "Pangolin" //雪豹
@@ -134,6 +137,28 @@ enum EnumChessName: String {
     case blackBear = "BlackBear" //黑熊
     case panda     = "Panda" //熊猫
     case tigerSnake = "TigerSnake" //虎蛇
+    /*ocean*/
+    case killerWhale = "KillerWhale"//虎鲸
+    case greatWhite = "GreatWhite"; //大白鲨
+    case crucian    = "Crucian"; //鲫鱼
+    case sardine = "Sardine"; //沙丁鱼
+    case riverCrab = "RiverCrab"; //河蟹
+    case freshwaterCrocodile = "FreshwaterCrocodile"; //淡水鳄
+    case cyaneaNozakii = "CyaneaNozakii"; //霞水母
+    case lobster = "Lobster"; //澳洲大龙虾
+    case abalone = "Abalone"; //鲍鱼
+    case tuna = "Tuna"; //金枪鱼
+    case spiderCrab = "SpiderCrab"; //蜘蛛蟹
+    case carp = "Carp"; //鲤鱼
+    case dragonFish = "Dragonfish"; //深海龙鱼
+    case prawn = "Prawn"; //明虾
+    case dolphin = "Dolphin"; //海豚
+    case pagurian = "Pagurian"; //寄居蟹
+    case puffer = "Puffer"; //河豚
+    case seaTurtle = "SeaTurtle"; //海龟
+    case salamander = "Salamander"; //大鲵
+    case electricEel = "ElectricEel"; //电鳗
+    
 }
 //光环名称
 enum EnumAuraName: String {

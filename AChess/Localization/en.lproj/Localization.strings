@@ -20,7 +20,7 @@
 "Spine"         = "Spine";   //尖刺
 "ImmunePoison"   = "Immune To Poison"; //免疫剧毒
 "InheritAddBuff" = "Inherit: Gain +1/+1."; // Inherit: add buff
-"EndRoundAddBuffForGreen" = "Give all other green covered chess +1 / +1 at the end of sale stage, including mountain, plain, frost.";
+"EndRoundAddBuff" = "Give all other green covered chess +1 / +1 at the end of sale stage, including mountain, plain, frost.";
 ///////战吼
 "InstantAddBuff" = "Instant: choose a <kind> chess to gain +<att>/+<def>.";
 "InstantChooseAnAbility" = "Instant: choose a chess to get an ability.";
@@ -40,6 +40,7 @@
 "Desert" = "Desert"; //沙漠
 "Polar" = "Polar"; //极地
 //below is chess name
+/*mountain*/
 "MountainBird" = "Tit"; //山雀
 "WildRabbit" = "Wild Bunny"; //野兔
 "Hedgehog" = "Hedgehog"; //刺猬
@@ -49,7 +50,6 @@
 "Pheasant"      = "Pheasant"; //山鸡
 "AlpDog"        = "Alp Dog"; //高山犬
 "Argali"        = "Argali"; //盘羊
-//below is chess derivate name
 "PygmyTarsier" = "Pygmy Tarsier"; //侏儒眼镜猴
 "Yak"          = "Yak";  //牦牛
 "SnowLeopard"  = "Snow Leopard"; //雪豹
@@ -62,6 +62,26 @@
 "BlackBear"   = "Black Bear"; //黑熊
 "Panda"       = "Panda"; //熊猫
 "TigerSnake"  = "Tiger Snake"; //虎蛇
+/*ocean*/
+"KillerWhale" = "Killer Whale"; //虎鲸
+"GreatWhite"  = "Great White"; //大白鲨
+"Crucian"     = "Crucian"; //鲫鱼
+"Sardine" = "Sardine"; //沙丁鱼
+"RiverCrab" = "River Crab"; //河蟹
+"FreshwaterCrocodile" = "Freshwater Crocodile"; //淡水鳄
+"CyaneaNozakii" = "Cyanea Nozakii"; //霞水母
+"Abalone" = "Abalone"; //鲍鱼
+"Tuna"  =  "Tuna"; //金枪鱼
+"SpiderCrab"  =  "Spider Crab"; //蜘蛛蟹
+"Carp" = "Carp"; //鲤鱼
+"Dragonfish" = "Dragon Fish"; //深海龙鱼
+"Prawn" = "Prawn"; //明虾
+"Dolphin" = "Dolphin"; //海豚
+"Pagurian" = "Pagurian"; //寄居蟹
+"SeaTurtle" = "Sea Turtle"; //海龟
+"Salamander" = "Giant Salamander"; //大鲵
+"ElectricEel" = "Electric Eel"; //电鳗
+
 //below is chess aura name
 "MountainLevel1" = "Mountains & Hills";
 "MountainLevel2" = "Cries of Dragons";

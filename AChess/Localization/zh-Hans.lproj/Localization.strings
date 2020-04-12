@@ -20,7 +20,7 @@
 "spine"         = "尖刺";  //尖刺
 "ImmunePoison"   = "免疫剧毒"; //免疫剧毒
 "InheritAddBuff" = "传承: 获得+1/+1"; // Inherit: add buff
-"EndRoundAddBuffForGreen" = "给所有其它的绿植覆盖的棋子+1/+1, 包括山川、平原、森林.";
+"EndRoundAddBuff" = "给所有其它的绿植覆盖的棋子+1/+1, 包括山川、平原、森林.";
 
 ///////战吼
 "InstantAddBuff" = "瞬发: 选择一个<kind>棋子获得 +<att>/+<def>.";
@@ -62,5 +62,24 @@
 "BlackBear"   = "黑熊"; //黑熊
 "Panda"       = "熊猫"; //熊猫
 "TigerSnake"  = "虎蛇"; //虎蛇
+/*ocean*/
+"KillerWhale" = "虎鲸"; //虎鲸
+"GreatWhite"  = "大白鲨"; //大白鲨
+"Crucian"     = "鲫鱼"; //鲫鱼
+"Sardine" = "沙丁鱼"; //沙丁鱼
+"RiverCrab" = "河蟹"; //河蟹
+"FreshwaterCrocodile" = "淡水鳄"; //淡水鳄
+"CyaneaNozakii" = "霞水母"; //霞水母
+"Abalone" = "鲍鱼"; //鲍鱼
+"Tuna"  =  "金枪鱼"; //金枪鱼
+"SpiderCrab"  =  "蜘蛛"; //蜘蛛蟹
+"Carp" = "鲑鱼"; //鲑鱼
+"Dragonfish" = "深海龙鱼"; //深海龙鱼
+"Prawn" = "明虾"; //明虾
+"Dolphin" = "海豚"; //海豚
+"Pagurian" = "寄居蟹"; //寄居蟹
+"SeaTurtle" = "海龟"; //海龟
+"Salamander" = "大鲵"; //大鲵
+"ElectricEel" = "电鳗"; //电鳗
 "MountainLevel1" = "崇山峻岭";
 "MountainLevel2" = "虎啸龙吟";

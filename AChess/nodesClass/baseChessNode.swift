@@ -93,7 +93,11 @@ public class baseChessNode: SCNNode {
         }
     }
     var chessKind: String = EnumChessKind.mountain.rawValue
-    var abilities: [String] = []
+    var abilities: [String] = [] {
+        didSet {
+            setBait()
+        }
+    }
     var temporaryBuff: [String] = [] //临时性的Buff 类似硬壳 攻击 生命之类
     var rattleFunc: [Int : Any] = [:]
     var inheritFunc: [Int : Any] = [:]
@@ -181,13 +185,9 @@ public class baseChessNode: SCNNode {
                 shellNode.isHidden = true
             }
         }
-        if let shellNode = self.childNode(withName: "baitLine", recursively: true) { // contol the bait line
-            if abilities.contains(EnumAbilities.bait.rawValue) {
-                shellNode.isHidden = false
-            } else {
-                shellNode.isHidden = true
-            }
-        }
+        
+        setBait() //诱饵
+        
         if let priceLabelNode = self.childNode(withName: "priceLabel", recursively: true) { //如果owned就把棋子的价格标签隐藏
             if chessStatus == EnumsChessStage.owned.rawValue {
                 priceLabelNode.isHidden = true
@@ -267,6 +267,9 @@ public class baseChessNode: SCNNode {
         }
         return 0
     }
+    
+ 
+    
     func toggleShell(status: Bool) { //control shell turn on/off
         if let shellNode = self.childNode(withName: "shell", recursively: true) {
              if status == true {
@@ -294,10 +297,32 @@ public class baseChessNode: SCNNode {
     }
     
     func AddBilities(Abilities: [String]) { //添加所属能力 需要加上一个字从空中飘到描述里的动画
-        abilities += Abilities
-        //最后计算棋子的描述
+        var tempAbilities:[String] = []
+        Abilities.forEach{ (curAbi) in
+            if !abilities.contains(curAbi) {
+                tempAbilities.append(curAbi)
+                //ability的效果
+                if curAbi == EnumAbilities.bait.rawValue {
+                    
+                }
+            }
+        }
+         abilities += tempAbilities
+        //最后计算棋子的描述 可以移动到abilities监听器里
         chessDesc = formatChessDesc()
     }
+    
+    func setBait() {
+        if let baitNode = self.childNode(withName: "baitLine", recursively: true) { // contol the bait line
+            if abilities.contains(EnumAbilities.bait.rawValue) {
+                baitNode.isHidden = false
+            } else {
+                baitNode.isHidden = true
+            }
+        }
+    }
+    
+    
     func formatChessDesc() -> String{ //当前只需要abilities里面的 后期有必要可以加上战吼之类的 TODO!!
         var tempDescStr = ""
         abilities.forEach{(curAbi) in
