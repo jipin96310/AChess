@@ -47,7 +47,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             didSet(oldBoard) {
   
                 if (curStage == EnumsGameStage.exchangeStage.rawValue) {
+           
                     var chessTimesDic:[[String : [Int]]] = [[:],[:],[:]] //棋子map 刷新问题
+                    var chessKindMap:[String : Int] = [:]
                     var newCombineChess: [baseChessNode] = []
                     var oldSubChessIndex: [Int] = []
                     for index in 0 ..< boardNode.count {
@@ -55,7 +57,20 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             
                             let curChessNode = boardNode[index][innerIndex]
                             
+                            if index == BoardSide.allySide.rawValue{
+                                /*光环效果-只在交易阶段更新aura*/
+                                if chessKindMap[curChessNode.chessKind] != nil {
+                                    chessKindMap[curChessNode.chessKind]! += 1
+                                } else {
+                                    chessKindMap[curChessNode.chessKind] = 1
+                                }
+                            }
+                                                     
+                           
                             if (index == BoardSide.allySide.rawValue && curChessNode.chessLevel < 3) { //只有己方 echange stage才触发
+                               
+                        
+                                 /*棋子合成*/
                                 if chessTimesDic[curChessNode.chessLevel][curChessNode.chessName] != nil {
                                     chessTimesDic[curChessNode.chessLevel][curChessNode.chessName]!.append(innerIndex)
                                     if chessTimesDic[curChessNode.chessLevel][curChessNode.chessName]!.count >= 3 { //合成
@@ -98,8 +113,25 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             curDragPoint!.removeFromParentNode()
                         }
                     }
+                     /*棋子合成end*/
+                    
+                    /*chess aura*/
+                    var newAuraArr:[String] = []
+
+                    if let mountainNum = chessKindMap[EnumChessKind.mountain.rawValue] {
+                        if mountainNum >= 3 && mountainNum < 6 {
+                            newAuraArr.append(EnumAuraName.mountainLevel1.rawValue)
+                        } else if mountainNum > 6 {
+                            newAuraArr.append(EnumAuraName.mountainLevel2.rawValue)
+                        }
+                    }
+                     playerStatues[curPlayerId].curAura = newAuraArr //清空光环
   
                 }
+                
+                
+                
+                
                 for boardIndex in 0 ..< boardNode.count {
                     for innerIndex in 0 ..< boardNode[boardIndex].count {
                         if !oldBoard[boardIndex].contains(boardNode[boardIndex][innerIndex]) {
@@ -139,7 +171,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var storageRootNode : [SCNNode] = []
    
     //var backupBoardNode:[[baseChessNode]] = [[],[]]
-    var playerStatues: [(curCoin: Int,curLevel: Int,curBlood: Int,curChesses: [baseChessNode])] = [(curCoin: GlobalNumberSettings.roundBaseCoin.rawValue + 50, curLevel: 1, curBlood: 40, curChesses: []), (curCoin: GlobalNumberSettings.roundBaseCoin.rawValue, curLevel: 1, curBlood: 40, curChesses: [])] {
+    var playerStatues: [playerStruct] = [playerStruct(playerName: "player1", curCoin: GlobalNumberSettings.roundBaseCoin.rawValue + 50, curLevel: 1, curBlood: 40, curChesses: [], curAura: []), playerStruct(playerName: "player2", curCoin: 40, curLevel: 1, curBlood: 40, curChesses: [], curAura: [])] {
         didSet {
             moneyTextNode.string = String(playerStatues[curPlayerId].curCoin)
             levelTextNode.string = String(playerStatues[curPlayerId].curLevel)
@@ -398,13 +430,33 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                     }
                                     //储藏区来的不需要购买
                                     /*//具有特殊战吼需要选择指定s的棋子
-                                     curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbility.rawValue) ||
                                      curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbilityForMountain.rawValue) ||
                                      curDragPoint!.abilities.contains(EnumAbilities.instantDestroyAllyGainBuff.rawValue)) &&
                                      */
-                                    if curDragPoint!.abilities.contains(EnumAbilities.instantAddBuff.rawValue) &&
+                                    if curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbility.rawValue) { //自身进化
+                                        removeGestureRecoginzer()
+                                        PlayerBoardTextShow(TextContent: EnumString.chooseAnChess.rawValue.localized)
+                                        curDragPoint?.isHidden = true //隐藏当前的拖拽棋子 方便选择
+                                        //
+                                        self.playerStatues[self.curPlayerId].curChesses = [] //备份当前棋子
+                                        self.boardNode[BoardSide.allySide.rawValue].forEach{(curChess) in
+                                            self.playerStatues[self.curPlayerId].curChesses.append(curChess)
+                                            curChess.removeFromParentNode()
+                                        }
+                                        let randomAbiArr = randomDiffNumsFromArrs(outputNums: 3, inputArr: EvolveAbilities)
+                                        self.boardNode[BoardSide.allySide.rawValue] = [] //为我方放置3种类型能力的棋子
+                                        var abilityOptionChesses:[baseChessNode] = []
+                                        randomAbiArr.forEach{ (curAbi) in
+                                            let newChess = baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: chessStruct(name: curAbi, desc: curAbi, atkNum: 1, defNum: 1, chessRarity: 1, chessLevel: 1, chessKind: EnumChessKind.mountain.rawValue, abilities: [curAbi], temporaryBuff:[], rattleFunc: [:], inheritFunc: [:]))
+                                            abilityOptionChesses.append(newChess)
+                                        }
+                                        appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curAddChesses: abilityOptionChesses, curInsertIndex: nil)
+                                        curChoosePoint = curDragPoint
+                                        tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onChooseOptionTap))
+                                        self.sceneView.addGestureRecognizer(tapGestureRecognizer)
+                                    } else if curDragPoint!.abilities.contains(EnumAbilities.instantAddBuff.rawValue) &&
                                         boardNode[BoardSide.allySide.rawValue].count > 0
-                                    { // if chess has INSTANT add buff TODO!!!!
+                                    { // if chess has INSTANT add buff!!!!
                                         removeGestureRecoginzer()
                                         PlayerBoardTextShow(TextContent: EnumString.chooseAnChess.rawValue.localized)
                                         curDragPoint?.isHidden = true //隐藏当前的拖拽棋子 方便选择
@@ -604,8 +656,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                         curChoosePoint?.AddBilities(Abilities: curBaseChess.abilities)
                                     }
                                 }
-                                //使用完毕修改棋子状态
-                                appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curAddChesses: [curDragPoint!], curInsertIndex: nil)
                                 
                             } else { //点击点不在
                                 sellChess(playerID: curPlayerId, curChess: curDragPoint!, curBoardSide: curDragPos[0])
@@ -622,9 +672,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             self.playerStatues[self.curPlayerId].curChesses.forEach{(curChess) in
                                 appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curAddChesses: [curChess], curInsertIndex: nil)
                             }
-                            //appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curChess: curDragPoint!) //恢复拖拽的棋子到棋盘
-                            //updateWholeBoardPosition()
+      
                             ///以下为恢复操作
+                            //回复拖拽的棋子到棋盘
+                            appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curAddChesses: [curDragPoint!], curInsertIndex: nil)
                             recoverGestureRecoginzer()
                             curDragPoint?.isHidden = false
                             
@@ -1214,7 +1265,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         }
     }
     
-    func aRoundTaskAsyncTemp(_ beginIndex: inout [Int],_ attSide: Int, _ resolver: Resolver<Any>) {
+    func aRoundTaskAsyncTemp(_ beginIndex: inout [Int],_ attSide: Int, _ resolver: Resolver<Any>, _ changeRound: Bool?) {
         var beginIndexCopy = beginIndex
         var curIndex = beginIndex[attSide] //拷贝的
         var nextSide = attSide == BoardSide.enemySide.rawValue ? BoardSide.allySide.rawValue : BoardSide.enemySide.rawValue
@@ -1229,7 +1280,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         if (curIndex < boardNode[attSide].count && boardNode[nextSide].count > 0) { //当前游标小于进攻方数量
             var randomIndex = Int.randomIntNumber(lower: 0, upper: self.boardNode[nextSide].count)
             
-            let attacker = self.boardNode[attSide][curIndex]
+            let attacker = self.boardNode[attSide][curIndex] //攻击者
             
             if baitIndex.count > 0 && !attacker.abilities.contains(EnumAbilities.ignoreBait.rawValue) { //如果有嘲讽敌人且没有己方无视嘲讽技能 随机挑一个进行攻击
                 randomIndex = baitIndex[Int.randomIntNumber(lower: 0, upper: baitIndex.count)]
@@ -1244,23 +1295,34 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 return self.updateInherit(attackResult: res, attackBoardIndex: attSide, attackIndex: curIndex, victimBoardIndex: nextSide, victimIndex: randomIndex)
             }.done{ (res) in
                 print("Done!!!", beginIndexCopy, self.boardNode[1].count)
-                if res[0] == 0 { //attacker eliminated
+                var shouldChange = changeRound  //是否强制下回合不更新indexs
+                if attacker.abilities.contains(EnumAbilities.rapid.rawValue) && shouldChange != true {
                     //index不动
+                    attacker.abilityTrigger(abilityEnum: EnumAbilities.rapid.rawValue)
+                    nextSide = attSide //维持攻击棋盘index
+                    shouldChange = true
                 } else {
-                    beginIndexCopy[attSide] += 1
+                    if res[0] == 0{ //attacker eliminated
+                        //index不动
+                    } else {
+                        beginIndexCopy[attSide] += 1
+                    }
                 }
+                
                 if self.boardNode[attSide].count > 0 && self.boardNode[nextSide].count > 0 {
-                    self.aRoundTaskAsyncTemp(&beginIndexCopy, nextSide, resolver)
+                    self.aRoundTaskAsyncTemp(&beginIndexCopy, nextSide, resolver, shouldChange)
                 } else {
                     resolver.fulfill("success")
                 }
+                
+                
             }.catch { (err)  in
                 // self.loginProto(loginInfo: loginInfo)和self.loginDeal(res: res) 包装的两个promise执行了resolver.reject(),就会执行此代码段
                 print("aRoundTaskAsyncTempError", err)
             }
         } else if boardNode[attSide].count > 0 && boardNode[nextSide].count > 0 {
             var nextRoundIndex = [0, 0]
-            self.aRoundTaskAsyncTemp(&nextRoundIndex,nextSide, resolver)//从头开始
+            self.aRoundTaskAsyncTemp(&nextRoundIndex,nextSide, resolver, nil)//从头开始
         } else {
             resolver.fulfill("success")
         }
@@ -1300,7 +1362,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         return Promise<Any>(resolver: { (resolver) in
            var beginIndex = [0, 0]
            var randomSide = Int.randomIntNumber(lower: 0, upper: 2)
-           aRoundTaskAsyncTemp(&beginIndex,randomSide, resolver)
+           aRoundTaskAsyncTemp(&beginIndex,randomSide, resolver, nil)
             })
 //            var beginIndex = 0
 //            aRoundTask(&beginIndex)
@@ -1379,13 +1441,19 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     self.playerStatues[self.curPlayerId].curChesses.append(curChess.copyable())
                 }
                 //playerStatues[curPlayerId].curChesses = boardNode[1]
-                delay(0.5 + totalTime) {
+                delay(0.5 + totalTime) { //初始化大屏幕和棋盘棋子
                     self.initDisplay()
                     self.initBoardChess()
-                    self.beginRounds().done { (v1) in
-                       self.dealWithDamage().done { (v2) in
-                          self.switchGameStage()
-                        } //伤害清算
+                    delay(self.totalUpdateTime) { //初始化光环
+                        self.initAura().done{ (delaytime) in
+                                   /*开始战斗*/
+                            self.beginRounds().done { (v1) in
+                               self.dealWithDamage().done { (v2) in
+                                  self.switchGameStage()
+                                } //伤害清算
+                            }
+                        }
+       
                     }
                 }
             }
@@ -1424,7 +1492,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         return dummyAICrew[curRound]
     }
     func getRandomChessStructFromPool(_ curLevel : Int) -> chessStruct { //不可能出现所有都小于等于0的情况 出现了就直接用现有的
-        var randomLevel = 5//Int.randomIntNumber(lower: 1, upper: curLevel + 1)
+        var randomLevel = Int.randomIntNumber(lower: 1, upper: curLevel + 1)
         var randomNum =  Int.randomIntNumber(lower: 0, upper: chessCollectionsLevel[randomLevel - 1].count)
         var curChessInfo =  chessCollectionsLevel[randomLevel - 1][randomNum]
         var randomTime = 1
@@ -1510,6 +1578,34 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             return
         }
     }
+    /*初始化光环*/
+    func initAura() -> Promise<Double>{
+        
+        return Promise<Double>(resolver: { (resolver) in
+            let actionTime = 0.5
+            
+            
+            let curPlayerAura = playerStatues[curPlayerId].curAura
+            if curPlayerAura.contains(EnumAuraName.mountainLevel1.rawValue) { //mountain1 所有棋子获得 +2 * chesslevel / +2 * chesslevel
+                boardNode[BoardSide.allySide.rawValue].forEach{ (curChess) in
+                    curChess.AddBuff(AtkNumber: 2 * curChess.chessLevel, DefNumber: 2 * curChess.chessLevel)
+                }
+            } else if curPlayerAura.contains(EnumAuraName.mountainLevel1.rawValue) { //mountain1 所有棋子获得 +2 * chesslevel / +2 * chesslevel
+                boardNode[BoardSide.allySide.rawValue].forEach{ (curChess) in
+                    curChess.AddBuff(AtkNumber: 4 * curChess.chessLevel, DefNumber: 4 * curChess.chessLevel)
+                }
+            }
+            
+            delay(actionTime, task: {
+                resolver.fulfill(actionTime)
+            })
+            
+        })
+        
+    }
+    
+    
+    /*初始化大屏幕*/
     func initDisplay() {
        let curPlayer = playerStatues[curPlayerId]
         switch curStage {
@@ -1952,6 +2048,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     public func renderer(_: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
         guard let planeAnchor = anchor as? ARPlaneAnchor,
             let planeNode = node as? customPlaneNode else {
+            return
+        }
+        if planeNode.position.y > 0 {
             return
         }
         planeNode.update(from: planeAnchor)

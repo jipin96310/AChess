@@ -135,6 +135,11 @@ enum EnumChessName: String {
     case panda     = "Panda" //熊猫
     case tigerSnake = "TigerSnake" //虎蛇
 }
+//光环名称
+enum EnumAuraName: String {
+    case mountainLevel1 = "MountainLevel1" //崇山峻岭
+    case mountainLevel2 = "MountainLevel2" //虎啸龙吟
+}
 
 
 

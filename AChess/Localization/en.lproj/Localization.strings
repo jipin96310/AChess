@@ -62,3 +62,6 @@
 "BlackBear"   = "Black Bear"; //黑熊
 "Panda"       = "Panda"; //熊猫
 "TigerSnake"  = "Tiger Snake"; //虎蛇
+//below is chess aura name
+"MountainLevel1" = "Mountains & Hills";
+"MountainLevel2" = "Cries of Dragons";
