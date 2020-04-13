@@ -1416,18 +1416,40 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 var totalTime = 0.00
                 //处理abilities beforeround事件
                 for index in 0 ..< self.boardNode[BoardSide.allySide.rawValue].count {
-                    let curBoard = self.boardNode[BoardSide.allySide.rawValue]
+                    //let curBoard = self.boardNode[BoardSide.allySide.rawValue]
                     let curChess = self.boardNode[BoardSide.allySide.rawValue][index]
                     if curChess.abilities.contains(EnumAbilities.endRoundAddBuff.rawValue) {
-                        if case let curEndKindArr as [String] = curChess.rattleFunc[EnumKeyName.baseKind.rawValue] {
+                        if case let curEndKindMap as [String : Int] = curChess.rattleFunc[EnumKeyName.baseKind.rawValue] {
+                            
+                            let curEndAtt = curChess.rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
+                            let curEndDef = curChess.rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
+                            
+                            var curChessesKindMap:[String : [Int]] = [:]
+                            
                             for innerIndex in 0 ..< self.boardNode[BoardSide.allySide.rawValue].count {
                                 let curInnerChess = self.boardNode[BoardSide.allySide.rawValue][innerIndex]
-                                if innerIndex != index && (
-                                    curEndKindArr.contains(curInnerChess.chessKind)
-                                    ) {
-                                    curInnerChess.AddBuff(AtkNumber: 1, DefNumber: 1) //当前hard code +1 /+1
+                                if innerIndex != index {
+                                    if curChessesKindMap[curInnerChess.chessKind] == nil {
+                                        curChessesKindMap[curInnerChess.chessKind] = [innerIndex]
+                                    } else {
+                                        curChessesKindMap[curInnerChess.chessKind]?.append(innerIndex)
+                                    }
+//                                    curInnerChess.AddBuff(AtkNumber: 1, DefNumber: 1) //当前hard code +1 /+1
                                 }
                             }
+                            
+                            
+                            
+                            for (curChessKind, curKindNum) in curEndKindMap {
+                                let randomIndex = randomDiffNumsFromArrs(outputNums: curKindNum, inputArr: curChessesKindMap[curChessKind] ?? [])
+                                randomIndex.forEach{(curRandomIndex) in
+                                    self.boardNode[BoardSide.allySide.rawValue][curRandomIndex].AddBuff(AtkNumber: curEndAtt as? Int, DefNumber: curEndDef as? Int)
+                                }
+                            }
+                            
+                            
+                            
+                            
                         }
                         curChess.abilityTrigger(abilityEnum: EnumAbilities.endRoundAddBuff.rawValue.localized)
                     }

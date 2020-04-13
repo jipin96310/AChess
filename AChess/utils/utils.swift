@@ -138,7 +138,7 @@ func cancel(_ task: Task?) {
 }
 
 func randomDiffNumsFromArrs<T>(outputNums: Int, inputArr: [T]) -> [T]{ //获取随机元素从一个数组中
-    if outputNums >= inputArr.count {
+    if inputArr.count == 0 || outputNums >= inputArr.count {
         return inputArr
     }
     var curArr = inputArr
