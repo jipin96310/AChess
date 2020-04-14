@@ -1166,9 +1166,19 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         //}
                     }
                 }
-                if attackResult[curSide] == 0 { //如果当前棋子被消灭了 则触发亡语
+                if attackResult[curSide] == 0 { //如果当前棋子被消灭了 则触发亡语 和 给其它怪加buff
+                    self.boardNode[curBoardSide].forEach{ (curBuffChess) in
+                        if curBuffChess.abilities.contains(EnumAbilities.afterEliminatedAddBuff.rawValue) {
+                            let curEndAtt = curBuffChess.rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
+                            let curEndDef = curBuffChess.rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
+                            curBuffChess.AddBuff(AtkNumber: (curEndAtt as! Int) * curBuffChess.chessLevel, DefNumber: (curEndDef as! Int) * curBuffChess.chessLevel)
+                        }
+                    }
+                    
+                    
                     if curChessPoint.abilities.contains(EnumAbilities.inheritAddBuff.rawValue) { //有传承加buff结算一下
-                        let curRandomArr = randomDiffNumsFromArrs(outputNums:  curChessPoint.inheritFunc[EnumKeyName.summonNum.rawValue] as! Int, inputArr: self.boardNode[curBoardSide])
+                        let addNum = curChessPoint.inheritFunc[EnumKeyName.summonNum.rawValue] ?? 1
+                        let curRandomArr = randomDiffNumsFromArrs(outputNums: addNum as! Int, inputArr: self.boardNode[curBoardSide])
                         curRandomArr.forEach{ (attChess) in
                             //需要给attchess加buff
                             attChess.AddBuff(AtkNumber: curChessPoint.chessLevel * (curChessPoint.inheritFunc[EnumKeyName.baseAttack.rawValue] as! Int), DefNumber: curChessPoint.chessLevel * (curChessPoint.inheritFunc[EnumKeyName.baseDef.rawValue] as! Int))
@@ -1450,6 +1460,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             
                             
                             
+                        } else {
+                            if case let isSelf as Bool = curChess.rattleFunc[EnumKeyName.isSelf.rawValue]{ //直接对自身作用
+                                let curEndAtt = curChess.rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
+                                let curEndDef = curChess.rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
+                                
+                                curChess.AddBuff(AtkNumber: curEndAtt as? Int, DefNumber: curEndDef as? Int)
+                            }
                         }
                         curChess.abilityTrigger(abilityEnum: EnumAbilities.endRoundAddBuff.rawValue.localized)
                     }
