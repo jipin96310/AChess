@@ -1169,9 +1169,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 if attackResult[curSide] == 0 { //如果当前棋子被消灭了 则触发亡语 和 给其它怪加buff
                     self.boardNode[curBoardSide].forEach{ (curBuffChess) in
                         if curBuffChess.abilities.contains(EnumAbilities.afterEliminatedAddBuff.rawValue) {
-                            let curEndAtt = curBuffChess.rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
-                            let curEndDef = curBuffChess.rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
-                            curBuffChess.AddBuff(AtkNumber: (curEndAtt as! Int) * curBuffChess.chessLevel, DefNumber: (curEndDef as! Int) * curBuffChess.chessLevel)
+                            if case let curAfterKind as [String] = curBuffChess.rattleFunc[EnumKeyName.baseKind.rawValue] {
+                                if curAfterKind.contains(curChessPoint.chessKind) {
+                                    let curEndAtt = curBuffChess.rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
+                                    let curEndDef = curBuffChess.rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
+                                    curBuffChess.AddBuff(AtkNumber: (curEndAtt as! Int) * curBuffChess.chessLevel, DefNumber: (curEndDef as! Int) * curBuffChess.chessLevel)
+                                }
+                            }
                         }
                     }
                     
