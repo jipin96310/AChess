@@ -80,6 +80,10 @@ enum EnumAbilities: String {
     case instantRandomAddBuff = "InstantRandomAddBuff" //战吼随机加buff
     //summon case
     case summonChessAddMountainBuff = "SummonChessAddMountainBuff" //熊猫专属技能 无需适配扩展性
+    //attack case
+    case afterEliminatedAddBuff = "AfterEliminatedAddBuff" //生物被消灭后addbuff
+    case afterEliminatedAddAbilities = "AfterEliminatedAddAbilities" //生物被消灭后addAbilities
+    case chooseAKind = "ChooseAKind" //选择一个种族
 }
 //public let EnumAbiNumToName: [Int:String] =
 //    [0: "",
@@ -111,6 +115,7 @@ enum EnumKeyName: Int {
     case baseKind = 5
     case baseRarity = 6
     case abilityKind = 7 //能力类型
+    case isSelf = 8 //是否作用与自己
 }
 
 //棋子名字

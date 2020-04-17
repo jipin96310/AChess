@@ -433,24 +433,37 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                      curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbilityForMountain.rawValue) ||
                                      curDragPoint!.abilities.contains(EnumAbilities.instantDestroyAllyGainBuff.rawValue)) &&
                                      */
-                                    if curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbility.rawValue) { //自身进化
+                                    if curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbility.rawValue) ||
+                                        curDragPoint!.abilities.contains(EnumAbilities.chooseAKind.rawValue)
+                                    { //自身进化
                                         removeGestureRecoginzer()
                                         PlayerBoardTextShow(TextContent: EnumString.chooseAnChess.rawValue.localized)
                                         curDragPoint?.isHidden = true //隐藏当前的拖拽棋子 方便选择
-                                        //
                                         self.playerStatues[self.curPlayerId].curChesses = [] //备份当前棋子
                                         self.boardNode[BoardSide.allySide.rawValue].forEach{(curChess) in
                                             self.playerStatues[self.curPlayerId].curChesses.append(curChess)
                                             curChess.removeFromParentNode()
                                         }
-                                        let randomAbiArr = randomDiffNumsFromArrs(outputNums: 3, inputArr: EvolveAbilities)
                                         self.boardNode[BoardSide.allySide.rawValue] = [] //为我方放置3种类型能力的棋子
+                                        //
                                         var abilityOptionChesses:[baseChessNode] = []
-                                        randomAbiArr.forEach{ (curAbi) in
-                                            let newChess = baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: chessStruct(name: curAbi, desc: curAbi, atkNum: 1, defNum: 1, chessRarity: 1, chessLevel: 1, chessKind: EnumChessKind.mountain.rawValue, abilities: [curAbi], temporaryBuff:[], rattleFunc: [:], inheritFunc: [:]))
-                                            abilityOptionChesses.append(newChess)
+                                        if curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbility.rawValue) {
+                                            let randomAbiArr = randomDiffNumsFromArrs(outputNums: 3, inputArr: EvolveAbilities)
+                                            
+                                            randomAbiArr.forEach{ (curAbi) in
+                                                let newChess = baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: chessStruct(name: curAbi, desc: curAbi, atkNum: 1, defNum: 1, chessRarity: 1, chessLevel: 1, chessKind: EnumChessKind.mountain.rawValue, abilities: [curAbi], temporaryBuff:[], rattleFunc: [:], inheritFunc: [:]))
+                                                abilityOptionChesses.append(newChess)
+                                            }
+                                            
+                                        } else if curDragPoint!.abilities.contains(EnumAbilities.chooseAKind.rawValue) {
+                                            
+                                            EvolveKind.forEach{ (curKind) in
+                                                let newChess = baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: chessStruct(name: curKind, desc: curKind, atkNum: 1, defNum: 1, chessRarity: 1, chessLevel: 1, chessKind: curKind, abilities: [], temporaryBuff:[], rattleFunc: [:], inheritFunc: [:]))
+                                                abilityOptionChesses.append(newChess)
+                                            }
                                         }
-                                        appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curAddChesses: abilityOptionChesses, curInsertIndex: nil)
+                                         appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curAddChesses: abilityOptionChesses, curInsertIndex: nil)
+                                        //
                                         curChoosePoint = curDragPoint
                                         tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onChooseOptionTap))
                                         self.sceneView.addGestureRecognizer(tapGestureRecognizer)
@@ -654,9 +667,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                         curChess.AddBilities(Abilities: curBaseChess.abilities)
                                     }
                                 } else if curDragPoint!.abilities.contains(EnumAbilities.instantChooseAnAbility.rawValue) {
-                                    if curChoosePoint != nil {
-                                        curChoosePoint?.AddBilities(Abilities: curBaseChess.abilities)
-                                    }
+                                    curChoosePoint?.AddBilities(Abilities: curBaseChess.abilities)
+                                } else if curDragPoint!.abilities.contains(EnumAbilities.chooseAKind.rawValue) {
+                                    curChoosePoint?.chessKind = curBaseChess.chessKind
                                 }
                                 
                             } else { //点击点不在
@@ -1176,6 +1189,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                     curBuffChess.AddBuff(AtkNumber: (curEndAtt as! Int) * curBuffChess.chessLevel, DefNumber: (curEndDef as! Int) * curBuffChess.chessLevel)
                                 }
                             }
+                        } else if curBuffChess.abilities.contains(EnumAbilities.afterEliminatedAddAbilities.rawValue) {
+                            if case let curAfterKind as [String] = curBuffChess.rattleFunc[EnumKeyName.baseKind.rawValue] {
+                                if curAfterKind.contains(curChessPoint.chessKind) {
+                                    if case let curAfterAbility as [String] = curBuffChess.rattleFunc[EnumKeyName.abilityKind.rawValue] {
+                                        curBuffChess.AddTempBuff(tempBuff: curAfterAbility)
+                                    }
+                                }
+                            }
                         }
                     }
                     
@@ -1198,13 +1219,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                 curChessPoint.abilityTrigger(abilityEnum: EnumAbilities.inheritAddBuff.rawValue.localized)
                                 for vIndex in 0 ..< damageChess.count { //appendnewnode里会计算数量 多余的棋子会被砍掉
                                     let curChess = damageChess[vIndex] as! baseChessNode
-                                    let result = curChess.getDamage(damageNumber: curRattleDamage)
-
-                                    if result != 0 { //有动画
-                                        self.removeNodeFromBoard(curBoardSide: oppositeSide, curChess: curChess)
-                                        //inheritTime += result
-                                    }
-
+                                    curChess.getDamage(damageNumber: curRattleDamage, chessBoard: &self.boardNode[oppositeSide])
                                 }
                                 //self.updateWholeBoardPosition()
 

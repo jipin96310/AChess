@@ -21,7 +21,6 @@
 "ImmunePoison"   = "免疫剧毒"; //免疫剧毒
 "InheritAddBuff" = "传承: 获得+1/+1"; // Inherit: add buff
 "EndRoundAddBuff" = "给所有其它的绿植覆盖的棋子+1/+1, 包括山川、平原、森林.";
-
 ///////战吼
 "InstantAddBuff" = "瞬发: 选择一个<kind>棋子获得 +<att>/+<def>.";
 "InstantChooseAnAbility" = "瞬发: 选择一个棋子获得一个能力";
@@ -33,6 +32,10 @@
 "InstantRandomAddBuff"      = "瞬发: 给予 <num> 随机队友 +<att>/+<def>";
 //summon
 "SummonChessAddMountainBuff" = "在你召唤一个具有诱饵的棋子后，给予所有山川棋子 +<att>/ +<def>.";
+//after eliminated
+"AfterEliminatedAddBuff" = "在棋子被消灭后 +<att>/ +<def>";
+"AfterEliminatedAddAbilities" = "在棋子被消灭后，获得 <abi>";
+"ChooseAKind" = "棋子的种类可以被选择"; //选择一个种族"
 //以下为卡牌类型
 "Mountain" = "山川"; //山
 "Ocean" = "海洋"; //海洋

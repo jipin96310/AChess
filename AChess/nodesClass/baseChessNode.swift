@@ -92,13 +92,24 @@ public class baseChessNode: SCNNode {
             ]))
         }
     }
-    var chessKind: String = EnumChessKind.mountain.rawValue
+    var chessKind: String = EnumChessKind.mountain.rawValue {
+        didSet {
+            if let bgPicNode = self.childNode(withName: "bgpic", recursively: true) { //control the pic of bottom
+                       bgPicNode.geometry?.firstMaterial?.diffuse.contents = chessKindBgImage[chessKind]!
+                   }
+        }
+    }
     var abilities: [String] = [] {
         didSet {
             setBait()
         }
     }
     var temporaryBuff: [String] = [] //临时性的Buff 类似硬壳 攻击 生命之类
+        {
+        didSet {
+            toggleShell(status: temporaryBuff.contains(EnumAbilities.shell.rawValue))
+        }
+       }
     var rattleFunc: [Int : Any] = [:]
     var inheritFunc: [Int : Any] = [:]
     override init()
@@ -248,24 +259,18 @@ public class baseChessNode: SCNNode {
         }
        
     }
-    func getDamage(damageNumber: Int) -> Double{
+    func getDamage(damageNumber: Int, chessBoard: inout [baseChessNode]){
         let totalTime = 0.5
         damageNum = damageNumber
         defNum = defNum! - damageNumber
         if defNum! < 0 {
-            var damageAction = [
-                SCNAction.customAction(duration: 1, action: { _,_ in
-                    
-                })
-            ]
-            damageAction.append(SCNAction.fadeOut(duration: totalTime))
-            damageAction.append(SCNAction.customAction(duration: 0, action: { _,_ in
-                self.removeFromParentNode()
-            }))
-            self.runAction(SCNAction.sequence(damageAction))
-            return totalTime
+            for index in 0 ..< chessBoard.count {
+                if chessBoard[index] == self {
+                    chessBoard.remove(at: index)
+                    break
+                }
+            }
         }
-        return 0
     }
     
  
@@ -275,23 +280,25 @@ public class baseChessNode: SCNNode {
              if status == true {
                        if !temporaryBuff.contains(EnumAbilities.shell.rawValue) {
                           temporaryBuff.append(EnumAbilities.shell.rawValue)
-                          shellNode.runAction(SCNAction.sequence([
-                            SCNAction.fadeIn(duration: 0.5),
-                            SCNAction.customAction(duration: 0, action: { _,_ in
-                                shellNode.isHidden = false
-                            })
-                          ]))
                        }
+                        
+                        shellNode.runAction(SCNAction.sequence([
+                          SCNAction.fadeIn(duration: 0.5),
+                          SCNAction.customAction(duration: 0, action: { _,_ in
+                              shellNode.opacity = 0.1
+                              shellNode.isHidden = false
+                          })
+                        ]))
                    } else {
                       if temporaryBuff.contains(EnumAbilities.shell.rawValue) {
                           temporaryBuff.remove(at: temporaryBuff.lastIndex(of: EnumAbilities.shell.rawValue)!) //已经判断必定能找到
-                          shellNode.runAction(SCNAction.sequence([
-                            SCNAction.fadeOut(duration: 0.5),
-                            SCNAction.customAction(duration: 0, action: { _,_ in
-                                shellNode.isHidden = true
-                            })
-                          ]))
                        }
+                        shellNode.runAction(SCNAction.sequence([
+                          SCNAction.fadeOut(duration: 0.5),
+                          SCNAction.customAction(duration: 0, action: { _,_ in
+                              shellNode.isHidden = true
+                          })
+                        ]))
                 }
         }
     }
@@ -301,17 +308,22 @@ public class baseChessNode: SCNNode {
         Abilities.forEach{ (curAbi) in
             if !abilities.contains(curAbi) {
                 tempAbilities.append(curAbi)
-                //ability的效果
-                if curAbi == EnumAbilities.bait.rawValue {
-                    
-                }
             }
         }
          abilities += tempAbilities
         //最后计算棋子的描述 可以移动到abilities监听器里
         chessDesc = formatChessDesc()
     }
-    
+    func AddTempBuff(tempBuff: [String]) { //添加临时能力
+        var tempBuffArr:[String] = []
+        tempBuff.forEach{ (curAbi) in
+            if !abilities.contains(curAbi) {
+                tempBuffArr.append(curAbi)
+            }
+        }
+         temporaryBuff += tempBuffArr
+    }
+    //
     func setBait() {
         if let baitNode = self.childNode(withName: "baitLine", recursively: true) { // contol the bait line
             if abilities.contains(EnumAbilities.bait.rawValue) {

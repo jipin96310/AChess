@@ -32,6 +32,10 @@
 "ChooseAnOption" = "Please choose an option.";
 //summon
 "SummonChessAddMountainBuff" = "Give All mountain chesses +<att>/ +<def> after summon a chess with bait.";
+//after eliminated
+"AfterEliminatedAddBuff" = "After a chess been elminated gain +<att>/ +<def>";
+"AfterEliminatedAddAbilities" = "After a chess been elminated, gain <abi>";
+"ChooseAKind" = "Chess kind can be chosen." //选择一个种族
 //以下为卡牌类型
 "Mountain" = "Mountain"; //山
 "Ocean" = "Ocean"; //海洋

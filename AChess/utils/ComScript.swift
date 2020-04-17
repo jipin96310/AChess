@@ -18,3 +18,11 @@ public let EvolveAbilities = [
     EnumAbilities.poison.rawValue,
     EnumAbilities.rapid.rawValue
 ]
+public let EvolveKind = [
+    EnumChessKind.mountain.rawValue,
+    EnumChessKind.ocean.rawValue,
+    EnumChessKind.plain.rawValue,
+    EnumChessKind.frost.rawValue,
+    EnumChessKind.desert.rawValue,
+    EnumChessKind.polar.rawValue
+]
