@@ -84,6 +84,7 @@ enum EnumAbilities: String {
     case afterEliminatedAddBuff = "AfterEliminatedAddBuff" //生物被消灭后addbuff
     case afterEliminatedAddAbilities = "AfterEliminatedAddAbilities" //生物被消灭后addAbilities
     case chooseAKind = "ChooseAKind" //选择一个种族
+    case beforeAttackAoe = "BeforeAttackAoe" //攻击前对敌方全体造成aoe伤害
 }
 //public let EnumAbiNumToName: [Int:String] =
 //    [0: "",

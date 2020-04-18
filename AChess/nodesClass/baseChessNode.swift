@@ -263,7 +263,7 @@ public class baseChessNode: SCNNode {
         let totalTime = 0.5
         damageNum = damageNumber
         defNum = defNum! - damageNumber
-        if defNum! < 0 {
+        if defNum! <= 0 {
             for index in 0 ..< chessBoard.count {
                 if chessBoard[index] == self {
                     chessBoard.remove(at: index)
@@ -283,9 +283,8 @@ public class baseChessNode: SCNNode {
                        }
                         
                         shellNode.runAction(SCNAction.sequence([
-                          SCNAction.fadeIn(duration: 0.5),
+                            SCNAction.fadeOpacity(to: 0.1, duration: 0.5),
                           SCNAction.customAction(duration: 0, action: { _,_ in
-                              shellNode.opacity = 0.1
                               shellNode.isHidden = false
                           })
                         ]))
@@ -340,17 +339,17 @@ public class baseChessNode: SCNNode {
         abilities.forEach{(curAbi) in
             if curAbi == EnumAbilities.acute.rawValue {
                 tempDescStr += curAbi.localized.replacingOccurrences(of: "<percent>", with: String(chessLevel * 20))
-                tempDescStr += " "
             } else if curAbi == EnumAbilities.liveInGroup.rawValue {
                 tempDescStr += curAbi.localized.replacingOccurrences(of: "<percent>", with: String(chessLevel * 20))
-                tempDescStr += " "
             } else if curAbi == EnumAbilities.instantAddBuff.rawValue {
                tempDescStr += curAbi.localized.replacingOccurrences(of: "<kind>", with: String(chessLevel * 1))
-               tempDescStr += " "
+            } else if curAbi == EnumAbilities.beforeAttackAoe.rawValue {
+               tempDescStr += curAbi.localized.replacingOccurrences(of: "<kind>", with: String(chessLevel * 1))
             } else {
-                tempDescStr += curAbi.localized
-                tempDescStr += " "
+                let curBasedamage = rattleFunc[EnumKeyName.baseDamage.rawValue] ?? 1
+                tempDescStr += curAbi.localized.replacingOccurrences(of: "<dam>", with: String(curBasedamage as! Int * chessLevel))
             }
+                tempDescStr += " "
         }
         return tempDescStr
     }

@@ -35,7 +35,10 @@
 //after eliminated
 "AfterEliminatedAddBuff" = "在棋子被消灭后 +<att>/ +<def>";
 "AfterEliminatedAddAbilities" = "在棋子被消灭后，获得 <abi>";
+//before attack
+"BeforeAttackAoe" = "在战斗开始之前，对全体敌人造成<dam>伤害";
 "ChooseAKind" = "棋子的种类可以被选择"; //选择一个种族"
+
 //以下为卡牌类型
 "Mountain" = "山川"; //山
 "Ocean" = "海洋"; //海洋

@@ -1506,14 +1506,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     self.initBoardChess()
                     delay(self.totalUpdateTime) { //初始化光环
                         self.initAura().done{ (delaytime) in
-                                   /*开始战斗*/
-                            self.beginRounds().done { (v1) in
-                               self.dealWithDamage().done { (v2) in
-                                  self.switchGameStage()
-                                } //伤害清算
+                            self.initBeforeBattle().done{ (beforeBattleTime) in
+                                /*开始战斗*/
+                                self.beginRounds().done { (v1) in
+                                    self.dealWithDamage().done { (v2) in
+                                        self.switchGameStage()
+                                    } //伤害清算
+                                }
                             }
                         }
-       
+                        
                     }
                 }
             }
@@ -1637,6 +1639,45 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         default:
             return
         }
+    }
+    func initBeforeBattle() -> Promise<Double> {
+        return Promise<Double>(resolver: { (resole) in
+            var actionTime:Double = 0
+            let startBoardIndex = Int.randomIntNumber(lower: 0, upper: 2)
+            let curBoard = boardNode[startBoardIndex]
+            
+            let oppoBoardIndex = startBoardIndex == BoardSide.enemySide.rawValue ? BoardSide.allySide.rawValue : BoardSide.enemySide.rawValue
+            let nextBoard = boardNode[oppoBoardIndex]
+            
+            for innerIndex in 0 ..< curBoard.count {
+                let curChess = curBoard[innerIndex]
+                if curChess.abilities.contains(EnumAbilities.beforeAttackAoe.rawValue) { //如果有攻击前群体aoe
+                    let curBaseDamage = curChess.rattleFunc[EnumKeyName.baseDamage.rawValue] ?? 1
+                    boardNode[oppoBoardIndex].forEach{ (curChess) in
+                        curChess.getDamage(damageNumber: curBaseDamage as! Int * curChess.chessLevel, chessBoard: &boardNode[oppoBoardIndex])
+                    }
+                    actionTime += 1
+                }
+            }
+            delay(actionTime, task: {
+                var nextactionTime: Double = 0
+                for innerIndex in 0 ..< nextBoard.count {
+                    let curChess = nextBoard[innerIndex]
+                    if curChess.abilities.contains(EnumAbilities.beforeAttackAoe.rawValue) { //如果有攻击前群体aoe
+                        let curBaseDamage = curChess.rattleFunc[EnumKeyName.baseDamage.rawValue] ?? 1
+                        self.boardNode[startBoardIndex].forEach{ (curChess) in
+                            curChess.getDamage(damageNumber: curBaseDamage as! Int * curChess.chessLevel, chessBoard: &self.boardNode[startBoardIndex])
+                        }
+                        nextactionTime += 1
+                    }
+                }
+                delay(nextactionTime, task: {
+                    resole.fulfill(nextactionTime + actionTime)
+                })
+        
+            })
+        })
+
     }
     /*初始化光环*/
     func initAura() -> Promise<Double>{

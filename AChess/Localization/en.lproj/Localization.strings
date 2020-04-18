@@ -35,7 +35,9 @@
 //after eliminated
 "AfterEliminatedAddBuff" = "After a chess been elminated gain +<att>/ +<def>";
 "AfterEliminatedAddAbilities" = "After a chess been elminated, gain <abi>";
-"ChooseAKind" = "Chess kind can be chosen." //选择一个种族
+//before attack
+"BeforeAttackAoe" = "Deal <dam> damage to all the enemies before battle.";
+"ChooseAKind" = "Chess kind can be chosen."; //选择一个种族
 //以下为卡牌类型
 "Mountain" = "Mountain"; //山
 "Ocean" = "Ocean"; //海洋
