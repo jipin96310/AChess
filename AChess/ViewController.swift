@@ -145,6 +145,89 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 for boardIndex in 0 ..< oldBoard.count {
                     for innerIndex in 0 ..< oldBoard[boardIndex].count {
                         if !boardNode[boardIndex].contains(oldBoard[boardIndex][innerIndex]) {
+                            if (curStage == EnumsGameStage.battleStage.rawValue) {
+                                let erasedChess = oldBoard[boardIndex][innerIndex]
+                                self.boardNode[boardIndex].forEach{ (curBuffChess) in
+                                    if curBuffChess.abilities.contains(EnumAbilities.afterEliminatedAddBuff.rawValue) {
+                                        if case let curAfterKind as [String] = curBuffChess.rattleFunc[EnumKeyName.baseKind.rawValue] {
+                                            if curAfterKind.contains(erasedChess.chessKind) {
+                                                let curEndAtt = curBuffChess.rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
+                                                let curEndDef = curBuffChess.rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
+                                                curBuffChess.AddBuff(AtkNumber: (curEndAtt as! Int) * curBuffChess.chessLevel, DefNumber: (curEndDef as! Int) * curBuffChess.chessLevel)
+                                            }
+                                        }
+                                    } else if curBuffChess.abilities.contains(EnumAbilities.afterEliminatedAddAbilities.rawValue) {
+                                        if case let curAfterKind as [String] = curBuffChess.rattleFunc[EnumKeyName.baseKind.rawValue] {
+                                            if curAfterKind.contains(erasedChess.chessKind) {
+                                                if case let curAfterAbility as [String] = curBuffChess.rattleFunc[EnumKeyName.abilityKind.rawValue] {
+                                                    curBuffChess.AddTempBuff(tempBuff: curAfterAbility)
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                if erasedChess.abilities.contains(EnumAbilities.inheritAddBuff.rawValue) { //有传承加buff结算一下
+                                    let addNum = erasedChess.inheritFunc[EnumKeyName.summonNum.rawValue] ?? 1
+                                    let curRandomArr = randomDiffNumsFromArrs(outputNums: addNum as! Int, inputArr: self.boardNode[boardIndex])
+                                    curRandomArr.forEach{ (attChess) in
+                                        //需要给attchess加buff
+                                        attChess.AddBuff(AtkNumber: erasedChess.chessLevel * (erasedChess.inheritFunc[EnumKeyName.baseAttack.rawValue] as! Int), DefNumber: erasedChess.chessLevel * (erasedChess.inheritFunc[EnumKeyName.baseDef.rawValue] as! Int))
+                                    }
+                                }
+                                
+                                
+                                //                            if erasedChess.abilities.contains(EnumAbilities.inheritDamage.rawValue) {
+                                //                                if case let curRattleDamage as Int = curChessPoint.inheritFunc[EnumKeyName.baseDamage.rawValue] {
+                                //                                    if case let curRattleNum as Int = curChessPoint.inheritFunc[EnumKeyName.summonNum.rawValue] {
+                                //                                        let damageChess = randomDiffNumsFromArrs(outputNums: curRattleNum, inputArr: self.boardNode[oppositeSide])
+                                //
+                                //                                        curChessPoint.abilityTrigger(abilityEnum: EnumAbilities.inheritAddBuff.rawValue.localized)
+                                //                                        for vIndex in 0 ..< damageChess.count { //appendnewnode里会计算数量 多余的棋子会被砍掉
+                                //                                            let curChess = damageChess[vIndex] as! baseChessNode
+                                //                                            curChess.getDamage(damageNumber: curRattleDamage, chessBoard: &self.boardNode[oppositeSide])
+                                //                                        }
+                                //                                        //self.updateWholeBoardPosition()
+                                //
+                                //
+                                //                                    }
+                                //                                }
+                                //                            }
+                                if erasedChess.abilities.contains(EnumAbilities.inheritSummonSth.rawValue) {
+                                    if case let curRattleChess as [chessStruct] = erasedChess.inheritFunc[EnumKeyName.summonChess.rawValue] {
+                                        
+                                        erasedChess.abilityTrigger(abilityEnum: EnumAbilities.inheritAddBuff.rawValue.localized)
+                                        for index in 0 ..< curRattleChess.count { //appendnewnode里会计算数量 多余的棋子会被砍掉
+                                            if innerIndex <= self.boardNode[boardIndex].count {
+                                                self.appendNewNodeToBoard(curBoardSide: boardIndex, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: curRattleChess[index])], curInsertIndex: innerIndex + index)
+                                            } else {
+                                                self.appendNewNodeToBoard(curBoardSide: boardIndex, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: curRattleChess[index])], curInsertIndex: innerIndex + index)
+                                            }
+                                            
+                                            
+                                            
+                                        }
+                                        
+                                    } else if case let curRattleRarity as Int = erasedChess.inheritFunc[EnumKeyName.baseRarity.rawValue] {
+                                        erasedChess.abilityTrigger(abilityEnum: EnumAbilities.inheritAddBuff.rawValue.localized)
+                                        if case let curRattleNum as Int = erasedChess.inheritFunc[EnumKeyName.summonNum.rawValue] {
+                                            let randomChessStruct = randomDiffNumsFromArrs(outputNums: curRattleNum, inputArr: chessCollectionsLevel[curRattleRarity - 1])
+                                            
+                                            for index in 0 ..< randomChessStruct.count { //appendnewnode里会计算数量 多余的棋子会被砍掉
+                                                
+                                                if innerIndex <= self.boardNode[innerIndex].count {
+                                                    self.appendNewNodeToBoard(curBoardSide: boardIndex, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: randomChessStruct[index])], curInsertIndex: innerIndex + index)
+                                                } else {
+                                                    self.appendNewNodeToBoard(curBoardSide: boardIndex, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: randomChessStruct[index])], curInsertIndex: innerIndex + index)
+                                                }
+                                                
+                                            }
+                                            
+                                        }
+                                    }
+                                    //self.updateWholeBoardPosition()
+                                }
+                            }
+                            
                             oldBoard[boardIndex][innerIndex].removeFromParentNode()
                         }
                     }
@@ -529,12 +612,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                         if curDragPoint!.abilities.contains(EnumAbilities.instantSummonSth.rawValue) { //战吼召唤
                                             
                                             
-                                            if case let curRattleChess as chessStruct = curDragPoint?.rattleFunc[EnumKeyName.summonChess.rawValue] {
-                                                if case let curRattleNum as Int = curDragPoint?.rattleFunc[EnumKeyName.summonNum.rawValue] {
-                                                    for index in 0 ..< curRattleNum { //appendnewnode里会计算数量 多余的棋子会被砍掉
-                                                        appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: curRattleChess)], curInsertIndex: nil)
+                                            if case let curRattleChess as [chessStruct] = curDragPoint?.rattleFunc[EnumKeyName.summonChess.rawValue] {
+                                                for sIndex in 0 ..< curRattleChess.count { //appendnewnode里会计算数量 多余的棋子会被砍掉
+                                                        appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: curRattleChess[sIndex])], curInsertIndex: nil)
                                                     }
-                                                }
+                                               
                                             }
                                             
                                             //updateWholeBoardPosition()
@@ -1180,90 +1262,90 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     }
                 }
                 if attackResult[curSide] == 0 { //如果当前棋子被消灭了 则触发亡语 和 给其它怪加buff
-                    self.boardNode[curBoardSide].forEach{ (curBuffChess) in
-                        if curBuffChess.abilities.contains(EnumAbilities.afterEliminatedAddBuff.rawValue) {
-                            if case let curAfterKind as [String] = curBuffChess.rattleFunc[EnumKeyName.baseKind.rawValue] {
-                                if curAfterKind.contains(curChessPoint.chessKind) {
-                                    let curEndAtt = curBuffChess.rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
-                                    let curEndDef = curBuffChess.rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
-                                    curBuffChess.AddBuff(AtkNumber: (curEndAtt as! Int) * curBuffChess.chessLevel, DefNumber: (curEndDef as! Int) * curBuffChess.chessLevel)
-                                }
-                            }
-                        } else if curBuffChess.abilities.contains(EnumAbilities.afterEliminatedAddAbilities.rawValue) {
-                            if case let curAfterKind as [String] = curBuffChess.rattleFunc[EnumKeyName.baseKind.rawValue] {
-                                if curAfterKind.contains(curChessPoint.chessKind) {
-                                    if case let curAfterAbility as [String] = curBuffChess.rattleFunc[EnumKeyName.abilityKind.rawValue] {
-                                        curBuffChess.AddTempBuff(tempBuff: curAfterAbility)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    
-                    
-                    if curChessPoint.abilities.contains(EnumAbilities.inheritAddBuff.rawValue) { //有传承加buff结算一下
-                        let addNum = curChessPoint.inheritFunc[EnumKeyName.summonNum.rawValue] ?? 1
-                        let curRandomArr = randomDiffNumsFromArrs(outputNums: addNum as! Int, inputArr: self.boardNode[curBoardSide])
-                        curRandomArr.forEach{ (attChess) in
-                            //需要给attchess加buff
-                            attChess.AddBuff(AtkNumber: curChessPoint.chessLevel * (curChessPoint.inheritFunc[EnumKeyName.baseAttack.rawValue] as! Int), DefNumber: curChessPoint.chessLevel * (curChessPoint.inheritFunc[EnumKeyName.baseDef.rawValue] as! Int))
-                        }
-                    }
-
-
-                    if curChessPoint.abilities.contains(EnumAbilities.inheritDamage.rawValue) {
-                        if case let curRattleDamage as Int = curChessPoint.inheritFunc[EnumKeyName.baseDamage.rawValue] {
-                            if case let curRattleNum as Int = curChessPoint.inheritFunc[EnumKeyName.summonNum.rawValue] {
-                                let damageChess = randomDiffNumsFromArrs(outputNums: curRattleNum, inputArr: self.boardNode[oppositeSide])
-
-                                curChessPoint.abilityTrigger(abilityEnum: EnumAbilities.inheritAddBuff.rawValue.localized)
-                                for vIndex in 0 ..< damageChess.count { //appendnewnode里会计算数量 多余的棋子会被砍掉
-                                    let curChess = damageChess[vIndex] as! baseChessNode
-                                    curChess.getDamage(damageNumber: curRattleDamage, chessBoard: &self.boardNode[oppositeSide])
-                                }
-                                //self.updateWholeBoardPosition()
-
-
-                            }
-                        }
-                    }
-                    if curChessPoint.abilities.contains(EnumAbilities.inheritSummonSth.rawValue) {
-                        if case let curRattleChess as [chessStruct] = curChessPoint.inheritFunc[EnumKeyName.summonChess.rawValue] {
-
-                            curChessPoint.abilityTrigger(abilityEnum: EnumAbilities.inheritAddBuff.rawValue.localized)
-                            for index in 0 ..< curRattleChess.count { //appendnewnode里会计算数量 多余的棋子会被砍掉
-                              
-                                
-
-                                    if curChessIndex <= self.boardNode[curBoardSide].count {
-                                        self.appendNewNodeToBoard(curBoardSide: curBoardSide, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: curRattleChess[index])], curInsertIndex: curChessIndex + index)
-                                    } else {
-                                        self.appendNewNodeToBoard(curBoardSide: curBoardSide, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: curRattleChess[index])], curInsertIndex: curChessIndex + index)
-                                    }
-
-                                    
-                                
-                            }
-
-                        } else if case let curRattleRarity as Int = curChessPoint.inheritFunc[EnumKeyName.baseRarity.rawValue] {
-                            curChessPoint.abilityTrigger(abilityEnum: EnumAbilities.inheritAddBuff.rawValue.localized)
-                            if case let curRattleNum as Int = curChessPoint.inheritFunc[EnumKeyName.summonNum.rawValue] {
-                                let randomChessStruct = randomDiffNumsFromArrs(outputNums: curRattleNum, inputArr: chessCollectionsLevel[curRattleRarity - 1])
-                                
-                                for index in 0 ..< randomChessStruct.count { //appendnewnode里会计算数量 多余的棋子会被砍掉
-                                    
-                                    if curChessIndex <= self.boardNode[curBoardSide].count {
-                                        self.appendNewNodeToBoard(curBoardSide: curBoardSide, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: randomChessStruct[index])], curInsertIndex: curChessIndex + index)
-                                    } else {
-                                        self.appendNewNodeToBoard(curBoardSide: curBoardSide, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: randomChessStruct[index])], curInsertIndex: curChessIndex + index)
-                                    }
-                                    
-                                }
-                                
-                        }
-                    }
-                         //self.updateWholeBoardPosition()
-                    }
+//                    self.boardNode[curBoardSide].forEach{ (curBuffChess) in
+//                        if curBuffChess.abilities.contains(EnumAbilities.afterEliminatedAddBuff.rawValue) {
+//                            if case let curAfterKind as [String] = curBuffChess.rattleFunc[EnumKeyName.baseKind.rawValue] {
+//                                if curAfterKind.contains(curChessPoint.chessKind) {
+//                                    let curEndAtt = curBuffChess.rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
+//                                    let curEndDef = curBuffChess.rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
+//                                    curBuffChess.AddBuff(AtkNumber: (curEndAtt as! Int) * curBuffChess.chessLevel, DefNumber: (curEndDef as! Int) * curBuffChess.chessLevel)
+//                                }
+//                            }
+//                        } else if curBuffChess.abilities.contains(EnumAbilities.afterEliminatedAddAbilities.rawValue) {
+//                            if case let curAfterKind as [String] = curBuffChess.rattleFunc[EnumKeyName.baseKind.rawValue] {
+//                                if curAfterKind.contains(curChessPoint.chessKind) {
+//                                    if case let curAfterAbility as [String] = curBuffChess.rattleFunc[EnumKeyName.abilityKind.rawValue] {
+//                                        curBuffChess.AddTempBuff(tempBuff: curAfterAbility)
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//
+//
+//                    if curChessPoint.abilities.contains(EnumAbilities.inheritAddBuff.rawValue) { //有传承加buff结算一下
+//                        let addNum = curChessPoint.inheritFunc[EnumKeyName.summonNum.rawValue] ?? 1
+//                        let curRandomArr = randomDiffNumsFromArrs(outputNums: addNum as! Int, inputArr: self.boardNode[curBoardSide])
+//                        curRandomArr.forEach{ (attChess) in
+//                            //需要给attchess加buff
+//                            attChess.AddBuff(AtkNumber: curChessPoint.chessLevel * (curChessPoint.inheritFunc[EnumKeyName.baseAttack.rawValue] as! Int), DefNumber: curChessPoint.chessLevel * (curChessPoint.inheritFunc[EnumKeyName.baseDef.rawValue] as! Int))
+//                        }
+//                    }
+//
+//
+//                    if curChessPoint.abilities.contains(EnumAbilities.inheritDamage.rawValue) {
+//                        if case let curRattleDamage as Int = curChessPoint.inheritFunc[EnumKeyName.baseDamage.rawValue] {
+//                            if case let curRattleNum as Int = curChessPoint.inheritFunc[EnumKeyName.summonNum.rawValue] {
+//                                let damageChess = randomDiffNumsFromArrs(outputNums: curRattleNum, inputArr: self.boardNode[oppositeSide])
+//
+//                                curChessPoint.abilityTrigger(abilityEnum: EnumAbilities.inheritAddBuff.rawValue.localized)
+//                                for vIndex in 0 ..< damageChess.count { //appendnewnode里会计算数量 多余的棋子会被砍掉
+//                                    let curChess = damageChess[vIndex] as! baseChessNode
+//                                    curChess.getDamage(damageNumber: curRattleDamage, chessBoard: &self.boardNode[oppositeSide])
+//                                }
+//                                //self.updateWholeBoardPosition()
+//
+//
+//                            }
+//                        }
+//                    }
+//                    if curChessPoint.abilities.contains(EnumAbilities.inheritSummonSth.rawValue) {
+//                        if case let curRattleChess as [chessStruct] = curChessPoint.inheritFunc[EnumKeyName.summonChess.rawValue] {
+//
+//                            curChessPoint.abilityTrigger(abilityEnum: EnumAbilities.inheritAddBuff.rawValue.localized)
+//                            for index in 0 ..< curRattleChess.count { //appendnewnode里会计算数量 多余的棋子会被砍掉
+//
+//
+//
+//                                    if curChessIndex <= self.boardNode[curBoardSide].count {
+//                                        self.appendNewNodeToBoard(curBoardSide: curBoardSide, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: curRattleChess[index])], curInsertIndex: curChessIndex + index)
+//                                    } else {
+//                                        self.appendNewNodeToBoard(curBoardSide: curBoardSide, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: curRattleChess[index])], curInsertIndex: curChessIndex + index)
+//                                    }
+//
+//
+//
+//                            }
+//
+//                        } else if case let curRattleRarity as Int = curChessPoint.inheritFunc[EnumKeyName.baseRarity.rawValue] {
+//                            curChessPoint.abilityTrigger(abilityEnum: EnumAbilities.inheritAddBuff.rawValue.localized)
+//                            if case let curRattleNum as Int = curChessPoint.inheritFunc[EnumKeyName.summonNum.rawValue] {
+//                                let randomChessStruct = randomDiffNumsFromArrs(outputNums: curRattleNum, inputArr: chessCollectionsLevel[curRattleRarity - 1])
+//
+//                                for index in 0 ..< randomChessStruct.count { //appendnewnode里会计算数量 多余的棋子会被砍掉
+//
+//                                    if curChessIndex <= self.boardNode[curBoardSide].count {
+//                                        self.appendNewNodeToBoard(curBoardSide: curBoardSide, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: randomChessStruct[index])], curInsertIndex: curChessIndex + index)
+//                                    } else {
+//                                        self.appendNewNodeToBoard(curBoardSide: curBoardSide, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: randomChessStruct[index])], curInsertIndex: curChessIndex + index)
+//                                    }
+//
+//                                }
+//
+//                        }
+//                    }
+//                         //self.updateWholeBoardPosition()
+//                    }
                 }
 
             }
@@ -2147,6 +2229,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
 
     public func renderer(_: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
+        if isPlayerBoardinited {
+            return
+        }
+        
         guard let planeAnchor = anchor as? ARPlaneAnchor,
             let planeNode = node as? customPlaneNode else {
             return
@@ -2158,6 +2244,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
 
     public func renderer(_: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
+        if isPlayerBoardinited {
+            return
+        }
         guard let planeAnchor = anchor as? ARPlaneAnchor,
             let planeNode = node as? customPlaneNode else {
             return

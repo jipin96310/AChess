@@ -13,5 +13,8 @@ public let chessColorRarity = [ 1 : UIImage(named: "normalChess"), 2 : UIImage(n
 public let chessKindBgImage = [
     EnumChessKind.mountain.rawValue : UIImage(named: "mountainBg"),
     EnumChessKind.ocean.rawValue : UIImage(named: "oceanBg"),
-    EnumChessKind.plain.rawValue : UIImage(named: "plainBg")
+    EnumChessKind.plain.rawValue : UIImage(named: "plainBg"),
+    EnumChessKind.frost.rawValue : UIImage(named: "plainBg"),
+    EnumChessKind.desert.rawValue : UIImage(named: "plainBg"),
+    EnumChessKind.polar.rawValue : UIImage(named: "plainBg")
 ]
