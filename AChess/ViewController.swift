@@ -146,15 +146,26 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     for innerIndex in 0 ..< oldBoard[boardIndex].count {
                         if !boardNode[boardIndex].contains(oldBoard[boardIndex][innerIndex]) {
                             if (curStage == EnumsGameStage.battleStage.rawValue) { //亡语生效
+                                var isMaxLevel = false
+                                /*AllInheritMax*/
+                                for subIndex in 0 ..< boardNode[boardIndex].count {
+                                    if boardNode[boardIndex][subIndex].abilities.contains(EnumAbilities.allInheritMax.rawValue) {
+                                        isMaxLevel = true
+                                        break
+                                    }
+                                }
+                                /*End*/
+                                
                                 let erasedChess = oldBoard[boardIndex][innerIndex]
                                 let oppoBoardSide = boardIndex == BoardSide.allySide.rawValue ? BoardSide.enemySide.rawValue : BoardSide.allySide.rawValue
+                                let curStar = isMaxLevel ? GlobalCommonNumber.maxStars : erasedChess.chessLevel
                                 self.boardNode[boardIndex].forEach{ (curBuffChess) in
                                     if curBuffChess.abilities.contains(EnumAbilities.afterEliminatedAddBuff.rawValue) {
                                         if case let curAfterKind as [String] = curBuffChess.rattleFunc[EnumKeyName.baseKind.rawValue] {
                                             if curAfterKind.contains(erasedChess.chessKind) {
                                                 let curEndAtt = curBuffChess.rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
                                                 let curEndDef = curBuffChess.rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
-                                                curBuffChess.AddBuff(AtkNumber: (curEndAtt as! Int) * curBuffChess.chessLevel, DefNumber: (curEndDef as! Int) * curBuffChess.chessLevel)
+                                                curBuffChess.AddBuff(AtkNumber: (curEndAtt as! Int) * curStar, DefNumber: (curEndDef as! Int) * curStar)
                                             }
                                         }
                                     } else if curBuffChess.abilities.contains(EnumAbilities.afterEliminatedAddAbilities.rawValue) {
@@ -172,7 +183,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                     let curRandomArr = randomDiffNumsFromArrs(outputNums: addNum as! Int, inputArr: self.boardNode[boardIndex])
                                     curRandomArr.forEach{ (attChess) in
                                         //需要给attchess加buff
-                                        attChess.AddBuff(AtkNumber: erasedChess.chessLevel * (erasedChess.inheritFunc[EnumKeyName.baseAttack.rawValue] as! Int), DefNumber: erasedChess.chessLevel * (erasedChess.inheritFunc[EnumKeyName.baseDef.rawValue] as! Int))
+                                        attChess.AddBuff(AtkNumber: curStar * (erasedChess.inheritFunc[EnumKeyName.baseAttack.rawValue] as! Int), DefNumber: curStar * (erasedChess.inheritFunc[EnumKeyName.baseDef.rawValue] as! Int))
                                     }
                                 }
                                 
@@ -185,7 +196,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                             erasedChess.abilityTrigger(abilityEnum: EnumAbilities.inheritDamage.rawValue.localized)
                                             for vIndex in 0 ..< damageChess.count {
                                                 let curChess = damageChess[vIndex] as! baseChessNode
-                                                curChess.getDamage(damageNumber: curRattleDamage, chessBoard: &self.boardNode[oppoBoardSide])
+                                                curChess.getDamage(damageNumber: curRattleDamage * curStar, chessBoard: &self.boardNode[oppoBoardSide])
                                             }                                           
                                         }
                                     }

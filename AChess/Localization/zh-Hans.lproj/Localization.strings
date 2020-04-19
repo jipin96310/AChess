@@ -39,6 +39,7 @@
 "BeforeAttackAoe" = "在战斗开始之前，对全体敌人造成<dam>伤害";
 "ChooseAKind" = "棋子的种类可以被选择"; //选择一个种族"
 "LessBloodEliminated" = "受到攻击时，消灭血量低于这个棋子的攻击者.";
+"AllInheritMax" = "所有友方棋子的传承效果为满级."
 //以下为卡牌类型
 "Mountain" = "山川"; //山
 "Ocean" = "海洋"; //海洋

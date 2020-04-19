@@ -19,7 +19,7 @@
 "IgnoreBait"    = "Ignore Bait"; //无视诱饵
 "Spine"         = "Spine";   //尖刺
 "ImmunePoison"   = "Immune To Poison"; //免疫剧毒
-"InheritAddBuff" = "Inherit: Gain +1/+1."; // Inherit: add buff
+"InheritAddBuff" = "Inheritance: Gain +1/+1."; // Inherit: add buff
 "EndRoundAddBuff" = "Give all other green covered chess +1 / +1 at the end of sale stage, including mountain, plain, frost.";
 ///////战吼
 "InstantAddBuff" = "Instant: choose a <kind> chess to gain +<att>/+<def>.";
@@ -39,6 +39,7 @@
 "BeforeAttackAoe" = "Deal <dam> damage to all the enemies before battle.";
 "ChooseAKind" = "Chess kind can be chosen."; //选择一个种族
 "LessBloodEliminated" = "This chess will eliminated any attacker which has less blood.";
+"AllInheritMax" = "All allies' inheritance skill will be max level."
 //以下为卡牌类型
 "Mountain" = "Mountain"; //山
 "Ocean" = "Ocean"; //海洋

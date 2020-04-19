@@ -58,7 +58,9 @@ public var chessCollectionsLevel = [
     ],
     [ //level5。 6个      9
        chessStruct(name: EnumChessName.panda.rawValue.localized, desc: "", atkNum: 5, defNum: 5, chessRarity: 5, chessLevel: 1,chessKind: EnumChessKind.mountain.rawValue, abilities: [EnumAbilities.summonChessAddMountainBuff.rawValue], temporaryBuff:[], rattleFunc: [:], inheritFunc: [:]),
-       chessStruct(name: EnumChessName.tigerSnake.rawValue.localized, desc: "", atkNum: 5, defNum: 1, chessRarity: 5, chessLevel: 1,chessKind: EnumChessKind.mountain.rawValue, abilities: [EnumAbilities.poison.rawValue, EnumAbilities.inheritSummonSth.rawValue], temporaryBuff:[], rattleFunc: [:], inheritFunc: [EnumKeyName.baseRarity.rawValue : 3, EnumKeyName.summonNum.rawValue : 2])
+       chessStruct(name: EnumChessName.tigerSnake.rawValue.localized, desc: "", atkNum: 5, defNum: 1, chessRarity: 5, chessLevel: 1,chessKind: EnumChessKind.mountain.rawValue, abilities: [EnumAbilities.poison.rawValue, EnumAbilities.inheritSummonSth.rawValue], temporaryBuff:[], rattleFunc: [:], inheritFunc: [EnumKeyName.baseRarity.rawValue : 3, EnumKeyName.summonNum.rawValue : 2]),
+        chessStruct(name: EnumChessName.killerWhale.rawValue.localized, desc: "", atkNum: 6, defNum: 6, chessRarity: 5, chessLevel: 1,chessKind: EnumChessKind.mountain.rawValue, abilities: [EnumAbilities.poison.rawValue, EnumAbilities.inheritSummonSth.rawValue], temporaryBuff:[], rattleFunc: [:], inheritFunc: [EnumKeyName.baseRarity.rawValue : 3, EnumKeyName.summonNum.rawValue : 2]),
+        chessStruct(name: EnumChessName.greatWhite.rawValue.localized, desc: "", atkNum: 6, defNum: 6 ,chessRarity: 5, chessLevel: 1,chessKind: EnumChessKind.mountain.rawValue, abilities: [EnumAbilities.ignoreBait.rawValue, EnumAbilities.rapid.rawValue, EnumAbilities.immunePoison.rawValue], temporaryBuff:[], rattleFunc: [:], inheritFunc: [:])
 
     ]
 ]
