@@ -38,6 +38,7 @@
 //before attack
 "BeforeAttackAoe" = "Deal <dam> damage to all the enemies before battle.";
 "ChooseAKind" = "Chess kind can be chosen."; //选择一个种族
+"LessBloodEliminated" = "This chess will eliminated any attacker which has less blood.";
 //以下为卡牌类型
 "Mountain" = "Mountain"; //山
 "Ocean" = "Ocean"; //海洋
