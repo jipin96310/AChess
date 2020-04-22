@@ -196,7 +196,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                             erasedChess.abilityTrigger(abilityEnum: EnumAbilities.inheritDamage.rawValue.localized)
                                             for vIndex in 0 ..< damageChess.count {
                                                 let curChess = damageChess[vIndex] as! baseChessNode
-                                                curChess.getDamage(damageNumber: curRattleDamage * curStar, chessBoard: &self.boardNode[oppoBoardSide])
+                                                let damTime = dealDamageAction(startVector: erasedChess.position, endVector: curChess.position)
+                                                delay(damTime, task: {
+                                                    curChess.getDamage(damageNumber: curRattleDamage * curStar, chessBoard: &self.boardNode[oppoBoardSide])
+                                                })
                                             }                                           
                                         }
                                     }
@@ -1836,6 +1839,26 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             return
         }
     }
+    //dealDamage practicle system
+    
+    public func dealDamageAction(startVector: SCNVector3, endVector: SCNVector3) -> Double{
+        let newTrackPoint = SCNNode(geometry: SCNSphere(radius: 0.01))
+        newTrackPoint.position = startVector
+        newTrackPoint.position.y = 0.1
+        playerBoardNode.addChildNode(newTrackPoint)
+        let trackActionSequence = [
+            SCNAction.move(to: endVector, duration: 1),
+            SCNAction.customAction(duration: 0, action: { _,_ in
+                newTrackPoint.removeFromParentNode()
+            })
+        ]
+        newTrackPoint.runAction(SCNAction.sequence(trackActionSequence))
+        return 1
+    }
+    
+    
+    
+    
     //chessnode actions
 
     public func attack(attackBoardIndex: Int , attackIndex: Int, victimBoardIndex: Int, victimIndex: Int) -> Promise<[Double]> {

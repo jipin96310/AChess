@@ -20,26 +20,28 @@
 "spine"         = "尖刺";  //尖刺
 "ImmunePoison"   = "免疫剧毒"; //免疫剧毒
 "InheritAddBuff" = "传承: 获得+1/+1"; // Inherit: add buff
-"EndRoundAddBuff" = "给所有其它的绿植覆盖的棋子+1/+1, 包括山川、平原、森林.";
+"InheritDamage" = "传承: 向 <num> 敌人造成 <dam> 伤害.";
+"EndRoundAddBuff" = "给<kind>棋子 +<att>/+<def>在每个交易回合结束时.";
 ///////战吼
 "InstantAddBuff" = "瞬发: 选择一个<kind>棋子获得 +<att>/+<def>.";
 "InstantChooseAnAbility" = "瞬发: 选择一个棋子获得一个能力";
 "InstantChooseAnAbilityForMountain" = "瞬发: 选择一个山川的棋子获得一个能力";
 "InstantAllGainAbilityForMountain" = "瞬发：所有山川的棋子获得一个能力";
 "InstantDestroyAllyGainBuff" = "瞬发: 摧毁一个友方棋子获得其攻击和生命.";
+"InstantSummonSth" = "瞬发：召唤 [chesses].";
 "ChooseAnChess" = "请选择一个棋子.";
 "ChooseAnOption" = "请选择一个选项.";
-"InstantRandomAddBuff"      = "瞬发: 给予 <num> 随机队友 +<att>/+<def>";
+"InstantRandomAddBuff"      = "瞬发: 给予 <num> [kind] 随机队友 +<att>/+<def>";
 //summon
 "SummonChessAddMountainBuff" = "在你召唤一个具有诱饵的棋子后，给予所有山川棋子 +<att>/ +<def>.";
 //after eliminated
-"AfterEliminatedAddBuff" = "在棋子被消灭后 +<att>/ +<def>";
-"AfterEliminatedAddAbilities" = "在棋子被消灭后，获得 <abi>";
+"AfterEliminatedAddBuff" = "在一个[kind]棋子被消灭后 +<att>/ +<def>";
+"AfterEliminatedAddAbilities" = "在一个[kind]棋子被消灭后，获得 <abi>";
 //before attack
 "BeforeAttackAoe" = "在战斗开始之前，对全体敌人造成<dam>伤害";
 "ChooseAKind" = "棋子的种类可以被选择"; //选择一个种族"
 "LessBloodEliminated" = "受到攻击时，消灭血量低于这个棋子的攻击者.";
-"AllInheritMax" = "所有友方棋子的传承效果为满级."
+"AllInheritMax" = "所有友方棋子的传承效果为满级.";
 //以下为卡牌类型
 "Mountain" = "山川"; //山
 "Ocean" = "海洋"; //海洋
@@ -91,3 +93,10 @@
 "ElectricEel" = "电鳗"; //电鳗
 "MountainLevel1" = "崇山峻岭";
 "MountainLevel2" = "虎啸龙吟";
+
+
+"Self" = "自身";
+"Chess" = "棋子";
+"Or" = "或";
+"And" = "和";
+
