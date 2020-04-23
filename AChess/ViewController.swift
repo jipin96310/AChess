@@ -1843,6 +1843,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     
     public func dealDamageAction(startVector: SCNVector3, endVector: SCNVector3) -> Double{
         let newTrackPoint = SCNNode(geometry: SCNSphere(radius: 0.01))
+        if let explosion = SCNParticleSystem(named: "particals.scnassets/attackCol.scnp", inDirectory: nil) {
+            //explosion.emissionDuration = CGFloat(1)
+            explosion.emitterShape = SCNSphere(radius: 0.005)
+            
+            newTrackPoint.addParticleSystem(explosion)
+           
+        }
+        
+        
         newTrackPoint.position = startVector
         newTrackPoint.position.y = 0.1
         playerBoardNode.addChildNode(newTrackPoint)

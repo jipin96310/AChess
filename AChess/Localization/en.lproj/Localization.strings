@@ -23,7 +23,7 @@
 "InheritDamage" = "Inheritance: Deal <dam> damage to <num> Enemies.";
 "EndRoundAddBuff" = "Chess will give [kind] +<att>/+<def> at the end of sale stage.";
 ///////战吼
-"InstantAddBuff" = "Instant: choose a <kind> chess to gain +<att>/+<def>.";
+"InstantAddBuff" = "Instant: choose a [kind] chess to gain +<att>/+<def>.";
 "InstantChooseAnAbility" = "Instant: choose a chess to get an ability.";
 "InstantChooseAnAbilityForMountain" = "Instant: choose a mountain chess to get an ability.";
 "InstantAllGainAbilityForMountain" = "Instant：All mountain chesses gain a new ability.";

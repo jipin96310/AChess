@@ -342,6 +342,17 @@ public class baseChessNode: SCNNode {
             } else if curAbi == EnumAbilities.liveInGroup.rawValue {
                 tempDescStr += curAbi.localized.replacingOccurrences(of: "<percent>", with: String(chessLevel * 20))
             } else if curAbi == EnumAbilities.instantAddBuff.rawValue {
+                
+                let curBaseAtt = rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
+                let curBaseDef = rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
+                let curInstantKind = rattleFunc[EnumKeyName.baseKind.rawValue] ?? []
+                let tempStr = (curInstantKind as! [String]).joined(separator: " ")
+                
+                
+                tempDescStr += curAbi.localized.replacingOccurrences(of: "<att>", with: String(curBaseAtt as! Int * chessLevel)).replacingOccurrences(of: "def", with: String(curBaseDef as! Int * chessLevel)).replacingOccurrences(of: "[kind]", with: tempStr)
+                
+                
+                
                tempDescStr += curAbi.localized.replacingOccurrences(of: "<kind>", with: String(chessLevel * 1))
             } else if curAbi == EnumAbilities.beforeAttackAoe.rawValue {
                tempDescStr += curAbi.localized.replacingOccurrences(of: "<kind>", with: String(chessLevel * 1))
