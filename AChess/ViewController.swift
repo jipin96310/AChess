@@ -192,13 +192,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                     if case let curRattleDamage as Int = erasedChess.inheritFunc[EnumKeyName.baseDamage.rawValue] {
                                         if case let curRattleNum as Int = erasedChess.inheritFunc[EnumKeyName.summonNum.rawValue] {
                                             let damageChess = randomDiffNumsFromArrs(outputNums: curRattleNum, inputArr: self.boardNode[oppoBoardSide])
-                                            
-                                            erasedChess.abilityTrigger(abilityEnum: EnumAbilities.inheritDamage.rawValue.localized)
+                                            abilityTextTrigger(textContent: EnumAbilityType.inherit.rawValue.localized, textPos: erasedChess.position, textType: EnumAbilityType.inherit.rawValue)
+//                                            erasedChess.abilityTrigger(abilityEnum: EnumAbilities.inheritDamage.rawValue.localized)
                                             for vIndex in 0 ..< damageChess.count {
                                                 let curChess = damageChess[vIndex] as! baseChessNode
                                                 let damTime = dealDamageAction(startVector: erasedChess.position, endVector: curChess.position)
                                                 delay(damTime, task: {
                                                     curChess.getDamage(damageNumber: curRattleDamage * curStar, chessBoard: &self.boardNode[oppoBoardSide])
+                                                    self.updateWholeBoardPosition()
                                                 })
                                             }                                           
                                         }
@@ -1839,10 +1840,30 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             return
         }
     }
+    //
+    public func abilityTextTrigger(textContent: String, textPos: SCNVector3,textType: String) {
+        let abilitiesTriggerTextNode = TextNode(textScale: SCNVector3(0.01, 0.01, 0.001))
+        abilitiesTriggerTextNode.string = textContent
+        abilitiesTriggerTextNode.position = textPos
+        abilitiesTriggerTextNode.position.y = 0.1
+//        abilitiesTriggerTextNode.eulerAngles = SCNVector3(-60.degreesToRadius, 0 , 0)
+        playerBoardNode.addChildNode(abilitiesTriggerTextNode)
+        abilitiesTriggerTextNode.runAction(SCNAction.sequence([
+            SCNAction.fadeIn(duration: 0.1),
+            SCNAction.wait(duration: 1),
+//            SCNAction.fadeOut(duration: 0.3),
+            SCNAction.customAction(duration: 0, action: { _,_ in
+                abilitiesTriggerTextNode.removeFromParentNode()
+            })
+        ]))
+    }
+    
+    
     //dealDamage practicle system
     
     public func dealDamageAction(startVector: SCNVector3, endVector: SCNVector3) -> Double{
-        let newTrackPoint = SCNNode(geometry: SCNSphere(radius: 0.01))
+        let newTrackPoint = SCNNode(geometry: SCNSphere(radius: 0.005))
+        newTrackPoint.geometry?.firstMaterial?.diffuse.contents = UIColor.gray
         if let explosion = SCNParticleSystem(named: "particals.scnassets/attackCol.scnp", inDirectory: nil) {
             //explosion.emissionDuration = CGFloat(1)
             explosion.emitterShape = SCNSphere(radius: 0.005)

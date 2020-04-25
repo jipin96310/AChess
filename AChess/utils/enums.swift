@@ -96,6 +96,7 @@ enum EnumString: String {
     case battleStage = "BattleStage"
     case chooseAnChess = "ChooseAnChess"
     case chooseAnOption = "ChooseAnOption"
+    case inheritance = "Inheritance"
 //    case poision    = "Poison"
 //    case liveInGroup = "LiveInGroup" //群居
 //    case furious    = "Furious" //凶猛
@@ -172,6 +173,10 @@ enum EnumChessName: String {
 enum EnumAuraName: String {
     case mountainLevel1 = "MountainLevel1" //崇山峻岭
     case mountainLevel2 = "MountainLevel2" //虎啸龙吟
+}
+//技能类型
+enum EnumAbilityType: String {
+    case inherit = "Inheritance"
 }
 
 
