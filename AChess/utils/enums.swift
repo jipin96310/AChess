@@ -173,6 +173,8 @@ enum EnumChessName: String {
 enum EnumAuraName: String {
     case mountainLevel1 = "MountainLevel1" //崇山峻岭
     case mountainLevel2 = "MountainLevel2" //虎啸龙吟
+    case oceanLevel1 = "OceanLevel1"
+    case oceanLevel2 = "OceanLevel2"
 }
 //技能类型
 enum EnumAbilityType: String {

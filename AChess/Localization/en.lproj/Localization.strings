@@ -96,6 +96,8 @@
 //below is chess aura name
 "MountainLevel1" = "Mountains & Hills";
 "MountainLevel2" = "Cries of Dragons";
+"OceanLevel1" = "Great Waves";
+"OceanLevel2" = "Flooding of Temple";
 
 
 "Self" = "Self";

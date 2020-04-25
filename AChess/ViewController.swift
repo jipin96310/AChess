@@ -125,6 +125,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             newAuraArr.append(EnumAuraName.mountainLevel2.rawValue)
                         }
                     }
+                    if let oceanNum = chessKindMap[EnumChessKind.ocean.rawValue] {
+                        if oceanNum >= 3 && oceanNum < 6 {
+                            newAuraArr.append(EnumAuraName.oceanLevel1.rawValue)
+                        } else if oceanNum > 6 {
+                            newAuraArr.append(EnumAuraName.oceanLevel2.rawValue)
+                        }
+                    }
+                    //
                      playerStatues[curPlayerId].curAura = newAuraArr //清空光环
   
                 }
@@ -1757,10 +1765,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 let curChess = curBoard[innerIndex]
                 if curChess.abilities.contains(EnumAbilities.beforeAttackAoe.rawValue) { //如果有攻击前群体aoe
                     let curBaseDamage = curChess.rattleFunc[EnumKeyName.baseDamage.rawValue] ?? 1
+                    let aoeActionTime = eelDamageAction(practicleName: "particals.scnassets/lightning.scnp", boardSide: oppoBoardIndex)
                     boardNode[oppoBoardIndex].forEach{ (curChess) in
                         curChess.getDamage(damageNumber: curBaseDamage as! Int * curChess.chessLevel, chessBoard: &boardNode[oppoBoardIndex])
                     }
-                    actionTime += 1
+                    actionTime += aoeActionTime
                 }
             }
             delay(actionTime, task: {
@@ -1769,10 +1778,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     let curChess = nextBoard[innerIndex]
                     if curChess.abilities.contains(EnumAbilities.beforeAttackAoe.rawValue) { //如果有攻击前群体aoe
                         let curBaseDamage = curChess.rattleFunc[EnumKeyName.baseDamage.rawValue] ?? 1
+                        let aoeActionTime = self.eelDamageAction(practicleName: "particals.scnassets/lightning.scnp", boardSide: startBoardIndex)
                         self.boardNode[startBoardIndex].forEach{ (curChess) in
                             curChess.getDamage(damageNumber: curBaseDamage as! Int * curChess.chessLevel, chessBoard: &self.boardNode[startBoardIndex])
                         }
-                        nextactionTime += 1
+                        nextactionTime += aoeActionTime
                     }
                 }
                 delay(nextactionTime, task: {
@@ -1795,10 +1805,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 boardNode[BoardSide.allySide.rawValue].forEach{ (curChess) in
                     curChess.AddBuff(AtkNumber: 2 * curChess.chessLevel, DefNumber: 2 * curChess.chessLevel)
                 }
-            } else if curPlayerAura.contains(EnumAuraName.mountainLevel1.rawValue) { //mountain1 所有棋子获得 +2 * chesslevel / +2 * chesslevel
+            } else if curPlayerAura.contains(EnumAuraName.mountainLevel1.rawValue) { //mountain1 所有棋子获得 +4 * chesslevel / +4 * chesslevel
                 boardNode[BoardSide.allySide.rawValue].forEach{ (curChess) in
                     curChess.AddBuff(AtkNumber: 4 * curChess.chessLevel, DefNumber: 4 * curChess.chessLevel)
                 }
+            }
+            
+            if curPlayerAura.contains(EnumAuraName.oceanLevel1.rawValue) { //ocean1 对对面所有棋子造成1点伤害
+                
+            } else if curPlayerAura.contains(EnumAuraName.oceanLevel2.rawValue) { //ocean2 对对面所有棋子造成4点伤害
+                
             }
             
             delay(actionTime, task: {
@@ -1865,6 +1881,34 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 abilitiesTriggerTextNode.removeFromParentNode()
             })
         ]))
+    }
+    //attakall practicle system 暂时电鳗专属
+    public func eelDamageAction(practicleName: String, boardSide: Int)  -> Double{
+        var totalTime:Double = 0
+        if boardNode[boardSide].count > 0 {
+            
+        let newTrackPoint = SCNNode(geometry: SCNSphere(radius: 0.003))
+        newTrackPoint.geometry?.firstMaterial?.diffuse.contents = UIColor.yellow
+        if let explosion = SCNParticleSystem(named: practicleName, inDirectory: nil) {
+            //explosion.emissionDuration = CGFloat(1)
+            explosion.emitterShape = SCNSphere(radius: 0.003)
+            
+            newTrackPoint.addParticleSystem(explosion)
+           
+        }
+        newTrackPoint.position = boardNode[boardSide][0].position
+        newTrackPoint.position.y = 0.5
+        playerBoardNode.addChildNode(newTrackPoint)
+        let trackActionSequence = [
+            SCNAction.move(to: boardNode[boardSide][boardNode[boardSide].count - 1].position, duration: 1),
+            SCNAction.customAction(duration: 0, action: { _,_ in
+                newTrackPoint.removeFromParentNode()
+            })
+        ]
+        totalTime += 1
+        newTrackPoint.runAction(SCNAction.sequence(trackActionSequence))
+        }
+        return totalTime
     }
     
     

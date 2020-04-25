@@ -93,6 +93,8 @@
 "ElectricEel" = "电鳗"; //电鳗
 "MountainLevel1" = "崇山峻岭";
 "MountainLevel2" = "虎啸龙吟";
+"OceanLevel1" = "大浪淘沙";
+"OceanLevel2" = "水漫金山";
 
 
 "Self" = "自身";
