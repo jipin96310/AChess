@@ -922,7 +922,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             //
                             if playerStatues[curPlayerId].curCoin > 0 {
                                 playerStatues[curPlayerId].curCoin -= 1
-                                initBoardChess()
+                                initBoardChess(initStage: EnumsGameStage.exchangeStage.rawValue)
                             }
                         } else if isNameButton(hitTestResult.first!.node, "upgradeButton") {
                             upgradeButtonTopNode.runAction(SCNAction.sequence([
@@ -1194,6 +1194,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 curStorageChess.runAction(updateAction)
         }
         return totalTime
+    }
+    func returnExactPos(boardSide:Int, chessIndex: Int) -> SCNVector3?{ //计算所在棋盘位置的坐标 不包括storagenode
+        if (boardSide > boardRootNode.count || chessIndex > boardRootNode[boardSide].count) {
+            return nil
+        }
+        let startIndex = (GlobalNumberSettings.chessNumber.rawValue - boardNode[boardSide].count) / 2
+        let curRootNode = boardRootNode[boardSide][chessIndex + startIndex]
+        return SCNVector3(curRootNode.position.x, curRootNode.position.y + 0.01 , curRootNode.position.z)
     }
     func updateWholeBoardPosition() -> Double { //update all chesses' position
         let totalTime = 0.50
@@ -1589,7 +1597,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 //let actionTime = self.updateWholeBoardPosition()
                 totalTime += self.totalUpdateTime
                 //
-                self.curStage = EnumsGameStage.battleStage.rawValue
                 //copy the backup data
                 self.playerStatues[self.curPlayerId].curChesses = []
                 self.boardNode[BoardSide.allySide.rawValue].forEach{(curChess) in
@@ -1598,7 +1605,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 //playerStatues[curPlayerId].curChesses = boardNode[1]
                 delay(0.5 + totalTime) { //初始化大屏幕和棋盘棋子
                     self.initDisplay()
-                    self.initBoardChess()
+                    self.initBoardChess(initStage: EnumsGameStage.battleStage.rawValue)
+                    self.curStage = EnumsGameStage.battleStage.rawValue
                     delay(self.totalUpdateTime) { //初始化光环
                         self.initAura().done{ (delaytime) in
                             self.initBeforeBattle().done{ (beforeBattleTime) in
@@ -1612,6 +1620,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         }
                         
                     }
+                   
                 }
             }
         } else if curStage == EnumsGameStage.battleStage.rawValue { //战斗转交易
@@ -1628,7 +1637,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 }
                 
                 self.initDisplay()
-                self.initBoardChess()
+                self.initBoardChess(initStage: EnumsGameStage.exchangeStage.rawValue)
             }
         }
         //here update every players info, if there'll be multiplayers mode, you should get other players info, and then update to the playerStatues array
@@ -1661,14 +1670,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         }
         return curChessInfo
     }
-    func initBoardChess() {
+    func initBoardChess(initStage: Int) {
         boardNode[0].forEach{(boardNode) in
             boardNode.removeFromParentNode()
         }
         boardNode[0] = []
         let curPlayerLevel = playerStatues[curPlayerId].curLevel
         
-        switch curStage {
+        switch initStage {
         case EnumsGameStage.exchangeStage.rawValue:
             let curSaleNumber = 3//playerStatues[curPlayerId].curLevel + 2
             let curStartIndex = (GlobalNumberSettings.chessNumber.rawValue - curSaleNumber) / 2
@@ -1862,11 +1871,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     //dealDamage practicle system
     
     public func dealDamageAction(startVector: SCNVector3, endVector: SCNVector3) -> Double{
-        let newTrackPoint = SCNNode(geometry: SCNSphere(radius: 0.005))
-        newTrackPoint.geometry?.firstMaterial?.diffuse.contents = UIColor.gray
+        let newTrackPoint = SCNNode(geometry: SCNSphere(radius: 0.003))
+        newTrackPoint.geometry?.firstMaterial?.diffuse.contents = UIColor.red
         if let explosion = SCNParticleSystem(named: "particals.scnassets/attackCol.scnp", inDirectory: nil) {
             //explosion.emissionDuration = CGFloat(1)
-            explosion.emitterShape = SCNSphere(radius: 0.005)
+            explosion.emitterShape = SCNSphere(radius: 0.003)
             
             newTrackPoint.addParticleSystem(explosion)
            
@@ -2000,7 +2009,17 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             actionResult[1] = vicRstBlood > 0 ? 1 : 0
             //计算完以后结算是否返回动作
             if attRstBlood > 0 {
-                     attackSequence += [backToAction(atkStartPos, attacker)]
+                if let backPos = findChessPos(attacker) {
+                    if let backVec = returnExactPos(boardSide: backPos[0], chessIndex: backPos[1]) { //如果找的到就按新的路线返回
+                      attackSequence += [backToAction(backVec, attacker)]
+                    } else {
+                       attackSequence += [backToAction(atkStartPos, attacker)] //找不到就按照默认返回
+                    }
+                    
+                } else {
+                    attackSequence += [backToAction(atkStartPos, attacker)] //找不到就按照默认返回
+                }
+            
             }
             //计算动作用时 calculate the total time of all the actions
             attackSequence.forEach { (action) in
@@ -2088,7 +2107,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
     func initGameTest() {
         initBoardRootNode()
-        initBoardChess()
+        initBoardChess(initStage: curStage)
         initDisplay()
         initButtons()
 //        for index in 1 ..< 7 {
