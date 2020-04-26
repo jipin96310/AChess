@@ -1752,41 +1752,65 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             return
         }
     }
-    func initBeforeBattle() -> Promise<Double> {
-        return Promise<Double>(resolver: { (resole) in
-            var actionTime:Double = 0
-            let startBoardIndex = Int.randomIntNumber(lower: 0, upper: 2)
-            let curBoard = boardNode[startBoardIndex]
-            
-            let oppoBoardIndex = startBoardIndex == BoardSide.enemySide.rawValue ? BoardSide.allySide.rawValue : BoardSide.enemySide.rawValue
-            let nextBoard = boardNode[oppoBoardIndex]
-            
-            for innerIndex in 0 ..< curBoard.count {
-                let curChess = curBoard[innerIndex]
-                if curChess.abilities.contains(EnumAbilities.beforeAttackAoe.rawValue) { //如果有攻击前群体aoe
-                    let curBaseDamage = curChess.rattleFunc[EnumKeyName.baseDamage.rawValue] ?? 1
-                    let aoeActionTime = eelDamageAction(practicleName: "particals.scnassets/lightning.scnp", boardSide: oppoBoardIndex)
-                    boardNode[oppoBoardIndex].forEach{ (curChess) in
-                        curChess.getDamage(damageNumber: curBaseDamage as! Int * curChess.chessLevel, chessBoard: &boardNode[oppoBoardIndex])
-                    }
-                    actionTime += aoeActionTime
+    //BeforeBattle action
+    func beforeBattleAction(startBoardIndex: Int) -> Double{
+        var actionTime:Double = 0
+        let curBoard = boardNode[startBoardIndex]
+        let oppoBoardIndex = startBoardIndex == BoardSide.enemySide.rawValue ? BoardSide.allySide.rawValue : BoardSide.enemySide.rawValue
+        var chessKindMap:[String : Int] = [:]
+        for innerIndex in 0 ..< curBoard.count {
+            let curChess = curBoard[innerIndex]
+            if curChess.abilities.contains(EnumAbilities.beforeAttackAoe.rawValue) { //如果有攻击前群体aoe
+                let curBaseDamage = curChess.rattleFunc[EnumKeyName.baseDamage.rawValue] ?? 1
+                let aoeActionTime = eelDamageAction(practicleName: "particals.scnassets/lightning.scnp", boardSide: oppoBoardIndex)
+                boardNode[oppoBoardIndex].forEach{ (curChess) in
+                    curChess.getDamage(damageNumber: curBaseDamage as! Int * curChess.chessLevel, chessBoard: &boardNode[oppoBoardIndex])
+                }
+                actionTime += aoeActionTime
+            }
+            //ocean aura map
+            if chessKindMap[curChess.chessKind] != nil {
+                chessKindMap[curChess.chessKind]! += 1
+            } else {
+                chessKindMap[curChess.chessKind] = 1
+            }
+        }
+        //calculate chess kind map
+        if let oceanNum = chessKindMap[EnumChessKind.ocean.rawValue] {
+             let aoeActionTime = eelDamageAction(practicleName: "particals.scnassets/oceanaura.scnp", boardSide: oppoBoardIndex)
+            if oceanNum >= 3 && oceanNum < 6 { //oceanlevel1
+               
+                boardNode[oppoBoardIndex].forEach{ (curChess) in
+                    curChess.getDamage(damageNumber: 1, chessBoard: &boardNode[oppoBoardIndex])
+                }
+                
+            } else if oceanNum > 6 { //oceanlevel2
+                boardNode[oppoBoardIndex].forEach{ (curChess) in
+                    curChess.getDamage(damageNumber: 4, chessBoard: &boardNode[oppoBoardIndex])
                 }
             }
-            delay(actionTime, task: {
-                var nextactionTime: Double = 0
-                for innerIndex in 0 ..< nextBoard.count {
-                    let curChess = nextBoard[innerIndex]
-                    if curChess.abilities.contains(EnumAbilities.beforeAttackAoe.rawValue) { //如果有攻击前群体aoe
-                        let curBaseDamage = curChess.rattleFunc[EnumKeyName.baseDamage.rawValue] ?? 1
-                        let aoeActionTime = self.eelDamageAction(practicleName: "particals.scnassets/lightning.scnp", boardSide: startBoardIndex)
-                        self.boardNode[startBoardIndex].forEach{ (curChess) in
-                            curChess.getDamage(damageNumber: curBaseDamage as! Int * curChess.chessLevel, chessBoard: &self.boardNode[startBoardIndex])
-                        }
-                        nextactionTime += aoeActionTime
-                    }
-                }
+            actionTime += aoeActionTime
+        }
+        
+        
+        
+        return actionTime
+    }
+    
+    
+    
+    func initBeforeBattle() -> Promise<Double> {
+        return Promise<Double>(resolver: { (resole) in
+            
+            let startBoardIndex = Int.randomIntNumber(lower: 0, upper: 2)
+            let oppoBoardIndex = startBoardIndex == BoardSide.enemySide.rawValue ? BoardSide.allySide.rawValue : BoardSide.enemySide.rawValue
+            let extraTime = beforeBattleAction(startBoardIndex: startBoardIndex)
+            
+            
+            delay(extraTime, task: {  //第二攻击顺序
+                let nextactionTime = self.beforeBattleAction(startBoardIndex: oppoBoardIndex)
                 delay(nextactionTime, task: {
-                    resole.fulfill(nextactionTime + actionTime)
+                    resole.fulfill(extraTime + nextactionTime)
                 })
         
             })
@@ -1797,25 +1821,27 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     func initAura() -> Promise<Double>{
         
         return Promise<Double>(resolver: { (resolver) in
-            let actionTime = 0.5
+            var actionTime:Double = 0.5
             
             
-            let curPlayerAura = playerStatues[curPlayerId].curAura
+            let curPlayerAura = playerStatues[curPlayerId].curAura //本方aura
             if curPlayerAura.contains(EnumAuraName.mountainLevel1.rawValue) { //mountain1 所有棋子获得 +2 * chesslevel / +2 * chesslevel
+                actionTime += 0.5
                 boardNode[BoardSide.allySide.rawValue].forEach{ (curChess) in
                     curChess.AddBuff(AtkNumber: 2 * curChess.chessLevel, DefNumber: 2 * curChess.chessLevel)
                 }
             } else if curPlayerAura.contains(EnumAuraName.mountainLevel1.rawValue) { //mountain1 所有棋子获得 +4 * chesslevel / +4 * chesslevel
+                actionTime += 0.5
                 boardNode[BoardSide.allySide.rawValue].forEach{ (curChess) in
                     curChess.AddBuff(AtkNumber: 4 * curChess.chessLevel, DefNumber: 4 * curChess.chessLevel)
                 }
             }
             
-            if curPlayerAura.contains(EnumAuraName.oceanLevel1.rawValue) { //ocean1 对对面所有棋子造成1点伤害
-                
-            } else if curPlayerAura.contains(EnumAuraName.oceanLevel2.rawValue) { //ocean2 对对面所有棋子造成4点伤害
-                
-            }
+//            if curPlayerAura.contains(EnumAuraName.oceanLevel1.rawValue) { //ocean1 对对面所有棋子造成1点伤害
+//
+//            } else if curPlayerAura.contains(EnumAuraName.oceanLevel2.rawValue) { //ocean2 对对面所有棋子造成4点伤害
+//
+//            }
             
             delay(actionTime, task: {
                 resolver.fulfill(actionTime)
