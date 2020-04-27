@@ -260,7 +260,6 @@ public class baseChessNode: SCNNode {
        
     }
     func getDamage(damageNumber: Int, chessBoard: inout [baseChessNode]){
-        let totalTime = 0.5
         damageNum = damageNumber
         defNum = defNum! - damageNumber
         if defNum! <= 0 {
