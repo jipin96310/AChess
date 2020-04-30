@@ -1752,62 +1752,98 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             return
         }
     }
+ 
+    
+    //recyle run promise
+    func recyclePromise(taskArr: [(practicleName:String, boardSide: Int, damageNum: Int)], curIndex: Int) -> Promise<Double>{
+       return Promise<Double>(resolver: { (res) in
+        let timeDelay:Double = 1
+        if(curIndex < taskArr.count) {
+            let curTask = taskArr[curIndex]
+            aoeDamagePromise(practicleName: curTask.practicleName, boardSide: curTask.boardSide, damageNum: curTask.damageNum).done({ _ in
+                print("task done", curIndex)
+                if(curIndex + 1 < taskArr.count) {
+                    self.recyclePromise(taskArr: taskArr, curIndex: curIndex + 1).done({ _ in
+                        res.fulfill(timeDelay)
+                    })
+                } else {
+                    res.fulfill(timeDelay)
+                }
+            }).catch({ err in
+                print("recyclePromise", err)
+            })
+        } else {
+             res.fulfill(timeDelay)
+        }
+      })
+    }
+    
+    
     
     //damage frame promise
     func aoeDamagePromise(practicleName: String, boardSide: Int, damageNum: Int) -> Promise<Double>{
         return Promise<Double>(resolver: { (res) in
              let aoeActionTime = self.eelDamageAction(practicleName: practicleName, boardSide: boardSide)
-             boardNode[boardSide].forEach{ (curChess) in
-                curChess.getDamage(damageNumber: damageNum, chessBoard: &boardNode[boardSide])
-            }
-            delay(aoeActionTime + 1, task: {
-                res.fulfill(aoeActionTime + 1)
+            delay(aoeActionTime, task: {
+                self.boardNode[boardSide].forEach{ (curChess) in
+                    curChess.getDamage(damageNumber: damageNum, chessBoard: &self.boardNode[boardSide])
+                }
+                delay(1, task: {
+                     print("aoe done!!!")
+                    res.fulfill(aoeActionTime + 1)
+                   
+                })
             })
-        })
+            })
     }
     
     
     //BeforeBattle action
-    func beforeBattleAction(startBoardIndex: Int) -> Double{
-        var actionTime:Double = 0
-        let curBoard = boardNode[startBoardIndex]
-        let oppoBoardIndex = startBoardIndex == BoardSide.enemySide.rawValue ? BoardSide.allySide.rawValue : BoardSide.enemySide.rawValue
-        var chessKindMap:[String : Int] = [:]
-        var beforeActionSequence:[SCNAction] = []
-        var funcArr:[Promise<Double>] = []
-        for innerIndex in 0 ..< curBoard.count {
-            let curChess = curBoard[innerIndex]
-            if curChess.abilities.contains(EnumAbilities.beforeAttackAoe.rawValue) { //如果有攻击前群体aoe
-                let curBaseDamage = curChess.rattleFunc[EnumKeyName.baseDamage.rawValue] ?? 1
-                funcArr.append(aoeDamagePromise(practicleName: "particals.scnassets/lightning.scnp", boardSide: oppoBoardIndex, damageNum: curBaseDamage as! Int * curChess.chessLevel))
-               
-      
-            }
-            //ocean aura map
-            if chessKindMap[curChess.chessKind] != nil {
-                chessKindMap[curChess.chessKind]! += 1
-            } else {
-                chessKindMap[curChess.chessKind] = 1
-            }
-        }
-        //calculate chess kind map
-        if let oceanNum = chessKindMap[EnumChessKind.ocean.rawValue] {
-           
-            if oceanNum >= 3 && oceanNum < 6 { //oceanlevel1
-                funcArr.append(aoeDamagePromise(practicleName: "particals.scnassets/oceanaura.scnp", boardSide: oppoBoardIndex, damageNum: 1))
+    func beforeBattleAction(startBoardIndex: Int) -> Promise<Double>{
+        return Promise<Double>(resolver: { (resole) in
+           var actionTime:Double = 0
+              let curBoard = boardNode[startBoardIndex]
+              let oppoBoardIndex = startBoardIndex == BoardSide.enemySide.rawValue ? BoardSide.allySide.rawValue : BoardSide.enemySide.rawValue
+              var chessKindMap:[String : Int] = [:]
+              var beforeActionSequence:[SCNAction] = []
+              var funcArr:[(practicleName:String, boardSide: Int, damageNum: Int)] = []
+              for innerIndex in 0 ..< curBoard.count {
+                  let curChess = curBoard[innerIndex]
+                  if curChess.abilities.contains(EnumAbilities.beforeAttackAoe.rawValue) { //如果有攻击前群体aoe
+                      let curBaseDamage = curChess.rattleFunc[EnumKeyName.baseDamage.rawValue] ?? 1
+                      funcArr.append((practicleName: "particals.scnassets/lightning.scnp", boardSide: oppoBoardIndex, damageNum: curBaseDamage as! Int * curChess.chessLevel))
+                     
+            
+                  }
+                  //ocean aura map
+                  if chessKindMap[curChess.chessKind] != nil {
+                      chessKindMap[curChess.chessKind]! += 1
+                  } else {
+                      chessKindMap[curChess.chessKind] = 1
+                  }
+              }
+              //calculate chess kind map
+              if let oceanNum = chessKindMap[EnumChessKind.ocean.rawValue] {
                  
-            } else if oceanNum > 6 { //oceanlevel2
-                funcArr.append(aoeDamagePromise(practicleName: "particals.scnassets/oceanaura.scnp", boardSide: oppoBoardIndex, damageNum: 4))
-            }
-        }
-        
-        when(fulfilled: funcArr).done({ _ in
-                           
-            }).catch({ err in
-                print(err)
+                  if oceanNum >= 3 && oceanNum < 6 { //oceanlevel1
+                      funcArr.append((practicleName: "particals.scnassets/oceanaura.scnp", boardSide: oppoBoardIndex, damageNum: 1))
+                       
+                  } else if oceanNum > 6 { //oceanlevel2
+                      funcArr.append((practicleName: "particals.scnassets/oceanaura.scnp", boardSide: oppoBoardIndex, damageNum: 4))
+                  }
+              }
+            
+            recyclePromise(taskArr: funcArr, curIndex: 0).done({ _ in
+                resole.fulfill(actionTime)
             })
-        
-        return actionTime
+//             when(fulfilled: funcArr).done({ _ in
+//                resole.fulfill(actionTime)
+//                 }).catch({ err in
+//                     print(err)
+//                 })
+
+
+        })
     }
     
     
@@ -1817,16 +1853,22 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             
             let startBoardIndex = Int.randomIntNumber(lower: 0, upper: 2)
             let oppoBoardIndex = startBoardIndex == BoardSide.enemySide.rawValue ? BoardSide.allySide.rawValue : BoardSide.enemySide.rawValue
-            let extraTime = beforeBattleAction(startBoardIndex: startBoardIndex)
+            let extraTimePromise = beforeBattleAction(startBoardIndex: startBoardIndex)
             
-            
-            delay(extraTime + 0.1, task: {  //第二攻击顺序
-                let nextactionTime = self.beforeBattleAction(startBoardIndex: oppoBoardIndex)
-                delay(nextactionTime, task: {
-                    resole.fulfill(extraTime + nextactionTime)
+            extraTimePromise.done({ actionTime in
+                self.beforeBattleAction(startBoardIndex: oppoBoardIndex).done({ secondActionTime in
+                    resole.fulfill(actionTime + secondActionTime)
                 })
-        
-            })
+                }).catch({ err in
+                    print("ininitBeforeBattle", err)
+                })
+//            delay(extraTime + 0.1, task: {  //第二攻击顺序
+//                let nextactionTime =
+//                delay(nextactionTime, task: {
+//                    resole.fulfill(extraTime + nextactionTime)
+//                })
+//
+//            })
         })
 
     }
@@ -1939,12 +1981,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         newTrackPoint.position.y = 0.5
         playerBoardNode.addChildNode(newTrackPoint)
         let trackActionSequence = [
-            SCNAction.move(to: boardNode[boardSide][boardNode[boardSide].count - 1].position, duration: 2),
+            SCNAction.move(to: boardNode[boardSide][boardNode[boardSide].count - 1].position, duration: 1),
             SCNAction.customAction(duration: 0, action: { _,_ in
                 newTrackPoint.removeFromParentNode()
             })
         ]
-        totalTime += 2
+        totalTime += 1
         newTrackPoint.runAction(SCNAction.sequence(trackActionSequence))
         }
         return totalTime
