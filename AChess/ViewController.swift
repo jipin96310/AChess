@@ -1755,12 +1755,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
  
     
     //recyle run promise
-    func recyclePromise(taskArr: [(practicleName:String, boardSide: Int, damageNum: Int)], curIndex: Int) -> Promise<Double>{
+    func recyclePromise(taskArr: [() -> (Promise<Double>)], curIndex: Int) -> Promise<Double>{
        return Promise<Double>(resolver: { (res) in
         let timeDelay:Double = 1
         if(curIndex < taskArr.count) {
             let curTask = taskArr[curIndex]
-            aoeDamagePromise(practicleName: curTask.practicleName, boardSide: curTask.boardSide, damageNum: curTask.damageNum).done({ _ in
+            curTask().done({ _ in
                 print("task done", curIndex)
                 if(curIndex + 1 < taskArr.count) {
                     self.recyclePromise(taskArr: taskArr, curIndex: curIndex + 1).done({ _ in
@@ -1806,12 +1806,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
               let oppoBoardIndex = startBoardIndex == BoardSide.enemySide.rawValue ? BoardSide.allySide.rawValue : BoardSide.enemySide.rawValue
               var chessKindMap:[String : Int] = [:]
               var beforeActionSequence:[SCNAction] = []
-              var funcArr:[(practicleName:String, boardSide: Int, damageNum: Int)] = []
+            var funcArr:[() -> (Promise<Double>)] = []
               for innerIndex in 0 ..< curBoard.count {
                   let curChess = curBoard[innerIndex]
                   if curChess.abilities.contains(EnumAbilities.beforeAttackAoe.rawValue) { //如果有攻击前群体aoe
                       let curBaseDamage = curChess.rattleFunc[EnumKeyName.baseDamage.rawValue] ?? 1
-                      funcArr.append((practicleName: "particals.scnassets/lightning.scnp", boardSide: oppoBoardIndex, damageNum: curBaseDamage as! Int * curChess.chessLevel))
+                    funcArr.append({() in
+                         return self.aoeDamagePromise(practicleName: "particals.scnassets/lightning.scnp", boardSide: oppoBoardIndex, damageNum: curBaseDamage as! Int * curChess.chessLevel)
+                        })
                      
             
                   }
@@ -1826,10 +1828,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
               if let oceanNum = chessKindMap[EnumChessKind.ocean.rawValue] {
                  
                   if oceanNum >= 3 && oceanNum < 6 { //oceanlevel1
-                      funcArr.append((practicleName: "particals.scnassets/oceanaura.scnp", boardSide: oppoBoardIndex, damageNum: 1))
+                    funcArr.append({() in
+                        return self.aoeDamagePromise(practicleName: "particals.scnassets/oceanaura.scnp", boardSide: oppoBoardIndex, damageNum: 1)
+                    })
                        
                   } else if oceanNum > 6 { //oceanlevel2
-                      funcArr.append((practicleName: "particals.scnassets/oceanaura.scnp", boardSide: oppoBoardIndex, damageNum: 4))
+                
+                    funcArr.append({() in
+                        return self.aoeDamagePromise(practicleName: "particals.scnassets/oceanaura.scnp", boardSide: oppoBoardIndex, damageNum: 4)
+                    })
+                        
                   }
               }
             
