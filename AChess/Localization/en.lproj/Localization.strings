@@ -42,6 +42,7 @@
 "ChooseAKind" = "Chess kind can be chosen."; //选择一个种族
 "LessBloodEliminated" = "This chess will eliminated any attacker which has less blood.";
 "AllInheritMax" = "All allies' inheritance skill will be max level.";
+"CustomValue" = "This chess costs <value> coin(s).";
 //以下为卡牌类型
 "Mountain" = "Mountain"; //山
 "Ocean" = "Ocean"; //海洋
@@ -92,7 +93,29 @@
 "SeaTurtle" = "Sea Turtle"; //海龟
 "Salamander" = "Giant Salamander"; //大鲵
 "ElectricEel" = "Electric Eel"; //电鳗
-
+/*plain*/
+"Flickertail" = "Flickertail"; //金花鼠
+"Duck" = "Duck"; //鸭子
+"Rooster" = "Rooster"; //公鸡
+"Hen" = "Hen"; //母鸡
+"Marmot" = "Marmot"; //土拨鼠
+"Weasel" = "Weasel"; //黄鼠狼
+"Mouse" = "Mouse"; //老鼠
+"TigerFrog" = "Tiger Frog";  // 虎纹蛙
+"Dog" = "Dog"; //家狗
+"WildCar" = "Wild Car";  //野猫
+"Sheep" = "Sheep"; //绵羊
+"Bat" = "Bat"; //蝙蝠
+"Buffalo" = "Buffalo"; //野牛
+"Baboon" = "Baboon"; //狒狒
+"Cheetah" = "Cheetah"; //猎豹
+"Giraffe" = "Giraffe"; //长颈鹿
+"Rhinoceros" = "Rhinoceros"; //犀牛
+"KingCobra" = "King Cobra"; //王蛇
+"Lion" = "Lion"; //狮子
+"Vegetarian" = "Vegetarian"; //素食主义者
+"Scientist" = "Scientist"; //科学家
+"MartialArtist" = "Martial Artist";//武术家
 //below is chess aura name
 "MountainLevel1" = "Mountains & Hills";
 "MountainLevel2" = "Cries of Dragons";

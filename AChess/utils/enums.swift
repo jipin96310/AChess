@@ -87,6 +87,7 @@ enum EnumAbilities: String {
     case beforeAttackAoe = "BeforeAttackAoe" //攻击前对敌方全体造成aoe伤害
     case lessBloodEliminated = "LessBloodEliminated" //血量小于则被直接击杀
     case allInheritMax = "AllInheritMax" //所有传承效果为满级
+    case customValue = "CustomValue" //自定义价值
 }
 //public let EnumAbiNumToName: [Int:String] =
 //    [0: "",
@@ -120,6 +121,7 @@ enum EnumKeyName: Int {
     case baseRarity = 6
     case abilityKind = 7 //能力类型
     case isSelf = 8 //是否作用与自己
+    case customValue = 9 //自定义数字
 }
 
 //棋子名字
@@ -167,6 +169,29 @@ enum EnumChessName: String {
     case seaTurtle = "SeaTurtle"; //海龟
     case salamander = "Salamander"; //大鲵
     case electricEel = "ElectricEel"; //电鳗
+    /*plain*/
+    case flickertail = "Flickertail"; //金花鼠
+    case duck = "Duck"; //鸭子
+    case rooster = "Rooster"; //公鸡
+    case hen = "Hen"; //母鸡
+    case marmot = "Marmot"; //土拨鼠
+    case weasel = "Weasel"; //黄鼠狼
+    case mouse = "Mouse"; //老鼠
+    case tigerFrog = "TigerFrog"; // 虎纹蛙
+    case dog = "Dog"; //家狗
+    case wildCat = "WildCar"; //野猫
+    case sheep = "Sheep"; //绵羊
+    case bat = "Bat"; //蝙蝠
+    case buffalo = "Buffalo"; //野牛
+    case baboon = "Baboon"; //狒狒
+    case cheetah = "Cheetah"; //猎豹
+    case giraffe = "Giraffe"; //长颈鹿
+    case rhinoceros = "Rhinoceros"; //犀牛
+    case kingCobra = "KingCobra"; //王蛇
+    case lion = "Lion"; //狮子
+    case vegetarian = "Vegetarian"; //素食主义者
+    case scientist = "Scientist"; //科学家
+    case martialArtist = "MartialArtist";//武术家
     
 }
 //光环名称

@@ -142,7 +142,8 @@ public class baseChessNode: SCNNode {
         if let priceLabelNode = curNode.childNode(withName: "priceLabel", recursively: true) {
             priceTextNode.position = SCNVector3(-0.005, -0.01 , 0.1)
             // init price by chess level ,should after priceLabelNode created
-            chessPrice = (chessRarity / 2) + 3
+            initChessPrice()
+            
             priceTextNode.string = String(chessPrice)
             priceLabelNode.addChildNode(priceTextNode)
         }
@@ -175,13 +176,15 @@ public class baseChessNode: SCNNode {
         chessRarity = chessInfo.chessRarity!
         chessLevel = chessInfo.chessLevel!
         changeStarLabel()
-        chessPrice = (chessRarity / 2) + 2
-        priceTextNode.string = String(chessPrice)
+        
         chessKind = chessInfo.chessKind
         abilities = chessInfo.abilities
         temporaryBuff = chessInfo.temporaryBuff
         rattleFunc = chessInfo.rattleFunc
         inheritFunc = chessInfo.inheritFunc
+        //price
+        initChessPrice()
+        priceTextNode.string = String(chessPrice)
         if let sideNode = self.childNode(withName: "side", recursively: true) { //control the side color/image
             sideNode.geometry?.firstMaterial?.diffuse.contents = chessColorRarity[chessRarity]!
         }
@@ -451,6 +454,20 @@ public class baseChessNode: SCNNode {
       
        if let sideNode = self.childNode(withName: "side", recursively: true) {
            sideNode.geometry?.firstMaterial?.diffuse.contents = chessColorRarity[chessRarity]
+        }
+    }
+    func initChessPrice() {
+        if abilities.contains(EnumAbilities.customValue.rawValue) {
+            
+            if case let curValue as Int = rattleFunc[EnumKeyName.customValue.rawValue]{
+                chessPrice = curValue
+            } else {
+                chessPrice = 1
+            }
+         
+            
+        } else {
+           chessPrice = (chessRarity / 2) + 3
         }
     }
     

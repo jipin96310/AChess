@@ -214,7 +214,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                     }
                                 }
                                 if erasedChess.abilities.contains(EnumAbilities.inheritSummonSth.rawValue) {
-                                    if case let curRattleChess as [chessStruct] = erasedChess.inheritFunc[EnumKeyName.summonChess.rawValue] {
+                                    if case var curRattleChess as [chessStruct] = erasedChess.inheritFunc[EnumKeyName.summonChess.rawValue] {
+                                        
+                                        if erasedChess.chessName == EnumChessName.mouse.rawValue && curRattleChess.count > 0 { //老鼠特殊处理
+                                            let randomNum = Int.randomIntNumber(lower: 1, upper: 5)
+                                            let newSummonArr = Array(repeating: curRattleChess[0], count: randomNum)
+                                            curRattleChess = newSummonArr
+                                        }
+                                        
+                                        
                                         
                                         erasedChess.abilityTrigger(abilityEnum: EnumAbilities.inheritAddBuff.rawValue.localized)
                                         for index in 0 ..< curRattleChess.count { //appendnewnode里会计算数量 多余的棋子会被砍掉
