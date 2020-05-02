@@ -1120,7 +1120,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             if curBoardSide == BoardSide.allySide.rawValue {
                 curAddChess.chessStatus = EnumsChessStage.owned.rawValue
                 //if newNode.abilities.contains(EnumAbilities.bait.rawValue) {
-                    var hasSummonAbility:[String : Int] = [:]
+                           var hasSummonAbility:[String : Int] = [:]
                            boardNode[BoardSide.allySide.rawValue].forEach{(curChess) in
                                if (curChess.abilities.contains(EnumAbilities.summonChessAddMountainBuff.rawValue)) {
                                    if hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue] != nil {
@@ -1129,6 +1129,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                        hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue] = curChess.chessLevel
                                    }
                                }
+                                if (curChess.abilities.contains(EnumAbilities.summonChessAddSelfBuff.rawValue)) {
+                                    if case let curKindArr as [String] = curChess.rattleFunc[EnumKeyName.baseKind.rawValue] {
+                                        if curKindArr.contains(curAddChess.chessKind) {
+                                            let curBaseAtt = curChess.rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
+                                            let curBaseDef = curChess.rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
+                                            curChess.AddBuff(AtkNumber: curBaseAtt as! Int * curChess.chessLevel, DefNumber: curBaseDef as! Int * curChess.chessLevel)
+                                        }
+                                    }
+                                }
                            }
                            if hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue] != nil && hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue]! > 0 {
                                boardNode[BoardSide.allySide.rawValue].forEach{(curChess) in
@@ -1138,9 +1147,28 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                    
                                }
                            }
-                //}
+                         
+                //
+                if curAddChess.abilities.contains(EnumAbilities.afterSummonAdjecentAddBuff.rawValue) {
+                    if curAddChess.chessName == EnumChessName.baboon.rawValue { //狒狒专属
+                        if let curIndex = curInsertIndex {
+                            let leftIndex = curIndex - 1
+                            let rightIndex = curIndex + 1
+                            if leftIndex > 0 && leftIndex < boardNode[curBoardSide].count {
+                                boardNode[curBoardSide][leftIndex].AddBuff(AtkNumber: curAddChess.chessLevel * 2, DefNumber: curAddChess.chessLevel * 2)
+                            }
+                            if rightIndex > 0 && rightIndex < boardNode[curBoardSide].count {
+                                boardNode[curBoardSide][rightIndex].AddBilities(Abilities: [EnumAbilities.bait.rawValue])
+                            }
+                        } else { //append
+                            boardNode[curBoardSide].last?.AddBuff(AtkNumber: curAddChess.chessLevel * 2, DefNumber: curAddChess.chessLevel * 2)
+                        }
+                    }
+                }
             }
         }
+        
+        
         
         if let curIndex = curInsertIndex {
             if(boardNode[curBoardSide].count < GlobalCommonNumber.chessNumber) {
