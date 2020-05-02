@@ -32,6 +32,7 @@
 "ChooseAnChess" = "请选择一个棋子.";
 "ChooseAnOption" = "请选择一个选项.";
 "InstantRandomAddBuff"      = "瞬发: 给予 <num> [kind] 随机队友 +<att>/+<def>";
+"InstantReduceBuff" = "瞬发: 每拥有一个其他友方棋子，使得这个棋子获得 -1/-1 .";
 //summon
 "SummonChessAddMountainBuff" = "在你召唤一个具有诱饵的棋子后，给予所有山川棋子 +<att>/ +<def>.";
 //after eliminated
@@ -39,10 +40,12 @@
 "AfterEliminatedAddAbilities" = "在一个[kind]棋子被消灭后，获得 <abi>";
 //before attack
 "BeforeAttackAoe" = "在战斗开始之前，对全体敌人造成<dam>伤害";
+"AfterAttackAoe" = "在一次攻击之后，对全体敌人造成<dam>伤害.";
 "ChooseAKind" = "棋子的种类可以被选择"; //选择一个种族"
 "LessBloodEliminated" = "受到攻击时，消灭血量低于这个棋子的攻击者.";
 "AllInheritMax" = "所有友方棋子的传承效果为满级.";
 "CustomValue" = "这个棋子花费 <value> 金币.";
+"CustomSellValue" = "这个棋子的出售价格为 <value> 金币.";
 //以下为卡牌类型
 "Mountain" = "山川"; //山
 "Ocean" = "海洋"; //海洋
@@ -102,7 +105,7 @@
 "Mouse" = "老鼠"; //老鼠
 "TigerFrog" = "虎纹蛙";  // 虎纹蛙
 "Dog" = "家狗"; //家狗
-"WildCar" = "野猫";  //野猫
+"WildCat" = "野猫";  //野猫
 "Sheep" = "绵羊"; //绵羊
 "Bat" = "蝙蝠"; //蝙蝠
 "Buffalo" = "野牛"; //野牛

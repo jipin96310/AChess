@@ -78,6 +78,7 @@ enum EnumAbilities: String {
     case immunePoison = "ImmunePoison" //免疫剧毒
     case instantSummonSth = "InstantSummonSth" //战吼召唤生物
     case instantRandomAddBuff = "InstantRandomAddBuff" //战吼随机加buff
+    case instantReduceBuff = "InstantReduceBuff" //战吼减buff
     //summon case
     case summonChessAddMountainBuff = "SummonChessAddMountainBuff" //熊猫专属技能 无需适配扩展性
     //attack case
@@ -85,9 +86,11 @@ enum EnumAbilities: String {
     case afterEliminatedAddAbilities = "AfterEliminatedAddAbilities" //生物被消灭后addAbilities
     case chooseAKind = "ChooseAKind" //选择一个种族
     case beforeAttackAoe = "BeforeAttackAoe" //攻击前对敌方全体造成aoe伤害
+    case afterAttackAoe = "AfterAttackAoe" //攻击后对所有敌方全体造成aoe伤害
     case lessBloodEliminated = "LessBloodEliminated" //血量小于则被直接击杀
     case allInheritMax = "AllInheritMax" //所有传承效果为满级
     case customValue = "CustomValue" //自定义价值
+    case customSellValue = "CustomSellValue" //自定义出售价格
 }
 //public let EnumAbiNumToName: [Int:String] =
 //    [0: "",
@@ -179,7 +182,7 @@ enum EnumChessName: String {
     case mouse = "Mouse"; //老鼠
     case tigerFrog = "TigerFrog"; // 虎纹蛙
     case dog = "Dog"; //家狗
-    case wildCat = "WildCar"; //野猫
+    case wildCat = "WildCat"; //野猫
     case sheep = "Sheep"; //绵羊
     case bat = "Bat"; //蝙蝠
     case buffalo = "Buffalo"; //野牛

@@ -30,19 +30,22 @@
 "InstantDestroyAllyGainBuff" = "Instant: Destroy one friend chess and gain its attack and life.";
 "InstantRandomAddBuff"      = "Instant: Give <num> [kind] random allies +<att>/+<def>";
 "InstantSummonSth" = "Instant：Summon [chesses].";
+"InstantReduceBuff" = "Instant: This chess gains -1/-1 for each of your other chesses.";
 "ChooseAnChess" = "Please choose an chess.";
 "ChooseAnOption" = "Please choose an option.";
 //summon
-"SummonChessAddMountainBuff" = "Give All mountain chesses +<att>/ +<def> after summon a chess with bait.";
+"SummonChessAddMountainBuff" = "Give All mountain chesses +<att>/+<def> after summon a chess with bait.";
 //after eliminated
 "AfterEliminatedAddBuff" = "After a [kind] chess been elminated gain +<att>/ +<def>";
 "AfterEliminatedAddAbilities" = "After a [cKind] chess been elminated, gain [aKind]";
 //before attack
-"BeforeAttackAoe" = "Deal <dam> damage to all the enemies before battle.";
+"BeforeAttackAoe" = "Deal <dam> damage to all the enemies before battle begins.";
+"AfterAttackAoe" = "Deal <dam> damage to all the enemies after an attacking.";
 "ChooseAKind" = "Chess kind can be chosen."; //选择一个种族
 "LessBloodEliminated" = "This chess will eliminated any attacker which has less blood.";
 "AllInheritMax" = "All allies' inheritance skill will be max level.";
 "CustomValue" = "This chess costs <value> coin(s).";
+"CustomSellValue" = "Sell this chess can get <value> coin(s).";
 //以下为卡牌类型
 "Mountain" = "Mountain"; //山
 "Ocean" = "Ocean"; //海洋
@@ -103,7 +106,7 @@
 "Mouse" = "Mouse"; //老鼠
 "TigerFrog" = "Tiger Frog";  // 虎纹蛙
 "Dog" = "Dog"; //家狗
-"WildCar" = "Wild Car";  //野猫
+"WildCat" = "Wild Cat";  //野猫
 "Sheep" = "Sheep"; //绵羊
 "Bat" = "Bat"; //蝙蝠
 "Buffalo" = "Buffalo"; //野牛

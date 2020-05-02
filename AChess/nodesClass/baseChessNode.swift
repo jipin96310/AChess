@@ -245,16 +245,25 @@ public class baseChessNode: SCNNode {
             SCNAction.fadeOut(duration: 0.3)
         ]))
     }
-    func AddBuff(AtkNumber: Int?, DefNumber: Int?) {
+    func AddBuff(AtkNumber: Int?, DefNumber: Int?) {      
         if let attAddNum = AtkNumber {
-           atkNum! += attAddNum
+            if attAddNum + atkNum! <= 0{
+                atkNum = 1
+            } else {
+                atkNum! += attAddNum
+            }
+           
             atkTextNode.runAction(SCNAction.sequence([
                 SCNAction.scale(by: 2, duration: 0.5),
                 SCNAction.scale(by: 0.5, duration: 0.5)
             ]))
         }
         if let defAddNum = DefNumber {
-            defNum! += defAddNum
+            if defAddNum + defNum! <= 0{
+                defNum = 1
+            } else {
+                defNum! += defAddNum
+            }
             defTextNode.runAction(SCNAction.sequence([
                 SCNAction.scale(by: 2, duration: 0.5),
                 SCNAction.scale(by: 0.5, duration: 0.5)
