@@ -675,6 +675,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                             }
                                             
                                             
+                                        } else if curDragPoint!.abilities.contains(EnumAbilities.instantReduceBuff.rawValue) {
+                                            let curBaseAtt = curDragPoint!.rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
+                                            let curBaseDef = curDragPoint!.rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
+                                            curDragPoint!.AddBuff(AtkNumber: (curBaseAtt as! Int) * boardNode[BoardSide.allySide.rawValue].count, DefNumber: (curBaseDef as! Int) * boardNode[BoardSide.allySide.rawValue].count)
+                                            
+                                            
                                         }
                                         
                                         //将curdragpoint放进去
@@ -1021,7 +1027,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
     /*出售棋子*/
     func sellChess(playerID: Int, curChess: baseChessNode, curBoardSide: Int) {
-        playerStatues[playerID].curCoin += curChess.chessPrice
+        if curChess.abilities.contains(EnumAbilities.customSellValue.rawValue) {
+            if case let curValue as Int = curChess.rattleFunc[EnumKeyName.customValue.rawValue]{
+                playerStatues[playerID].curCoin += curValue
+            } else {
+                playerStatues[playerID].curCoin += 1
+            }
+        } else {
+            playerStatues[playerID].curCoin += 1
+        }
         curChess.removeFromParentNode()
         
     }
