@@ -729,10 +729,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                             appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curAddChesses: [curDragPoint!], curInsertIndex: nil)
                                         } else {
                                             appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curAddChesses: [curDragPoint!], curInsertIndex: curInsertIndex)
-                                        }
-                                        
-                                        
-                                        
+                                        }                                     
                                         
 //                                        if curInsertIndex == -1 || curInsertIndex - (GlobalCommonNumber.chessNumber / 2) >= boardNode[BoardSide.allySide.rawValue].count {
 //                                              appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curAddChesses: [curDragPoint!], curInsertIndex: nil)
@@ -1844,11 +1841,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     //BeforeBattle action
     func beforeBattleAction(startBoardIndex: Int) -> Promise<Double>{
         return Promise<Double>(resolver: { (resole) in
-           var actionTime:Double = 0
-              let curBoard = boardNode[startBoardIndex]
-              let oppoBoardIndex = startBoardIndex == BoardSide.enemySide.rawValue ? BoardSide.allySide.rawValue : BoardSide.enemySide.rawValue
-              var chessKindMap:[String : Int] = [:]
-              var beforeActionSequence:[SCNAction] = []
+            var actionTime:Double = 0
+            var hasStealAura = false //是否有偷取光环的手段
+            let curBoard = boardNode[startBoardIndex]
+            let oppoBoardIndex = startBoardIndex == BoardSide.enemySide.rawValue ? BoardSide.allySide.rawValue : BoardSide.enemySide.rawValue
+            var chessKindMap:[String : Int] = [:]
+            var beforeActionSequence:[SCNAction] = []
             var funcArr:[() -> (Promise<Double>)] = []
               for innerIndex in 0 ..< curBoard.count {
                   let curChess = curBoard[innerIndex]
@@ -1860,6 +1858,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                      
             
                   }
+                  if curChess.abilities.contains(EnumAbilities.stealAura.rawValue) { //偷取光环
+                    //curChess.abilityTrigger(abilityEnum: EnumAbilities.stealAura.rawValue.localized)
+                    hasStealAura = true
+                   }
                   //ocean aura map
                   if chessKindMap[curChess.chessKind] != nil {
                       chessKindMap[curChess.chessKind]! += 1
@@ -1867,22 +1869,53 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                       chessKindMap[curChess.chessKind] = 1
                   }
               }
+             //如果有偷取光环的话
+            var oppoChessKindMap:[String : Int] = [:]
+            if (hasStealAura) {
+                for innerIndex in 0 ..< boardNode[oppoBoardIndex].count {
+                      let curChess = boardNode[oppoBoardIndex][innerIndex]
+                      //ocean aura map
+                      if oppoChessKindMap[curChess.chessKind] != nil {
+                          oppoChessKindMap[curChess.chessKind]! += 1
+                      } else {
+                          oppoChessKindMap[curChess.chessKind] = 1
+                      }
+                  }
+            }
               //calculate chess kind map
               if let oceanNum = chessKindMap[EnumChessKind.ocean.rawValue] {
-                 
+                  let oppoOceanNum = oppoChessKindMap[EnumChessKind.ocean.rawValue] ?? 0
                   if oceanNum >= 3 && oceanNum < 6 { //oceanlevel1
-                    funcArr.append({() in
-                        return self.aoeDamagePromise(practicleName: "particals.scnassets/oceanaura.scnp", boardSide: oppoBoardIndex, damageNum: 1)
-                    })
-                       
+                    if oppoOceanNum > 6 { //如果偷取的光环效果更好就用偷取的
+                        funcArr.append({() in
+                            return self.aoeDamagePromise(practicleName: "particals.scnassets/oceanaura.scnp", boardSide: oppoBoardIndex, damageNum: 4)
+                        })
+                    } else {
+                        funcArr.append({() in
+                            return self.aoeDamagePromise(practicleName: "particals.scnassets/oceanaura.scnp", boardSide: oppoBoardIndex, damageNum: 1)
+                        })
+                    }
                   } else if oceanNum > 6 { //oceanlevel2
-                
                     funcArr.append({() in
                         return self.aoeDamagePromise(practicleName: "particals.scnassets/oceanaura.scnp", boardSide: oppoBoardIndex, damageNum: 4)
                     })
                         
                   }
+              } else {
+                let oppoOceanNum = oppoChessKindMap[EnumChessKind.ocean.rawValue] ?? 0
+                if oppoOceanNum >= 3 && oppoOceanNum < 6 { //oceanlevel1
+                  funcArr.append({() in
+                      return self.aoeDamagePromise(practicleName: "particals.scnassets/oceanaura.scnp", boardSide: oppoBoardIndex, damageNum: 1)
+                  })
+                } else if oppoOceanNum > 6 { //oceanlevel2
+                  funcArr.append({() in
+                      return self.aoeDamagePromise(practicleName: "particals.scnassets/oceanaura.scnp", boardSide: oppoBoardIndex, damageNum: 4)
+                  })
+                      
+                }
               }
+           
+              
             
             recyclePromise(taskArr: funcArr, curIndex: 0).done({ _ in
                 resole.fulfill(actionTime)
@@ -1913,30 +1946,58 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 }).catch({ err in
                     print("ininitBeforeBattle", err)
                 })
-//            delay(extraTime + 0.1, task: {  //第二攻击顺序
-//                let nextactionTime =
-//                delay(nextactionTime, task: {
-//                    resole.fulfill(extraTime + nextactionTime)
-//                })
-//
-//            })
         })
 
     }
+    
+    func initEnemyAura() -> Promise<Double>{
+        return Promise<Double>(resolver: {(resolver) in
+            var actionTime:Double = 0
+            var chessKindMap:[String:Int] = [:]
+            boardNode[BoardSide.enemySide.rawValue].forEach({(curChess) in
+                if chessKindMap[curChess.chessKind] != nil {
+                    chessKindMap[curChess.chessKind]! += 1
+                } else {
+                    chessKindMap[curChess.chessKind] = 1
+                }
+            })
+            //
+            if let mountainNum = chessKindMap[EnumChessKind.mountain.rawValue] {
+                actionTime += 0.5
+                if mountainNum >= 3 && mountainNum < 6 {
+                    boardNode[BoardSide.enemySide.rawValue].forEach{ (curChess) in
+                        curChess.AddBuff(AtkNumber: 2 * curChess.chessLevel, DefNumber: 2 * curChess.chessLevel)
+                    }
+                } else if mountainNum > 6 {
+                    boardNode[BoardSide.enemySide.rawValue].forEach{ (curChess) in
+                        curChess.AddBuff(AtkNumber: 2 * curChess.chessLevel, DefNumber: 2 * curChess.chessLevel)
+                    }
+                }
+            }
+            if let oceanNum = chessKindMap[EnumChessKind.ocean.rawValue] {
+                if oceanNum >= 3 && oceanNum < 6 { //oceanLevel1
+                    playerStatues[curEnemyId].curAura.append(EnumAuraName.oceanLevel1.rawValue)
+                } else if oceanNum > 6 { //oceanLevel2
+                    playerStatues[curEnemyId].curAura.append(EnumAuraName.oceanLevel2.rawValue)
+                }
+            }
+            
+        })
+    }
+    
+    
     /*初始化光环*/
     func initAura() -> Promise<Double>{
         
         return Promise<Double>(resolver: { (resolver) in
             var actionTime:Double = 0.5
-            
-            
             let curPlayerAura = playerStatues[curPlayerId].curAura //本方aura
             if curPlayerAura.contains(EnumAuraName.mountainLevel1.rawValue) { //mountain1 所有棋子获得 +2 * chesslevel / +2 * chesslevel
                 actionTime += 0.5
                 boardNode[BoardSide.allySide.rawValue].forEach{ (curChess) in
                     curChess.AddBuff(AtkNumber: 2 * curChess.chessLevel, DefNumber: 2 * curChess.chessLevel)
                 }
-            } else if curPlayerAura.contains(EnumAuraName.mountainLevel1.rawValue) { //mountain1 所有棋子获得 +4 * chesslevel / +4 * chesslevel
+            } else if curPlayerAura.contains(EnumAuraName.mountainLevel2.rawValue) { //mountain1 所有棋子获得 +4 * chesslevel / +4 * chesslevel
                 actionTime += 0.5
                 boardNode[BoardSide.allySide.rawValue].forEach{ (curChess) in
                     curChess.AddBuff(AtkNumber: 4 * curChess.chessLevel, DefNumber: 4 * curChess.chessLevel)
