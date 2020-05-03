@@ -34,6 +34,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     
     var handPoint = SCNNode() // use for mode1 with hand
     var referencePoint = SCNNode() // use for mode0 with touching on screen
+    var tempTransParentNode = baseChessNode()
     
     var curDragPoint: baseChessNode? = nil
     var curChoosePoint: baseChessNode? = nil
@@ -328,6 +329,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         let configuration = ARWorldTrackingConfiguration()
         configuration.planeDetection = .horizontal
         
+        //hide the transparent ndoe
+        tempTransParentNode.isHidden = true
+        
+        
         //tap gesture added
         longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action:  #selector(onLongPress))
         tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onTap))
@@ -461,13 +466,43 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     } else if curPressNode.name == EnumNodeName.enemyBoard.rawValue {
                         curPressNode.geometry?.firstMaterial?.diffuse.contents = UIColor.red
                     } else {
-                       recoverBoardColor()
+                        if let curPressParent = findChessRootNode(curPressNode) { //按到棋子上了
+                            if let curIndexArr = findChessPos(curPressParent) {
+                                if let curTransPos = findChessPos(tempTransParentNode) { //找得到就不插入 直接改位置
+                                    if curTransPos[0] != 2 {
+                                        boardNode[curTransPos[0]].remove(at: curTransPos[1])
+                                    } else {
+                                        storageNode.remove(at: curTransPos[1])
+                                    }
+                                    
+                                }
+                                
+                                if curIndexArr[0] == 2 { //storageNode
+                                    if boardNode[curIndexArr[0]].count < GlobalCommonNumber.storageNumber {
+                                        storageNode.insert(tempTransParentNode, at: curIndexArr[1])
+                                    }
+                                } else {
+                                    if boardNode[curIndexArr[0]].count < GlobalCommonNumber.chessNumber {
+                                        boardNode[curIndexArr[0]].insert(tempTransParentNode, at: curIndexArr[1])
+                                    }
+                                }
+                                
+                                
+                            }
+                            
+                        } else {
+                            recoverBoardColor()
+                        }
+                        
                     }
                 }
             }
         } else if sender.state == .ended
         {
+            let curTransPos = findChessPos(tempTransParentNode) //记录之前透明球体位置
+            //
             recoverBoardColor() //放置动作结束 恢复board颜色
+            referencePoint.isHidden = true
             //
             let touchLocation = sender.location(in: sceneView)
             let hitTestResult = sceneView.hitTest(touchLocation, options: [SCNHitTestOption.ignoreHiddenNodes: true, SCNHitTestOption.rootNode: playerBoardNode]) //用于检测触摸的node
@@ -681,15 +716,29 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                             curDragPoint!.AddBuff(AtkNumber: (curBaseAtt as! Int) * boardNode[BoardSide.allySide.rawValue].count, DefNumber: (curBaseDef as! Int) * boardNode[BoardSide.allySide.rawValue].count)
                                             
                                         }
-                                        
-                                        //将curdragpoint放进去
-                                        let curInsertIndex = calInsertPos(curBoardSide: BoardSide.allySide.rawValue, positionOfBoard: curPressLocation)
-                                        
-                                        if curInsertIndex == -1 || curInsertIndex - (GlobalCommonNumber.chessNumber / 2) >= boardNode[BoardSide.allySide.rawValue].count {
-                                              appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curAddChesses: [curDragPoint!], curInsertIndex: nil)
+                                        var curInsertIndex:Int? = nil
+                                        //将curdragpoint放进去  计算当前落点相对于的距离
+                                        if curTransPos != nil && curTransPos![0] == BoardSide.allySide.rawValue {
+                                            curInsertIndex = curTransPos![1]
                                         } else {
-                                            appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curAddChesses: [curDragPoint!], curInsertIndex: 0)
+                                            let curInsertIndex = calInsertPos(curBoardSide: BoardSide.allySide.rawValue, positionOfBoard: curPressLocation)
+                                            
                                         }
+
+                                        if curInsertIndex == nil || curInsertIndex! < 0 || curInsertIndex! >= boardNode[BoardSide.allySide.rawValue].count {
+                                            appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curAddChesses: [curDragPoint!], curInsertIndex: nil)
+                                        } else {
+                                            appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curAddChesses: [curDragPoint!], curInsertIndex: curInsertIndex)
+                                        }
+                                        
+                                        
+                                        
+                                        
+//                                        if curInsertIndex == -1 || curInsertIndex - (GlobalCommonNumber.chessNumber / 2) >= boardNode[BoardSide.allySide.rawValue].count {
+//                                              appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curAddChesses: [curDragPoint!], curInsertIndex: nil)
+//                                        } else {
+//                                            appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curAddChesses: [curDragPoint!], curInsertIndex: 0)
+//                                        }
                                         
                                         
                                         //updateWholeBoardPosition()
@@ -759,7 +808,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             if let saleStage = playerBoardNode.childNode(withName: EnumNodeName.saleStage.rawValue, recursively: true) {
                 saleStage.geometry?.firstMaterial?.diffuse.contents = UIColor.black
             }
-            referencePoint.isHidden = true
+           
            
             //curDragPoint = nil
         }
@@ -1086,6 +1135,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                        
     }
     func calInsertPos(curBoardSide:Int, positionOfBoard: SCNVector3) -> Int{ //return 插入的index 如果是在最后一个棋子后面 就返回-1
+        
+      
+
+        
         let curX = positionOfBoard.x - playerBoardNode.position.x
         
         var insertIndex = -1
@@ -1168,7 +1221,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
         }
         
-        
+       
         
         if let curIndex = curInsertIndex {
             if(boardNode[curBoardSide].count < GlobalCommonNumber.chessNumber) {
@@ -1225,6 +1278,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         }
     }
     func recoverBoardColor() {
+        
+        if let transPos = findChessPos(tempTransParentNode) {
+            if transPos[0] != 2 {
+                boardNode[transPos[0]].remove(at: transPos[1])
+            } else {
+                storageNode.remove(at: transPos[1])
+            }
+        }
+        
         if let saleStage = playerBoardNode.childNode(withName: EnumNodeName.saleStage.rawValue, recursively: true) {
             saleStage.geometry?.firstMaterial?.diffuse.contents = UIColor.black
         }
