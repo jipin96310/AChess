@@ -81,6 +81,8 @@ enum EnumAbilities: String {
     case instantReduceBuff = "InstantReduceBuff" //战吼减buff
     //summon case
     case summonChessAddMountainBuff = "SummonChessAddMountainBuff" //熊猫专属技能 无需适配扩展性
+    case summonChessAddSelfBuff = "SummonChessAddSelfBuff" //召唤棋子增加自身buff 当前野牛专用 不扩展
+    case afterSummonAdjecentAddBuff = "AfterSummonAdjecentAddBuff" //使两边棋子获得效果 狒狒暂时专属
     //attack case
     case afterEliminatedAddBuff = "AfterEliminatedAddBuff" //生物被消灭后addbuff
     case afterEliminatedAddAbilities = "AfterEliminatedAddAbilities" //生物被消灭后addAbilities
@@ -91,6 +93,7 @@ enum EnumAbilities: String {
     case allInheritMax = "AllInheritMax" //所有传承效果为满级
     case customValue = "CustomValue" //自定义价值
     case customSellValue = "CustomSellValue" //自定义出售价格
+    case stealAura = "StealAura" //获得偷取aura
 }
 //public let EnumAbiNumToName: [Int:String] =
 //    [0: "",

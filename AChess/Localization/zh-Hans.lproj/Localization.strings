@@ -35,6 +35,8 @@
 "InstantReduceBuff" = "瞬发: 每拥有一个其他友方棋子，使得这个棋子获得 -1/-1 .";
 //summon
 "SummonChessAddMountainBuff" = "在你召唤一个具有诱饵的棋子后，给予所有山川棋子 +<att>/ +<def>.";
+"SummonChessAddSelfBuff" = "获得 +<att>/+<def> 在你召唤一个 <kind> 棋子后.";
+"AfterSummonAdjecentAddBuff" = "给予左边棋子 +<att>/+<def>, 使右边棋子获得诱饵.";
 //after eliminated
 "AfterEliminatedAddBuff" = "在一个[kind]棋子被消灭后 +<att>/ +<def>";
 "AfterEliminatedAddAbilities" = "在一个[kind]棋子被消灭后，获得 <abi>";
@@ -46,6 +48,7 @@
 "AllInheritMax" = "所有友方棋子的传承效果为满级.";
 "CustomValue" = "这个棋子花费 <value> 金币.";
 "CustomSellValue" = "这个棋子的出售价格为 <value> 金币.";
+"StealAura" = "偷取你的对手的光环."
 //以下为卡牌类型
 "Mountain" = "山川"; //山
 "Ocean" = "海洋"; //海洋

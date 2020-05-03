@@ -35,9 +35,11 @@
 "ChooseAnOption" = "Please choose an option.";
 //summon
 "SummonChessAddMountainBuff" = "Give All mountain chesses +<att>/+<def> after summon a chess with bait.";
+"SummonChessAddSelfBuff" = "Gain +<att>/+<def> after your summon a <kind> chess.";
 //after eliminated
 "AfterEliminatedAddBuff" = "After a [kind] chess been elminated gain +<att>/ +<def>";
 "AfterEliminatedAddAbilities" = "After a [cKind] chess been elminated, gain [aKind]";
+"AfterSummonAdjecentAddBuff" = "Give the left chess +<att>/+<def>, give the right chess bait.";
 //before attack
 "BeforeAttackAoe" = "Deal <dam> damage to all the enemies before battle begins.";
 "AfterAttackAoe" = "Deal <dam> damage to all the enemies after an attacking.";
@@ -46,6 +48,7 @@
 "AllInheritMax" = "All allies' inheritance skill will be max level.";
 "CustomValue" = "This chess costs <value> coin(s).";
 "CustomSellValue" = "Sell this chess can get <value> coin(s).";
+"StealAura" = "Steal your opponent's aura."
 //以下为卡牌类型
 "Mountain" = "Mountain"; //山
 "Ocean" = "Ocean"; //海洋

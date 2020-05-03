@@ -1954,6 +1954,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         return Promise<Double>(resolver: {(resolver) in
             var actionTime:Double = 0
             var chessKindMap:[String:Int] = [:]
+            playerStatues[curEnemyId].curAura = []
             boardNode[BoardSide.enemySide.rawValue].forEach({(curChess) in
                 if chessKindMap[curChess.chessKind] != nil {
                     chessKindMap[curChess.chessKind]! += 1
@@ -1992,10 +1993,43 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         return Promise<Double>(resolver: { (resolver) in
             var actionTime:Double = 0.5
             let curPlayerAura = playerStatues[curPlayerId].curAura //本方aura
+            var hasStealAura = false
+            
+            boardNode[BoardSide.allySide.rawValue].forEach{ (curChess) in
+                if curChess.abilities.contains(EnumAbilities.stealAura.rawValue) { //有偷aura技能
+                    curChess.abilityTrigger(abilityEnum: EnumAbilities.stealAura.rawValue)
+                   hasStealAura = true
+                }
+            }
+            
+            var oppoChessKindMap:[String:Int] = [:]
+            
+            if hasStealAura {
+                boardNode[BoardSide.enemySide.rawValue].forEach({(curChess) in
+                    if oppoChessKindMap[curChess.chessKind] != nil {
+                        oppoChessKindMap[curChess.chessKind]! += 1
+                    } else {
+                        oppoChessKindMap[curChess.chessKind] = 1
+                    }
+                })
+            }
+            
             if curPlayerAura.contains(EnumAuraName.mountainLevel1.rawValue) { //mountain1 所有棋子获得 +2 * chesslevel / +2 * chesslevel
                 actionTime += 0.5
-                boardNode[BoardSide.allySide.rawValue].forEach{ (curChess) in
-                    curChess.AddBuff(AtkNumber: 2 * curChess.chessLevel, DefNumber: 2 * curChess.chessLevel)
+                if let oppoMountainNum = oppoChessKindMap[EnumChessKind.mountain.rawValue]{
+                    if oppoMountainNum > 6 {
+                        boardNode[BoardSide.allySide.rawValue].forEach{ (curChess) in
+                            curChess.AddBuff(AtkNumber: 4 * curChess.chessLevel, DefNumber: 4 * curChess.chessLevel)
+                        }
+                    } else {
+                        boardNode[BoardSide.allySide.rawValue].forEach{ (curChess) in
+                            curChess.AddBuff(AtkNumber: 2 * curChess.chessLevel, DefNumber: 2 * curChess.chessLevel)
+                        }
+                    }
+                } else {
+                    boardNode[BoardSide.allySide.rawValue].forEach{ (curChess) in
+                        curChess.AddBuff(AtkNumber: 2 * curChess.chessLevel, DefNumber: 2 * curChess.chessLevel)
+                    }
                 }
             } else if curPlayerAura.contains(EnumAuraName.mountainLevel2.rawValue) { //mountain1 所有棋子获得 +4 * chesslevel / +4 * chesslevel
                 actionTime += 0.5
@@ -2003,6 +2037,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     curChess.AddBuff(AtkNumber: 4 * curChess.chessLevel, DefNumber: 4 * curChess.chessLevel)
                 }
             }
+            
             
 //            if curPlayerAura.contains(EnumAuraName.oceanLevel1.rawValue) { //ocean1 对对面所有棋子造成1点伤害
 //
