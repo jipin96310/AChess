@@ -36,6 +36,7 @@
 //summon
 "SummonChessAddMountainBuff" = "在你召唤一个具有诱饵的棋子后，给予所有山川棋子 +<att>/ +<def>.";
 "SummonChessAddSelfBuff" = "获得 +<att>/+<def> 在你召唤一个 <kind> 棋子后.";
+"SummonChessAddBuff" = "当你召唤一个<kind>棋子后,它会获得 +<att>/+<def>.";
 "AfterSummonAdjecentAddBuff" = "给予左边棋子 +<att>/+<def>, 使右边棋子获得诱饵.";
 //after eliminated
 "AfterEliminatedAddBuff" = "在一个[kind]棋子被消灭后 +<att>/ +<def>";
@@ -117,6 +118,7 @@
 "Giraffe" = "长颈鹿"; //长颈鹿
 "Rhinoceros" = "犀牛"; //犀牛
 "KingCobra" = "王蛇"; //王蛇
+"Ratel" = "蜜獾"; //蜜獾
 "Lion" = "狮子"; //狮子
 "Vegetarian" = "素食主义者"; //素食主义者
 "Scientise" = "科学家"; //科学家

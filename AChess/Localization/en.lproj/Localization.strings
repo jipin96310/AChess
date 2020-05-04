@@ -36,6 +36,7 @@
 //summon
 "SummonChessAddMountainBuff" = "Give All mountain chesses +<att>/+<def> after summon a chess with bait.";
 "SummonChessAddSelfBuff" = "Gain +<att>/+<def> after your summon a <kind> chess.";
+"SummonChessAddBuff" = "Whenever you summon a <kind> chess, it will gain +<att>/+<def>.";
 //after eliminated
 "AfterEliminatedAddBuff" = "After a [kind] chess been elminated gain +<att>/ +<def>";
 "AfterEliminatedAddAbilities" = "After a [cKind] chess been elminated, gain [aKind]";
@@ -118,6 +119,7 @@
 "Giraffe" = "Giraffe"; //长颈鹿
 "Rhinoceros" = "Rhinoceros"; //犀牛
 "KingCobra" = "King Cobra"; //王蛇
+"Ratel" = "Ratel"; //蜜獾
 "Lion" = "Lion"; //狮子
 "Vegetarian" = "Vegetarian"; //素食主义者
 "Scientist" = "Scientist"; //科学家

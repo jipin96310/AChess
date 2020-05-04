@@ -82,6 +82,7 @@ enum EnumAbilities: String {
     //summon case
     case summonChessAddMountainBuff = "SummonChessAddMountainBuff" //熊猫专属技能 无需适配扩展性
     case summonChessAddSelfBuff = "SummonChessAddSelfBuff" //召唤棋子增加自身buff 当前野牛专用 不扩展
+    case summonChessAddBuff = "SummonChessAddBuff" //召唤棋子增加自身buff 当前狮子专用 不扩展
     case afterSummonAdjecentAddBuff = "AfterSummonAdjecentAddBuff" //使两边棋子获得效果 狒狒暂时专属
     //attack case
     case afterEliminatedAddBuff = "AfterEliminatedAddBuff" //生物被消灭后addbuff
@@ -194,6 +195,7 @@ enum EnumChessName: String {
     case giraffe = "Giraffe"; //长颈鹿
     case rhinoceros = "Rhinoceros"; //犀牛
     case kingCobra = "KingCobra"; //王蛇
+    case ratel = "Ratel"; //蜜獾
     case lion = "Lion"; //狮子
     case vegetarian = "Vegetarian"; //素食主义者
     case scientist = "Scientist"; //科学家

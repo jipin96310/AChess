@@ -1167,37 +1167,52 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     func appendNewNodeToBoard(curBoardSide:Int, curAddChesses: [baseChessNode], curInsertIndex: Int?) {
         for index in 0 ..< curAddChesses.count {
             let curAddChess = curAddChesses[index]
+            
+             var hasSummonAbility:[String : Int] = [:]
+            
+            boardNode[curBoardSide].forEach{ (curChess) in
+                if (curChess.abilities.contains(EnumAbilities.summonChessAddBuff.rawValue)) { //召唤一个棋子以后加buff 无论当前阶段
+                    if hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue] != nil {
+                        hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue]! += curChess.chessLevel
+                    } else {
+                        hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue] = curChess.chessLevel
+                    }
+                }
+                if curBoardSide == BoardSide.allySide.rawValue { //只有在友军才触发
+                    if (curChess.abilities.contains(EnumAbilities.summonChessAddMountainBuff.rawValue)) {
+                         if hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue] != nil {
+                             hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue]! += curChess.chessLevel
+                         } else {
+                             hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue] = curChess.chessLevel
+                         }
+                     }
+                    
+                      if (curChess.abilities.contains(EnumAbilities.summonChessAddSelfBuff.rawValue)) {
+                          if case let curKindArr as [String] = curChess.rattleFunc[EnumKeyName.baseKind.rawValue] {
+                              if curKindArr.contains(curAddChess.chessKind) {
+                                  let curBaseAtt = curChess.rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
+                                  let curBaseDef = curChess.rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
+                                  curChess.AddBuff(AtkNumber: curBaseAtt as! Int * curChess.chessLevel, DefNumber: curBaseDef as! Int * curChess.chessLevel)
+                              }
+                          }
+                      }
+                }
+            }
+            
+   
+            
             if curBoardSide == BoardSide.allySide.rawValue {
                 curAddChess.chessStatus = EnumsChessStage.owned.rawValue
-                //if newNode.abilities.contains(EnumAbilities.bait.rawValue) {
-                           var hasSummonAbility:[String : Int] = [:]
-                           boardNode[BoardSide.allySide.rawValue].forEach{(curChess) in
-                               if (curChess.abilities.contains(EnumAbilities.summonChessAddMountainBuff.rawValue)) {
-                                   if hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue] != nil {
-                                       hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue]! += curChess.chessLevel
-                                   } else {
-                                       hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue] = curChess.chessLevel
-                                   }
-                               }
-                                if (curChess.abilities.contains(EnumAbilities.summonChessAddSelfBuff.rawValue)) {
-                                    if case let curKindArr as [String] = curChess.rattleFunc[EnumKeyName.baseKind.rawValue] {
-                                        if curKindArr.contains(curAddChess.chessKind) {
-                                            let curBaseAtt = curChess.rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
-                                            let curBaseDef = curChess.rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
-                                            curChess.AddBuff(AtkNumber: curBaseAtt as! Int * curChess.chessLevel, DefNumber: curBaseDef as! Int * curChess.chessLevel)
-                                        }
-                                    }
-                                }
-                           }
-                           if hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue] != nil && hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue]! > 0 {
-                               boardNode[BoardSide.allySide.rawValue].forEach{(curChess) in
-                                   if (curChess.chessKind == EnumChessKind.mountain.rawValue) {
-                                       curChess.AddBuff(AtkNumber: hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue], DefNumber: hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue])
-                                   }
-                                   
-                               }
-                           }
-                         
+                
+                if hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue] != nil && hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue]! > 0 {
+                    boardNode[BoardSide.allySide.rawValue].forEach{(curChess) in
+                        if (curChess.chessKind == EnumChessKind.mountain.rawValue) {
+                            curChess.AddBuff(AtkNumber: hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue], DefNumber: hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue])
+                        }
+                        
+                    }
+                }
+                
                 //
                 if curAddChess.abilities.contains(EnumAbilities.afterSummonAdjecentAddBuff.rawValue) {
                     if curAddChess.chessName == EnumChessName.baboon.rawValue { //狒狒专属
@@ -1216,6 +1231,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     }
                 }
             }
+            
+            if hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue] != nil && hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue]! > 0 { //召唤生物 给其加buff  暂时狮子专属 就给平原生物加
+                if curAddChess.chessKind == EnumChessKind.plain.rawValue {
+                    curAddChess.AddBuff(AtkNumber: hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue]! * 3, DefNumber: 0)
+                }
+                        
+                 
+            }
+            
+            
         }
         
        
