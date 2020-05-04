@@ -48,7 +48,7 @@
 "AllInheritMax" = "All allies' inheritance skill will be max level.";
 "CustomValue" = "This chess costs <value> coin(s).";
 "CustomSellValue" = "Sell this chess can get <value> coin(s).";
-"StealAura" = "Steal your opponent's aura."
+"StealAura" = "Steal your opponent's aura.";
 //以下为卡牌类型
 "Mountain" = "Mountain"; //山
 "Ocean" = "Ocean"; //海洋
@@ -127,6 +127,8 @@
 "MountainLevel2" = "Cries of Dragons";
 "OceanLevel1" = "Great Waves";
 "OceanLevel2" = "Flooding of Temple";
+"PlainLevel1" = "Wide Flat Land"; // 全体平原获得硬壳
+"PlainLevel2" = "Barren"; //全体获得硬壳
 
 
 "Self" = "Self";

@@ -1657,12 +1657,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     self.curStage = EnumsGameStage.battleStage.rawValue
                     delay(self.totalUpdateTime) { //初始化光环
                         self.initAura().done{ (delaytime) in
-                            self.initBeforeBattle().done{ (beforeBattleTime) in
-                                /*开始战斗*/
-                                self.beginRounds().done { (v1) in
-                                    self.dealWithDamage().done { (v2) in
-                                        self.switchGameStage()
-                                    } //伤害清算
+                            self.initEnemyAura().done{(eTime) in
+                                self.initBeforeBattle().done{ (beforeBattleTime) in
+                                    /*开始战斗*/
+                                    self.beginRounds().done { (v1) in
+                                        self.dealWithDamage().done { (v2) in
+                                            self.switchGameStage()
+                                        } //伤害清算
+                                    }
                                 }
                             }
                         }
@@ -1882,7 +1884,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                       }
                   }
             }
-              //calculate chess kind map
+            //calculate chess kind map
               if let oceanNum = chessKindMap[EnumChessKind.ocean.rawValue] {
                   let oppoOceanNum = oppoChessKindMap[EnumChessKind.ocean.rawValue] ?? 0
                   if oceanNum >= 3 && oceanNum < 6 { //oceanlevel1
@@ -1890,7 +1892,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         funcArr.append({() in
                             return self.aoeDamagePromise(practicleName: "particals.scnassets/oceanaura.scnp", boardSide: oppoBoardIndex, damageNum: 4)
                         })
-                    } else {
+                    } else if oppoOceanNum >= 3{ //oceanlevel1
                         funcArr.append({() in
                             return self.aoeDamagePromise(practicleName: "particals.scnassets/oceanaura.scnp", boardSide: oppoBoardIndex, damageNum: 1)
                         })
@@ -1903,11 +1905,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                   }
               } else {
                 let oppoOceanNum = oppoChessKindMap[EnumChessKind.ocean.rawValue] ?? 0
-                if oppoOceanNum >= 3 && oppoOceanNum < 6 { //oceanlevel1
+                if oppoOceanNum > 6 { //oceanlevel1
                   funcArr.append({() in
                       return self.aoeDamagePromise(practicleName: "particals.scnassets/oceanaura.scnp", boardSide: oppoBoardIndex, damageNum: 1)
                   })
-                } else if oppoOceanNum > 6 { //oceanlevel2
+                } else if oppoOceanNum >= 3 { //oceanlevel2
                   funcArr.append({() in
                       return self.aoeDamagePromise(practicleName: "particals.scnassets/oceanaura.scnp", boardSide: oppoBoardIndex, damageNum: 4)
                   })
@@ -1950,38 +1952,147 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 
     }
     
+    func calculateAura(curChessBoard: [baseChessNode]) -> [String]{ //计算传入棋盘有没有光环
+        var chessKindMap:[String : Int] = [:]
+        var curAuraArr:[String] = []
+        curChessBoard.forEach({ curChess in
+            if chessKindMap[curChess.chessKind] != nil {
+                chessKindMap[curChess.chessKind]! += 1
+            } else {
+                chessKindMap[curChess.chessKind] = 1
+            }
+        })
+        if let mountainNum = chessKindMap[EnumChessKind.mountain.rawValue]{
+            if mountainNum > 6{
+                curAuraArr.append(EnumAuraName.mountainLevel2.rawValue)
+            } else if mountainNum >= 3 {
+                curAuraArr.append(EnumAuraName.mountainLevel1.rawValue)
+            }
+        }
+        if let oceanNum = chessKindMap[EnumChessKind.ocean.rawValue]{
+            if oceanNum > 6{
+                curAuraArr.append(EnumAuraName.oceanLevel1.rawValue)
+            } else if oceanNum >= 3 {
+                curAuraArr.append(EnumAuraName.oceanLevel2.rawValue)
+            }
+        }
+        if let plainNum = chessKindMap[EnumChessKind.plain.rawValue]{
+            if plainNum > 6{
+                curAuraArr.append(EnumAuraName.plainLevel1.rawValue)
+            } else if plainNum >= 3 {
+                curAuraArr.append(EnumAuraName.plainLevel2.rawValue)
+            }
+        }
+        return curAuraArr
+    }
+    
+    
+    
     func initEnemyAura() -> Promise<Double>{
         return Promise<Double>(resolver: {(resolver) in
             var actionTime:Double = 0
-            var chessKindMap:[String:Int] = [:]
-            playerStatues[curEnemyId].curAura = []
-            boardNode[BoardSide.enemySide.rawValue].forEach({(curChess) in
-                if chessKindMap[curChess.chessKind] != nil {
-                    chessKindMap[curChess.chessKind]! += 1
-                } else {
-                    chessKindMap[curChess.chessKind] = 1
+            
+            var enemyAura = calculateAura(curChessBoard: boardNode[BoardSide.enemySide.rawValue])
+            playerStatues[curEnemyId].curAura = enemyAura //赋值光环
+            
+            var hasStealAura = false
+            
+            boardNode[BoardSide.enemySide.rawValue].forEach{ (curChess) in
+                if curChess.abilities.contains(EnumAbilities.stealAura.rawValue) { //有偷aura技能
+                    curChess.abilityTrigger(abilityEnum: EnumAbilities.stealAura.rawValue)
+                    hasStealAura = true
                 }
-            })
-            //
-            if let mountainNum = chessKindMap[EnumChessKind.mountain.rawValue] {
+            }
+            
+            
+            
+            var oppoAura:[String] = []
+            
+            if hasStealAura {
+                oppoAura = calculateAura(curChessBoard: boardNode[BoardSide.allySide.rawValue]) //重新计算 不然会把偷的也算进去
+            }
+            
+            /*mountainaura*/
+            if enemyAura.contains(EnumAuraName.mountainLevel1.rawValue) {
                 actionTime += 0.5
-                if mountainNum >= 3 && mountainNum < 6 {
+                if oppoAura.contains(EnumAuraName.mountainLevel2.rawValue) {
+                    boardNode[BoardSide.enemySide.rawValue].forEach{ (curChess) in
+                        curChess.AddBuff(AtkNumber: 6 * curChess.chessLevel, DefNumber: 6 * curChess.chessLevel)
+                    }
+                } else {
                     boardNode[BoardSide.enemySide.rawValue].forEach{ (curChess) in
                         curChess.AddBuff(AtkNumber: 2 * curChess.chessLevel, DefNumber: 2 * curChess.chessLevel)
                     }
-                } else if mountainNum > 6 {
+                }
+            } else if enemyAura.contains(EnumAuraName.mountainLevel2.rawValue) {
+                actionTime += 0.5
+                boardNode[BoardSide.enemySide.rawValue].forEach{ (curChess) in
+                    curChess.AddBuff(AtkNumber: 6 * curChess.chessLevel, DefNumber: 6 * curChess.chessLevel)
+                }
+            } else {
+                if oppoAura.contains(EnumAuraName.mountainLevel1.rawValue) {
                     boardNode[BoardSide.enemySide.rawValue].forEach{ (curChess) in
                         curChess.AddBuff(AtkNumber: 2 * curChess.chessLevel, DefNumber: 2 * curChess.chessLevel)
+                    }
+                } else if oppoAura.contains(EnumAuraName.mountainLevel2.rawValue) {
+                    boardNode[BoardSide.enemySide.rawValue].forEach{ (curChess) in
+                        curChess.AddBuff(AtkNumber: 6 * curChess.chessLevel, DefNumber: 6 * curChess.chessLevel)
                     }
                 }
             }
-            if let oceanNum = chessKindMap[EnumChessKind.ocean.rawValue] {
-                if oceanNum >= 3 && oceanNum < 6 { //oceanLevel1
+            
+            
+            
+            /*plain aura*/
+            if enemyAura.contains(EnumAuraName.plainLevel1.rawValue) {
+                actionTime += 0.5
+                if oppoAura.contains(EnumAuraName.plainLevel2.rawValue) {
+                    boardNode[BoardSide.enemySide.rawValue].forEach{ (curChess) in
+                            curChess.AddTempBuff(tempBuff: [EnumAbilities.shell.rawValue])
+                    }
+                } else {
+                    boardNode[BoardSide.enemySide.rawValue].forEach{ (curChess) in
+                        if curChess.chessKind == EnumChessKind.plain.rawValue {
+                            curChess.AddTempBuff(tempBuff: [EnumAbilities.shell.rawValue])
+                        }
+                    }
+                }
+            } else if enemyAura.contains(EnumAuraName.plainLevel2.rawValue) {
+                actionTime += 0.5
+                boardNode[BoardSide.enemySide.rawValue].forEach{ (curChess) in
+                        curChess.AddTempBuff(tempBuff: [EnumAbilities.shell.rawValue])
+                }
+            } else {
+                if oppoAura.contains(EnumAuraName.plainLevel1.rawValue) {
+                    boardNode[BoardSide.enemySide.rawValue].forEach{ (curChess) in
+                       if curChess.chessKind == EnumChessKind.plain.rawValue {
+                            curChess.AddTempBuff(tempBuff: [EnumAbilities.shell.rawValue])
+                        }
+                    }
+                } else if oppoAura.contains(EnumAuraName.plainLevel2.rawValue) {
+                    boardNode[BoardSide.enemySide.rawValue].forEach{ (curChess) in
+                            curChess.AddTempBuff(tempBuff: [EnumAbilities.shell.rawValue])
+                    }
+                }
+            }
+            
+            /*ocean aura*/
+            if enemyAura.contains(EnumAuraName.oceanLevel1.rawValue) { //mountain1 所有棋子获得 +2 * chesslevel / +2 * chesslevel
+                if oppoAura.contains(EnumAuraName.oceanLevel2.rawValue) {
+                    if let i = enemyAura.firstIndex(of: EnumAuraName.oceanLevel1.rawValue) {
+                        playerStatues[curEnemyId].curAura[i] = EnumAuraName.oceanLevel2.rawValue
+                    }
+                }
+            } else if !enemyAura.contains(EnumAuraName.oceanLevel2.rawValue){ //既没有1也没有2
+                if oppoAura.contains(EnumAuraName.oceanLevel1.rawValue) {
                     playerStatues[curEnemyId].curAura.append(EnumAuraName.oceanLevel1.rawValue)
-                } else if oceanNum > 6 { //oceanLevel2
+                } else if oppoAura.contains(EnumAuraName.oceanLevel2.rawValue) {
                     playerStatues[curEnemyId].curAura.append(EnumAuraName.oceanLevel2.rawValue)
                 }
             }
+            delay(actionTime, task: {
+                resolver.fulfill(actionTime)
+            })
             
         })
     }
@@ -2002,29 +2113,18 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 }
             }
             
-            var oppoChessKindMap:[String:Int] = [:]
-            
+            var curEnemyAura:[String] = []
             if hasStealAura {
-                boardNode[BoardSide.enemySide.rawValue].forEach({(curChess) in
-                    if oppoChessKindMap[curChess.chessKind] != nil {
-                        oppoChessKindMap[curChess.chessKind]! += 1
-                    } else {
-                        oppoChessKindMap[curChess.chessKind] = 1
-                    }
-                })
+                curEnemyAura = calculateAura(curChessBoard: boardNode[BoardSide.enemySide.rawValue])
             }
             
+            
+            /*mountain aura*/
             if curPlayerAura.contains(EnumAuraName.mountainLevel1.rawValue) { //mountain1 所有棋子获得 +2 * chesslevel / +2 * chesslevel
                 actionTime += 0.5
-                if let oppoMountainNum = oppoChessKindMap[EnumChessKind.mountain.rawValue]{
-                    if oppoMountainNum > 6 {
-                        boardNode[BoardSide.allySide.rawValue].forEach{ (curChess) in
-                            curChess.AddBuff(AtkNumber: 4 * curChess.chessLevel, DefNumber: 4 * curChess.chessLevel)
-                        }
-                    } else {
-                        boardNode[BoardSide.allySide.rawValue].forEach{ (curChess) in
-                            curChess.AddBuff(AtkNumber: 2 * curChess.chessLevel, DefNumber: 2 * curChess.chessLevel)
-                        }
+                if curEnemyAura.contains(EnumAuraName.mountainLevel2.rawValue) {
+                    boardNode[BoardSide.allySide.rawValue].forEach{ (curChess) in
+                        curChess.AddBuff(AtkNumber: 6 * curChess.chessLevel, DefNumber: 6 * curChess.chessLevel)
                     }
                 } else {
                     boardNode[BoardSide.allySide.rawValue].forEach{ (curChess) in
@@ -2034,16 +2134,72 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             } else if curPlayerAura.contains(EnumAuraName.mountainLevel2.rawValue) { //mountain1 所有棋子获得 +4 * chesslevel / +4 * chesslevel
                 actionTime += 0.5
                 boardNode[BoardSide.allySide.rawValue].forEach{ (curChess) in
-                    curChess.AddBuff(AtkNumber: 4 * curChess.chessLevel, DefNumber: 4 * curChess.chessLevel)
+                    curChess.AddBuff(AtkNumber: 6 * curChess.chessLevel, DefNumber: 6 * curChess.chessLevel)
+                }
+            } else { //如果没有aura 看一下有没有偷到对面的aura
+                if curEnemyAura.contains(EnumAuraName.mountainLevel1.rawValue) {
+                    actionTime += 0.5
+                    boardNode[BoardSide.allySide.rawValue].forEach{ (curChess) in
+                        curChess.AddBuff(AtkNumber: 2 * curChess.chessLevel, DefNumber: 2 * curChess.chessLevel)
+                    }
+                } else if curEnemyAura.contains(EnumAuraName.mountainLevel2.rawValue) {
+                    actionTime += 0.5
+                    boardNode[BoardSide.allySide.rawValue].forEach{ (curChess) in
+                        curChess.AddBuff(AtkNumber: 6 * curChess.chessLevel, DefNumber: 6 * curChess.chessLevel)
+                    }
+                }
+            }
+            /*plain aura*/
+            if curPlayerAura.contains(EnumAuraName.plainLevel1.rawValue) { //mountain1 所有棋子获得 +2 * chesslevel / +2 * chesslevel
+                actionTime += 0.5
+                if curEnemyAura.contains(EnumAuraName.plainLevel2.rawValue) {
+                    boardNode[BoardSide.allySide.rawValue].forEach{ (curChess) in
+                        curChess.AddTempBuff(tempBuff: [EnumAbilities.shell.rawValue])
+                    }
+                } else {
+                    boardNode[BoardSide.allySide.rawValue].forEach{ (curChess) in
+                        if curChess.chessKind == EnumChessKind.plain.rawValue {
+                          curChess.AddTempBuff(tempBuff: [EnumAbilities.shell.rawValue])
+                        }
+                    }
+                }
+            } else if curPlayerAura.contains(EnumAuraName.plainLevel2.rawValue) { //mountain1 所有棋子获得 +4 * chesslevel / +4 * chesslevel
+                actionTime += 0.5
+                boardNode[BoardSide.allySide.rawValue].forEach{ (curChess) in
+                   curChess.AddTempBuff(tempBuff: [EnumAbilities.shell.rawValue])
+                }
+            } else {//如果没有aura 看一下有没有偷到对面的aura
+                if curEnemyAura.contains(EnumAuraName.plainLevel1.rawValue) {
+                    actionTime += 0.5
+                    boardNode[BoardSide.allySide.rawValue].forEach{ (curChess) in
+                       if curChess.chessKind == EnumChessKind.plain.rawValue {
+                          curChess.AddTempBuff(tempBuff: [EnumAbilities.shell.rawValue])
+                        }
+                    }
+                } else if curEnemyAura.contains(EnumAuraName.plainLevel2.rawValue) {
+                    actionTime += 0.5
+                    boardNode[BoardSide.allySide.rawValue].forEach{ (curChess) in
+                        curChess.AddTempBuff(tempBuff: [EnumAbilities.shell.rawValue])
+                    }
                 }
             }
             
             
-//            if curPlayerAura.contains(EnumAuraName.oceanLevel1.rawValue) { //ocean1 对对面所有棋子造成1点伤害
-//
-//            } else if curPlayerAura.contains(EnumAuraName.oceanLevel2.rawValue) { //ocean2 对对面所有棋子造成4点伤害
-//
-//            }
+            if curPlayerAura.contains(EnumAuraName.oceanLevel1.rawValue) { //mountain1 所有棋子获得 +2 * chesslevel / +2 * chesslevel
+                actionTime += 0.5
+                if curEnemyAura.contains(EnumAuraName.oceanLevel2.rawValue) {
+                    if let i = curPlayerAura.firstIndex(of: EnumAuraName.oceanLevel1.rawValue) {
+                        playerStatues[curPlayerId].curAura[i] = EnumAuraName.oceanLevel2.rawValue
+                    }
+                }
+            } else if !curPlayerAura.contains(EnumAuraName.oceanLevel2.rawValue){ //既没有1也没有2
+                if curEnemyAura.contains(EnumAuraName.oceanLevel1.rawValue) {
+                    playerStatues[curPlayerId].curAura.append(EnumAuraName.oceanLevel1.rawValue)
+                } else if curEnemyAura.contains(EnumAuraName.oceanLevel2.rawValue) {
+                    playerStatues[curPlayerId].curAura.append(EnumAuraName.oceanLevel2.rawValue)
+                }
+            }
+
             
             delay(actionTime, task: {
                 resolver.fulfill(actionTime)

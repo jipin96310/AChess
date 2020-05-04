@@ -48,7 +48,7 @@
 "AllInheritMax" = "所有友方棋子的传承效果为满级.";
 "CustomValue" = "这个棋子花费 <value> 金币.";
 "CustomSellValue" = "这个棋子的出售价格为 <value> 金币.";
-"StealAura" = "偷取你的对手的光环."
+"StealAura" = "偷取你的对手的光环.";
 //以下为卡牌类型
 "Mountain" = "山川"; //山
 "Ocean" = "海洋"; //海洋
@@ -126,6 +126,8 @@
 "MountainLevel2" = "虎啸龙吟";
 "OceanLevel1" = "大浪淘沙";
 "OceanLevel2" = "水漫金山";
+"PlainLevel1" = "一马平川";
+"PlainLevel2" = "寸草不生";
 
 
 "Self" = "自身";

@@ -206,6 +206,8 @@ enum EnumAuraName: String {
     case mountainLevel2 = "MountainLevel2" //虎啸龙吟
     case oceanLevel1 = "OceanLevel1"
     case oceanLevel2 = "OceanLevel2"
+    case plainLevel1 = "PlainLevel1"
+    case plainLevel2 = "PlainLevel2"
 }
 //技能类型
 enum EnumAbilityType: String {
