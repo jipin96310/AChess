@@ -84,6 +84,7 @@ enum EnumAbilities: String {
     case summonChessAddSelfBuff = "SummonChessAddSelfBuff" //召唤棋子增加自身buff 当前野牛专用 不扩展
     case summonChessAddBuff = "SummonChessAddBuff" //召唤棋子增加自身buff 当前狮子专用 不扩展
     case afterSummonAdjecentAddBuff = "AfterSummonAdjecentAddBuff" //使两边棋子获得效果 狒狒暂时专属
+    case afterSummonChessAddShell = "AfterSummonChessAddShell" // 犀牛专属
     //attack case
     case afterEliminatedAddBuff = "AfterEliminatedAddBuff" //生物被消灭后addbuff
     case afterEliminatedAddAbilities = "AfterEliminatedAddAbilities" //生物被消灭后addAbilities
@@ -95,6 +96,7 @@ enum EnumAbilities: String {
     case customValue = "CustomValue" //自定义价值
     case customSellValue = "CustomSellValue" //自定义出售价格
     case stealAura = "StealAura" //获得偷取aura
+    case sputtering = "Sputtering" //溅射
 }
 //public let EnumAbiNumToName: [Int:String] =
 //    [0: "",
@@ -197,6 +199,7 @@ enum EnumChessName: String {
     case kingCobra = "KingCobra"; //王蛇
     case ratel = "Ratel"; //蜜獾
     case lion = "Lion"; //狮子
+    case elephant = "Elephant"; //大象
     case vegetarian = "Vegetarian"; //素食主义者
     case scientist = "Scientist"; //科学家
     case martialArtist = "MartialArtist";//武术家

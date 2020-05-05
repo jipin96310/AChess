@@ -215,22 +215,22 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                     }
                                 }
                                 if erasedChess.abilities.contains(EnumAbilities.inheritSummonSth.rawValue) {
-                                    if case var curRattleChess as [chessStruct] = erasedChess.inheritFunc[EnumKeyName.summonChess.rawValue] {
+                                    if case var curHeritChess as [chessStruct] = erasedChess.inheritFunc[EnumKeyName.summonChess.rawValue] {
                                         
-                                        if erasedChess.chessName == EnumChessName.mouse.rawValue && curRattleChess.count > 0 { //老鼠特殊处理
+                                        if erasedChess.chessName == EnumChessName.mouse.rawValue && curHeritChess.count > 0 { //老鼠特殊处理
                                             let randomNum = Int.randomIntNumber(lower: 1, upper: 5)
-                                            let newSummonArr = Array(repeating: curRattleChess[0], count: randomNum)
-                                            curRattleChess = newSummonArr
+                                            let newSummonArr = Array(repeating: curHeritChess[0], count: randomNum)
+                                            curHeritChess = newSummonArr
                                         }
                                         
                                         
                                         
-                                        erasedChess.abilityTrigger(abilityEnum: EnumAbilities.inheritAddBuff.rawValue.localized)
-                                        for index in 0 ..< curRattleChess.count { //appendnewnode里会计算数量 多余的棋子会被砍掉
+                                        erasedChess.abilityTrigger(abilityEnum: EnumAbilities.inheritSummonSth.rawValue.localized)
+                                        for index in 0 ..< curHeritChess.count { //appendnewnode里会计算数量 多余的棋子会被砍掉
                                             if innerIndex <= self.boardNode[boardIndex].count {
-                                                self.appendNewNodeToBoard(curBoardSide: boardIndex, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: curRattleChess[index])], curInsertIndex: innerIndex + index)
+                                                self.appendNewNodeToBoard(curBoardSide: boardIndex, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: curHeritChess[index])], curInsertIndex: innerIndex + index)
                                             } else {
-                                                self.appendNewNodeToBoard(curBoardSide: boardIndex, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: curRattleChess[index])], curInsertIndex: innerIndex + index)
+                                                self.appendNewNodeToBoard(curBoardSide: boardIndex, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: curHeritChess[index])], curInsertIndex: innerIndex + index)
                                             }
                                             
                                             
@@ -1178,6 +1178,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue] = curChess.chessLevel
                     }
                 }
+                
+                if (curChess.abilities.contains(EnumAbilities.afterSummonChessAddShell.rawValue)) && curStage == EnumsGameStage.battleStage.rawValue { //召唤一个棋子以后加shell
+                    if curAddChess.chessKind == EnumChessKind.plain.rawValue {
+                        curChess.AddTempBuff(tempBuff: [EnumAbilities.shell.rawValue])
+                    }
+                }
+                
+       
                 if curBoardSide == BoardSide.allySide.rawValue { //只有在友军才触发
                     if (curChess.abilities.contains(EnumAbilities.summonChessAddMountainBuff.rawValue)) {
                          if hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue] != nil {
@@ -1198,11 +1206,19 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                       }
                 }
             }
+        
             
-   
+            if hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue] != nil && hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue]! > 0 { //召唤生物 给其加buff  暂时狮子专属 就给平原生物加
+                           if curAddChess.chessKind == EnumChessKind.plain.rawValue {
+                            if !curAddChess.temporaryBuff.contains(EnumAbilities.summonChessAddBuff.rawValue) {
+                                curAddChess.AddTempBuff(tempBuff: [EnumAbilities.summonChessAddBuff.rawValue])
+                                curAddChess.AddBuff(AtkNumber: hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue]! * 3, DefNumber: 0)
+                            }
+                          }
+            }
             
             if curBoardSide == BoardSide.allySide.rawValue {
-                curAddChess.chessStatus = EnumsChessStage.owned.rawValue
+                curAddChess.chessStatus = EnumsChessStage.owned.rawValue //确保友方必定被拥有
                 
                 if hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue] != nil && hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue]! > 0 {
                     boardNode[BoardSide.allySide.rawValue].forEach{(curChess) in
@@ -1232,16 +1248,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 }
             }
             
-            if hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue] != nil && hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue]! > 0 { //召唤生物 给其加buff  暂时狮子专属 就给平原生物加
-                if curAddChess.chessKind == EnumChessKind.plain.rawValue {
-                    curAddChess.AddBuff(AtkNumber: hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue]! * 3, DefNumber: 0)
-                }
-                        
-                 
+           
             }
-            
-            
-        }
         
        
         
@@ -1507,7 +1515,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }.done{ (res) in
                
                 var shouldChange = changeRound  //是否强制下回合不更新indexs
-                if attacker.abilities.contains(EnumAbilities.rapid.rawValue) && shouldChange != true {
+                if res[0] != 0 && attacker.abilities.contains(EnumAbilities.rapid.rawValue) && shouldChange != true {
                     //index不动
                     attacker.abilityTrigger(abilityEnum: EnumAbilities.rapid.rawValue)
                     nextSide = attSide //维持攻击棋盘index
@@ -2363,6 +2371,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             var attackAtt = attacker.atkNum!
             var defAtt = victim.atkNum!
             var attackSequence: [SCNAction] = [] //攻击动作action sequence
+            let leftIndex = victimIndex - 1
+            let rightIndex = victimIndex + 1
+            var adjacentChesses:[baseChessNode] = []
+            if leftIndex > 0 && leftIndex < victimBoard.count {
+                adjacentChesses.append(self.boardNode[victimBoardIndex][leftIndex])
+            }
+            if rightIndex > 0 && rightIndex < victimBoard.count {
+                adjacentChesses.append(self.boardNode[victimBoardIndex][rightIndex])
+                
+            }
             attackSequence = [attackAction(atkStartPos, victim.position)]
             if attacker.abilities.contains(EnumAbilities.furious.rawValue) { //如果有furious的话 有概率暴击
                 let randomNumber = Int.randomIntNumber(lower: 1, upper: 5 - attacker.chessLevel)
@@ -2457,6 +2475,27 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     bloodChangeAction([attacker], [attRstBlood])
                 ]
             }
+            //溅射攻击
+            if attacker.abilities.contains(EnumAbilities.sputtering.rawValue) {
+               
+                
+                attackSequence += [
+                    SCNAction.customAction(duration: 0.5, action: {_,_ in
+                        adjacentChesses.forEach({ curAdChess in
+                            curAdChess.getDamage(damageNumber: attacker.atkNum!, chessBoard: &self.boardNode[victimBoardIndex])
+                        })
+                    })
+                ]
+                
+               
+                
+            }
+            
+            
+            
+            
+            
+            
             //alive test 计算是否还存在
             actionResult[0] = attRstBlood > 0 ? 1 : 0
             actionResult[1] = vicRstBlood > 0 ? 1 : 0

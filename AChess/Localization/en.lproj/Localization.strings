@@ -18,6 +18,7 @@
 "Bait"          = "Bait"; //诱饵
 "IgnoreBait"    = "Ignore Bait"; //无视诱饵
 "Spine"         = "Spine";   //尖刺
+"Sputtering" = "Attacking will also damage the adjacent chesses of the target."; //溅射
 "ImmunePoison"   = "Immune To Poison"; //免疫剧毒
 "InheritAddBuff" = "Inheritance: Gain +1/+1."; // Inherit: add buff
 "InheritDamage" = "Inheritance: Deal <dam> damage to <num> Enemies.";
@@ -41,6 +42,7 @@
 "AfterEliminatedAddBuff" = "After a [kind] chess been elminated gain +<att>/ +<def>";
 "AfterEliminatedAddAbilities" = "After a [cKind] chess been elminated, gain [aKind]";
 "AfterSummonAdjecentAddBuff" = "Give the left chess +<att>/+<def>, give the right chess bait.";
+"AfterSummonChessAddShell" = "At battle stage, this chess will gain shell after you summon a plain chess.";
 //before attack
 "BeforeAttackAoe" = "Deal <dam> damage to all the enemies before battle begins.";
 "AfterAttackAoe" = "Deal <dam> damage to all the enemies after an attacking.";
@@ -121,6 +123,7 @@
 "KingCobra" = "King Cobra"; //王蛇
 "Ratel" = "Ratel"; //蜜獾
 "Lion" = "Lion"; //狮子
+"Elephant" = "Elephant"; //大象
 "Vegetarian" = "Vegetarian"; //素食主义者
 "Scientist" = "Scientist"; //科学家
 "MartialArtist" = "Martial Artist";//武术家

@@ -18,6 +18,7 @@
 "bait"          = "诱饵"; //诱饵
 "IgnoreBait"    = "无视诱饵"; //无视诱饵
 "spine"         = "尖刺";  //尖刺
+"Sputtering" = "攻击会对目标相邻棋子造成伤害."; //溅射
 "ImmunePoison"   = "免疫剧毒"; //免疫剧毒
 "InheritAddBuff" = "传承: 获得+1/+1"; // Inherit: add buff
 "InheritDamage" = "传承: 向 <num> 敌人造成 <dam> 伤害.";
@@ -38,6 +39,7 @@
 "SummonChessAddSelfBuff" = "获得 +<att>/+<def> 在你召唤一个 <kind> 棋子后.";
 "SummonChessAddBuff" = "当你召唤一个<kind>棋子后,它会获得 +<att>/+<def>.";
 "AfterSummonAdjecentAddBuff" = "给予左边棋子 +<att>/+<def>, 使右边棋子获得诱饵.";
+"AfterSummonChessAddShell" = "在战斗回合,这个棋子会获得硬壳在你每次召唤一个平原棋子后.";
 //after eliminated
 "AfterEliminatedAddBuff" = "在一个[kind]棋子被消灭后 +<att>/ +<def>";
 "AfterEliminatedAddAbilities" = "在一个[kind]棋子被消灭后，获得 <abi>";
@@ -120,6 +122,7 @@
 "KingCobra" = "王蛇"; //王蛇
 "Ratel" = "蜜獾"; //蜜獾
 "Lion" = "狮子"; //狮子
+"Elephant" = "大象"; //大象
 "Vegetarian" = "素食主义者"; //素食主义者
 "Scientise" = "科学家"; //科学家
 "MartialArtist" = "武术家";//武术家
