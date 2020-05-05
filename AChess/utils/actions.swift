@@ -10,12 +10,12 @@ import Foundation
 import SceneKit
 
 //use when chess is attacking
-func attackAction(_ attackerPos: SCNVector3, _ victimPos: SCNVector3) -> SCNAction{
-    let adjustLens: Float = attackerPos.z > victimPos.z ? -0.03 : 0.03
-    let firstPos = SCNVector3(attackerPos.x, attackerPos.y, attackerPos.z + adjustLens)
-    let secondPos = SCNVector3(victimPos.x, victimPos.y, victimPos.z - adjustLens)
+func attackAction(_ attacker: baseChessNode, _ victim: baseChessNode) -> SCNAction{
+    let adjustLens: Float = attacker.position.z > victim.position.z ? -0.03 : 0.03
+    let firstPos = SCNVector3(attacker.position.x, attacker.position.y, attacker.position.z + adjustLens)
+    let secondPos = SCNVector3(victim.position.x, victim.position.y, victim.position.z - adjustLens)
     let firstStep = SCNAction.move(to: firstPos, duration: 0.5)
-    let secondStep = SCNAction.move(to: secondPos, duration: 1.5)
+    let secondStep = SCNAction.move(to: secondPos, duration: 1)
     let attackTo = SCNAction.sequence([firstStep, secondStep])
     return attackTo
 }

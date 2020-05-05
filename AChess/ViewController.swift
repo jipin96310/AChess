@@ -2381,7 +2381,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 adjacentChesses.append(self.boardNode[victimBoardIndex][rightIndex])
                 
             }
-            attackSequence = [attackAction(atkStartPos, victim.position)]
+            attackSequence = [attackAction(attacker, victim)]
             if attacker.abilities.contains(EnumAbilities.furious.rawValue) { //如果有furious的话 有概率暴击
                 let randomNumber = Int.randomIntNumber(lower: 1, upper: 5 - attacker.chessLevel)
                 if randomNumber == 1 {
