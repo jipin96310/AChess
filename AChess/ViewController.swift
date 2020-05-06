@@ -2381,7 +2381,20 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 adjacentChesses.append(self.boardNode[victimBoardIndex][rightIndex])
                 
             }
-            attackSequence = [attackAction(attacker, victim)]
+            
+            //找不到就按默认返回
+            if let vicIndexArr = findChessPos(victim) {
+                if let vicVec = returnExactPos(boardSide: victimBoardIndex, chessIndex: vicIndexArr[1]) { //如果找的到就按新的路线返回
+                  attackSequence = [attackAction(atkStartPos, vicVec)]
+                } else {
+                    attackSequence = [attackAction(atkStartPos, victim.position)]
+                }
+                
+            } else {
+                 attackSequence = [attackAction(atkStartPos, victim.position)]
+            }
+            
+            
             if attacker.abilities.contains(EnumAbilities.furious.rawValue) { //如果有furious的话 有概率暴击
                 let randomNumber = Int.randomIntNumber(lower: 1, upper: 5 - attacker.chessLevel)
                 if randomNumber == 1 {
