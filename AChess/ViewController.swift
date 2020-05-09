@@ -25,11 +25,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var randomButtonTopNode: SCNNode = SCNNode()
     var upgradeButtonTopNode: SCNNode = SCNNode()
     var endButtonTopNode: SCNNode = SCNNode()
+    var freezeButtonTopNode: SCNNode = SCNNode()
     var randomButtonNode: SCNNode = SCNNode()
     var upgradeButtonNode: SCNNode = SCNNode()
+    var freezeButtonNode: SCNNode = SCNNode()
     var endButtonNode: SCNNode = SCNNode()
     var allyBoardNode : SCNNode = SCNNode()
     let totalUpdateTime:Double = 1 //刷新时间
+    var isFreezed:Bool = false //是否冻结
     
     
     var handPoint = SCNNode() // use for mode1 with hand
@@ -987,7 +990,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 //                                SCNAction.move(by: SCNVector3(1,2,1), duration: 0.5)
 //                            ]))
                             //
-                            if playerStatues[curPlayerId].curCoin > 0 {
+                            if playerStatues[curPlayerId].curCoin > 0 && !isFreezed {
                                 playerStatues[curPlayerId].curCoin -= 1
                                 initBoardChess(initStage: EnumsGameStage.exchangeStage.rawValue)
                             }
@@ -1003,6 +1006,17 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                 SCNAction.move(by: SCNVector3(0,0.005,0), duration: 0.25)
                             ]))
                             switchGameStage()
+                        } else if isNameButton(hitTestResult.first!.node, "freezeButton") {
+                            if isFreezed {
+                                freezeButtonTopNode.runAction(SCNAction.sequence([
+                                    SCNAction.move(by: SCNVector3(0,0.005,0), duration: 0.25)
+                                ]))
+                            } else {
+                                freezeButtonTopNode.runAction(SCNAction.sequence([
+                                    SCNAction.move(by: SCNVector3(0,-0.005,0), duration: 0.25)
+                                ]))
+                            }
+                            isFreezed = !isFreezed
                         }
                     }
                             
@@ -2562,6 +2576,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         randomButtonNode.runAction(SCNAction.fadeIn(duration: 1))
         upgradeButtonNode.runAction(SCNAction.fadeIn(duration: 1))
         endButtonNode.runAction(SCNAction.fadeIn(duration: 1))
+        freezeButtonNode.runAction(SCNAction.fadeIn(duration: 1))
         //
         longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action:  #selector(onLongPress))
         tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onTap))
@@ -2574,6 +2589,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         randomButtonNode.runAction(SCNAction.fadeOut(duration: 1))
         upgradeButtonNode.runAction(SCNAction.fadeOut(duration: 1))
         endButtonNode.runAction(SCNAction.fadeOut(duration: 1))
+        freezeButtonNode.runAction(SCNAction.fadeOut(duration: 1))
         removeGestureRecoginzer()
         
     }
@@ -2600,6 +2616,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         if let endButtonTopTemp = playerBoardNode.childNode(withName: "endButtonTop", recursively: true) {
             endButtonTopNode = endButtonTopTemp
         }
+        if let freezeButtonTopTemp = playerBoardNode.childNode(withName: "freezeButtonTop", recursively: true) {
+            freezeButtonTopNode = freezeButtonTopTemp
+        }
+        
+        
+        
         if let randomButtonTemp = playerBoardNode.childNode(withName: "randomButton", recursively: true) {
             randomButtonNode = randomButtonTemp
         }
@@ -2608,6 +2630,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         }
         if let endButtonTemp = playerBoardNode.childNode(withName: "endButton", recursively: true) {
             endButtonNode = endButtonTemp
+        }
+        if let freezeButtonTemp = playerBoardNode.childNode(withName: "freezeButton", recursively: true) {
+            freezeButtonNode = freezeButtonTemp
         }
     }
     func initGameTest() {
