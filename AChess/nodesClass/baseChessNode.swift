@@ -124,7 +124,7 @@ public class baseChessNode: SCNNode {
         atkNum = 0
         defNum = 0
         if let nameLabelNode = curNode.childNode(withName: "nameLabel", recursively: true) {
-            nameTextNode.position = SCNVector3(-0.01, -0.02 , 0)
+            nameTextNode.position = SCNVector3(-0.006, -0.03 , -0.08)
             nameLabelNode.addChildNode(nameTextNode)
         }
         if let descLabelNode = curNode.childNode(withName: "descLabel", recursively: true) {

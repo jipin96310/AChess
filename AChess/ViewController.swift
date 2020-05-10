@@ -46,6 +46,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     
     //以下数据需要保存
     var boardPool : [String : Int] = ["" : 0] //卡池
+    var freezedChessNodes: [baseChessNode] = []
+    
+    
     var boardNode :[[baseChessNode]] = [[],[]] //chesses
         {
             didSet(oldBoard) {
@@ -1697,6 +1700,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 self.boardNode[BoardSide.allySide.rawValue].forEach{(curChess) in
                     self.playerStatues[self.curPlayerId].curChesses.append(curChess.copyable())
                 }
+                if self.isFreezed {
+                    self.freezedChessNodes = []
+                    self.boardNode[BoardSide.enemySide.rawValue].forEach{(curChess) in
+                        self.freezedChessNodes.append(curChess.copyable())
+                    }
+                }
                 //playerStatues[curPlayerId].curChesses = boardNode[1]
                 delay(0.5 + totalTime) { //初始化大屏幕和棋盘棋子
                     self.initDisplay()
@@ -1734,7 +1743,17 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 }
                 
                 self.initDisplay()
-                self.initBoardChess(initStage: EnumsGameStage.exchangeStage.rawValue)
+                
+                if !self.isFreezed {
+                   self.initBoardChess(initStage: EnumsGameStage.exchangeStage.rawValue)
+                } else {
+                    self.boardNode[0] = []
+                    self.freezedChessNodes.forEach{(curChess) in
+                        self.boardNode[0].append(curChess.copyable())
+                    }
+                }
+                
+               
             }
         }
         //here update every players info, if there'll be multiplayers mode, you should get other players info, and then update to the playerStatues array
