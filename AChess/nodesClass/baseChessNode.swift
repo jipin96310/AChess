@@ -22,7 +22,7 @@ public class baseChessNode: SCNNode {
     private let abilitiesTriggerTextNode = TextNode(textScale: SCNVector3(0.5, 0.5, 0.01))
     var chessName: String = "" {
         didSet {
-            nameTextNode.string = chessName
+            nameTextNode.string = chessName.localized
         }
     }
     var chessDesc: String = "" {
@@ -158,6 +158,7 @@ public class baseChessNode: SCNNode {
             sideNode.addChildNode(abilitiesTriggerTextNode)
             
         }
+        
         //最后计算棋子的描述
         chessDesc = formatChessDesc()
         descTextNode.string = chessDesc
@@ -166,7 +167,7 @@ public class baseChessNode: SCNNode {
         self.init()
         chessStatus = statusNum
         chessName = chessInfo.name!
-        nameTextNode.string = chessName
+        nameTextNode.string = chessName.localized
         //chessDesc = chessInfo.desc!
         //descTextNode.string = chessDesc
         atkNum = chessInfo.atkNum
@@ -185,6 +186,13 @@ public class baseChessNode: SCNNode {
         //price
         initChessPrice()
         priceTextNode.string = String(chessPrice)
+        
+        
+        if let aniPicNode = self.childNode(withName: "animalpic", recursively: true) {
+            print(chessName)
+            aniPicNode.geometry?.firstMaterial?.diffuse.contents = UIImage(named: chessName)
+        }
+        
         if let sideNode = self.childNode(withName: "side", recursively: true) { //control the side color/image
             sideNode.geometry?.firstMaterial?.diffuse.contents = chessColorRarity[chessRarity]!
         }
