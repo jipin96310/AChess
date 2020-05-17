@@ -34,6 +34,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     let totalUpdateTime:Double = 1 //刷新时间
     var isFreezed:Bool = false //是否冻结
     
+  
     
     var handPoint = SCNNode() // use for mode1 with hand
     var referencePoint = SCNNode() // use for mode0 with touching on screen
@@ -47,7 +48,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     //以下数据需要保存
     var boardPool : [String : Int] = ["" : 0] //卡池
     var freezedChessNodes: [baseChessNode] = []
-    
+    var gameConfigStr:[String:Int] = [:]
     
     var boardNode :[[baseChessNode]] = [[],[]] //chesses
         {
@@ -313,6 +314,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        
+         print("gameconfig",gameConfigStr)
+        
         // Set the view's delegate
         sceneView.delegate = self
         
@@ -328,9 +332,20 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
     
     override func viewWillAppear(_ animated: Bool) {
+
         
         super.viewWillAppear(animated)
-        
+        guard ARWorldTrackingConfiguration.isSupported else {
+            fatalError("""
+                ARKit is not available on this device. For apps that require ARKit
+                for core functionality, use the `arkit` key in the key in the
+                `UIRequiredDeviceCapabilities` section of the Info.plist to prevent
+                the app from installing. (If the app can't be installed, this error
+                can't be triggered in a production scenario.)
+                In apps where AR is an additive feature, use `isSupported` to
+                determine whether to show UI for launching AR experiences.
+            """) // For details, see https://developer.apple.com/documentation/arkit
+        }
         // Create a session configuration
         let configuration = ARWorldTrackingConfiguration()
         configuration.planeDetection = .horizontal
