@@ -2564,13 +2564,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             if attRstBlood > 0 {
                 if let backPos = findChessPos(attacker) {
                     if let backVec = returnExactPos(boardSide: backPos[0], chessIndex: backPos[1]) { //如果找的到就按新的路线返回
-                      attackSequence += [backToAction(backVec, attacker)]
+                      attackSequence += [backToAction(backVec, attacker, attackBoardIndex)]
                     } else {
-                       attackSequence += [backToAction(atkStartPos, attacker)] //找不到就按照默认返回
+                       attackSequence += [backToAction(atkStartPos, attacker, attackBoardIndex)] //找不到就按照默认返回
                     }
                     
                 } else {
-                    attackSequence += [backToAction(atkStartPos, attacker)] //找不到就按照默认返回
+                    attackSequence += [backToAction(atkStartPos, attacker, attackBoardIndex)] //找不到就按照默认返回
                 }
             
             }
