@@ -10,6 +10,7 @@ import UIKit
 import SceneKit
 import ARKit
 import PromiseKit
+import MultipeerConnectivity
 
 class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SCNPhysicsContactDelegate {
 
@@ -291,7 +292,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var storageRootNode : [SCNNode] = []
    
     //var backupBoardNode:[[baseChessNode]] = [[],[]]
-    var playerStatues: [playerStruct] = [playerStruct(playerName: "player1", curCoin: GlobalNumberSettings.roundBaseCoin.rawValue + 50, curLevel: 1, curBlood: 40, curChesses: [], curAura: []), playerStruct(playerName: "player2", curCoin: 40, curLevel: 1, curBlood: 40, curChesses: [], curAura: [])] {
+    var playerStatues: [playerStruct] = [playerStruct(playerName: "player1", curCoin: GlobalNumberSettings.roundBaseCoin.rawValue + 50, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: false, playerID: MCPeerID(displayName: "player1")), playerStruct(playerName: "player2", curCoin: 40, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: false,  playerID: MCPeerID(displayName: "player2"))] {
         didSet {
             moneyTextNode.string = String(playerStatues[curPlayerId].curCoin)
             levelTextNode.string = String(playerStatues[curPlayerId].curLevel)

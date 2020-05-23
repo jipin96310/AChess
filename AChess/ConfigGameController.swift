@@ -15,7 +15,7 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
     
     
     var gameConfig = settingStruct(isShareBoard: true, playerNumber: 2)
-    var currentSlaveId:[MCPeerID] = [MCPeerID(displayName: UIDevice.current.name)]
+    var currentSlaveId:[playerStruct] = [playerStruct(playerName: UIDevice.current.name, curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: false, playerID: MCPeerID(displayName: UIDevice.current.name))]
     
     @IBOutlet weak var playerNumberLabel: UILabel!
     @IBOutlet weak var playerNumberStepper: UIStepper!
@@ -25,7 +25,15 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
     @IBOutlet weak var userStackView: UIStackView!
     var multipeerSession: multiUserSession!
     var timer : Timer? //定时刷新在线玩家
-    
+    let computerPlayer = [
+        playerStruct(playerName: "动保", curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: true, playerID: nil),
+        playerStruct(playerName: "武术家", curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: true, playerID: nil),
+        playerStruct(playerName: "植物人", curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: true, playerID: nil),
+        playerStruct(playerName: "素食主义者", curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: true, playerID: nil),
+        playerStruct(playerName: "科学家", curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: true, playerID: nil),
+        playerStruct(playerName: "道士", curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: true, playerID: nil),
+        playerStruct(playerName: "鬼魂", curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: true, playerID: nil),
+    ]
     
     override func viewDidAppear(_ animated: Bool) {
         UIApplication.shared.isIdleTimerDisabled = true
@@ -36,7 +44,7 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
         if tableView == settingTableView {
             return 3
         } else {
-            return 8
+            return gameConfig.playerNumber
         }
     }
     
@@ -65,8 +73,16 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
     //定时操作
     @objc func updataSecond() {
         if multipeerSession != nil {
-            var newConnectedPeers = [MCPeerID(displayName: UIDevice.current.name)]
-            newConnectedPeers += multipeerSession.connectedPeers
+            var newConnectedPeers = [playerStruct(playerName: UIDevice.current.name, curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: false, playerID: multipeerSession.getMyId())]
+            multipeerSession.connectedPeers.forEach{(peerId) in
+                newConnectedPeers.append(playerStruct(playerName: peerId.displayName, curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: false, playerID: peerId))
+            }
+//            newConnectedPeers += multipeerSession.connectedPeers
+            if newConnectedPeers.count < gameConfig.playerNumber {
+                for i in 0 ..< (gameConfig.playerNumber - newConnectedPeers.count) {
+                    newConnectedPeers.append(computerPlayer[i])
+                }
+            }
             currentSlaveId = newConnectedPeers
             print(currentSlaveId)
             tableView.reloadData()
@@ -77,8 +93,8 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
         gameConfig.isShareBoard = shareBoardSwitch.isOn
     }
     @objc func stepperChanged(_ stepper:UIStepper) { //玩家数量
-        gameConfig.playerNumber = stepper.value
-        playerNumberLabel.text = String(Int(stepper.value))
+        gameConfig.playerNumber = Int(stepper.value)
+        playerNumberLabel.text = String(gameConfig.playerNumber)
     }
     
     func stopTimer() {
@@ -90,10 +106,14 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
     
     /// - Tag: ReceiveData
     func receivedData(_ data: Data, from peer: MCPeerID) {
-        print("unknown data recieved from \(peer)")
-        
         do {
-            print("unknown data recieved from \(peer)")
+            let decoder = JSONDecoder()
+            if let masterConfig = try? decoder.decode(settingStruct.self, from: data){ //如果是解析的游戏配置文件 说明自己是从机
+                DispatchQueue.main.async {
+                   self.performSegue(withIdentifier: "StartGamtDetail", sender: masterConfig)
+                }
+            }
+            
         } catch {
             print("can't decode data recieved from \(peer)")
         }
@@ -101,9 +121,13 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
     
     //在这个方法中给新页面传递参数
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "StartGamtDetail"{
+        if segue.identifier == "StartGamtDetail"{ //你按下了开始 你成为了主机
             let controller = segue.destination as! ViewController
             controller.gameConfigStr = gameConfig
+            //发送游戏配置给所有从机
+            let encoder = JSONEncoder()
+            let encoded = try? encoder.encode(gameConfig)
+            self.multipeerSession.sendToAllPeers(encoded!)
         }
     }
     
@@ -119,7 +143,7 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
             var curPlayerName = ""
             
             if indexPath.row < currentSlaveId.count {
-                curPlayerName = currentSlaveId[indexPath.row].displayName
+                curPlayerName = currentSlaveId[indexPath.row].playerName
             }
             
             cell.textLabel?.text="\(curPlayerName)"
