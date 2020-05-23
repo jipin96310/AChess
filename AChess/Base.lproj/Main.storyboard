@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="HbH-GG-5gM">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="HbH-GG-5gM">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
@@ -94,48 +94,102 @@
                                 </prototypes>
                                 <sections/>
                             </tableView>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="1sX-6U-8Db" userLabel="SettingView">
-                                <rect key="frame" x="0.0" y="88" width="414" height="300"/>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="tAF-9D-LdC" userLabel="settingView">
+                                <rect key="frame" x="0.0" y="206.5" width="414" height="160"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="200" id="5Gc-GJ-caN"/>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="160" id="22V-vE-xLa"/>
+                                    <constraint firstAttribute="height" constant="160" id="Rul-5r-15U"/>
                                 </constraints>
-                                <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="shareBoardCell" id="dJP-RG-q6e">
-                                        <rect key="frame" x="0.0" y="28" width="414" height="43.5"/>
-                                        <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="dJP-RG-q6e" id="kxD-gh-0cV">
-                                            <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
-                                            <autoresizingMask key="autoresizingMask"/>
+                                <stackView key="tableHeaderView" opaque="NO" contentMode="scaleToFill" id="tNn-vc-YK4" userLabel="shareView">
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    <subviews>
+                                        <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yNa-W8-EXq" userLabel="shareBoardView">
+                                            <rect key="frame" x="0.0" y="0.0" width="200" height="44"/>
                                             <subviews>
-                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="55d-JX-EhT">
-                                                    <rect key="frame" x="46" y="6" width="49" height="31"/>
-                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="EOP-ZW-xkC">
+                                                    <rect key="frame" x="0.0" y="0.0" width="202" height="44"/>
                                                 </switch>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="共享棋盘" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dXR-8J-zr2">
-                                                    <rect key="frame" x="162" y="11" width="70" height="21"/>
-                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <nil key="textColor"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
                                             </subviews>
-                                        </tableViewCellContentView>
-                                    </tableViewCell>
-                                </prototypes>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="200" id="oif-hS-wrr"/>
+                                            </constraints>
+                                        </stackView>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="是否共享棋盘" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="T2C-T8-DWO">
+                                            <rect key="frame" x="200" y="0.0" width="214" height="44"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstAttribute="bottom" secondItem="yNa-W8-EXq" secondAttribute="bottom" id="FPj-9s-L8v"/>
+                                        <constraint firstItem="yNa-W8-EXq" firstAttribute="leading" secondItem="tNn-vc-YK4" secondAttribute="leading" id="LX0-lY-6aF"/>
+                                        <constraint firstItem="yNa-W8-EXq" firstAttribute="top" secondItem="tNn-vc-YK4" secondAttribute="top" id="lqV-8o-NeW"/>
+                                    </constraints>
+                                </stackView>
+                                <stackView key="tableFooterView" opaque="NO" contentMode="scaleToFill" id="gNy-jK-e5G" userLabel="personNumberView">
+                                    <rect key="frame" x="0.0" y="44" width="414" height="44"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    <subviews>
+                                        <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UP9-oZ-172">
+                                            <rect key="frame" x="0.0" y="0.0" width="200" height="44"/>
+                                            <subviews>
+                                                <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="2" minimumValue="2" maximumValue="8" translatesAutoresizingMaskIntoConstraints="NO" id="5OA-wb-r0T">
+                                                    <rect key="frame" x="0.0" y="0.0" width="200" height="44"/>
+                                                </stepper>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="200" id="Rkp-Sg-wFb"/>
+                                                <constraint firstAttribute="bottom" secondItem="5OA-wb-r0T" secondAttribute="bottom" id="ia9-S2-RUv"/>
+                                                <constraint firstItem="5OA-wb-r0T" firstAttribute="leading" secondItem="UP9-oZ-172" secondAttribute="leading" constant="20" id="wSc-Zb-IaK"/>
+                                                <constraint firstItem="5OA-wb-r0T" firstAttribute="top" secondItem="UP9-oZ-172" secondAttribute="top" id="ytA-jk-uDi"/>
+                                            </constraints>
+                                        </stackView>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="玩家人数：" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yfT-aL-2Q8">
+                                            <rect key="frame" x="200" y="0.0" width="114" height="44"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" restorationIdentifier="playerNumberLabel" text="2" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1x5-ky-vsA">
+                                            <rect key="frame" x="314" y="0.0" width="100" height="44"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="100" id="sfY-ao-Mqz"/>
+                                            </constraints>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstAttribute="bottom" secondItem="UP9-oZ-172" secondAttribute="bottom" id="CU7-AO-ADf"/>
+                                        <constraint firstItem="UP9-oZ-172" firstAttribute="top" secondItem="gNy-jK-e5G" secondAttribute="top" id="VWi-eQ-zA9"/>
+                                        <constraint firstItem="UP9-oZ-172" firstAttribute="leading" secondItem="gNy-jK-e5G" secondAttribute="leading" id="nWn-yu-hsc"/>
+                                    </constraints>
+                                </stackView>
                             </tableView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="游戏参数设置" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zQE-hN-3Uu">
+                                <rect key="frame" x="20" y="108" width="194" height="38.5"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="32"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
-                            <constraint firstItem="1sX-6U-8Db" firstAttribute="top" secondItem="gIL-WC-lJA" secondAttribute="top" id="4PX-mp-pPa"/>
                             <constraint firstItem="gIL-WC-lJA" firstAttribute="trailing" secondItem="veJ-zV-WjD" secondAttribute="trailing" id="B02-xV-utm"/>
                             <constraint firstItem="veJ-zV-WjD" firstAttribute="top" secondItem="G8j-Cv-MTd" secondAttribute="bottom" constant="50" id="Fr1-4q-KlP"/>
-                            <constraint firstItem="1sX-6U-8Db" firstAttribute="leading" secondItem="gIL-WC-lJA" secondAttribute="leading" id="J98-EI-Jjq"/>
+                            <constraint firstItem="tAF-9D-LdC" firstAttribute="top" secondItem="zQE-hN-3Uu" secondAttribute="bottom" constant="60" id="HPC-5S-LGY"/>
                             <constraint firstItem="gIL-WC-lJA" firstAttribute="trailing" secondItem="G8j-Cv-MTd" secondAttribute="trailing" id="KvH-xW-jDC"/>
+                            <constraint firstItem="tAF-9D-LdC" firstAttribute="leading" secondItem="gIL-WC-lJA" secondAttribute="leading" id="OaC-hK-lSP"/>
+                            <constraint firstItem="zQE-hN-3Uu" firstAttribute="top" secondItem="gIL-WC-lJA" secondAttribute="top" constant="20" id="XOq-2x-9K6"/>
                             <constraint firstItem="G8j-Cv-MTd" firstAttribute="top" secondItem="gIL-WC-lJA" secondAttribute="top" constant="300" id="Xfu-Xz-dCe"/>
                             <constraint firstItem="veJ-zV-WjD" firstAttribute="leading" secondItem="gIL-WC-lJA" secondAttribute="leading" id="YX2-Up-fFF"/>
                             <constraint firstItem="gIL-WC-lJA" firstAttribute="bottom" secondItem="veJ-zV-WjD" secondAttribute="bottom" constant="20" id="aRn-gB-zfL"/>
-                            <constraint firstItem="1sX-6U-8Db" firstAttribute="trailing" secondItem="gIL-WC-lJA" secondAttribute="trailing" id="gQe-wX-zji"/>
+                            <constraint firstItem="zQE-hN-3Uu" firstAttribute="leading" secondItem="gIL-WC-lJA" secondAttribute="leading" constant="20" id="bQ1-j0-L6l"/>
+                            <constraint firstItem="tAF-9D-LdC" firstAttribute="trailing" secondItem="gIL-WC-lJA" secondAttribute="trailing" id="hJC-fq-eko"/>
                             <constraint firstItem="G8j-Cv-MTd" firstAttribute="leading" secondItem="gIL-WC-lJA" secondAttribute="leading" id="ltb-hc-eeQ"/>
                             <constraint firstItem="gIL-WC-lJA" firstAttribute="bottom" secondItem="G8j-Cv-MTd" secondAttribute="bottom" constant="100" id="quD-QV-NUD"/>
                             <constraint firstItem="G8j-Cv-MTd" firstAttribute="trailing" secondItem="gIL-WC-lJA" secondAttribute="trailing" id="wLZ-xX-l3o"/>
@@ -144,7 +198,9 @@
                     </view>
                     <navigationItem key="navigationItem" id="257-qJ-ZLt"/>
                     <connections>
-                        <outlet property="settingTableView" destination="1sX-6U-8Db" id="gFv-p8-dm4"/>
+                        <outlet property="playerNumberLabel" destination="1x5-ky-vsA" id="RqG-Ci-pBP"/>
+                        <outlet property="playerNumberStepper" destination="5OA-wb-r0T" id="ukA-Jt-vhd"/>
+                        <outlet property="shareBoardSwitch" destination="EOP-ZW-xkC" id="WL2-8k-d0x"/>
                         <outlet property="tableView" destination="G8j-Cv-MTd" id="lOf-14-eq8"/>
                     </connections>
                 </viewController>

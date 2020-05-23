@@ -48,7 +48,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     //以下数据需要保存
     var boardPool : [String : Int] = ["" : 0] //卡池
     var freezedChessNodes: [baseChessNode] = []
-    var gameConfigStr:[String:Int] = [:]
+    var gameConfigStr = settingStruct(isShareBoard: true, playerNumber: 2)
     
     var boardNode :[[baseChessNode]] = [[],[]] //chesses
         {

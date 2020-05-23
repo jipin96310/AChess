@@ -131,6 +131,8 @@ enum EnumKeyName: Int {
     case abilityKind = 7 //能力类型
     case isSelf = 8 //是否作用与自己
     case customValue = 9 //自定义数字
+    case isShareBoard = 10 //是否共享棋盘
+    case playerNumber = 11 //玩家人数
 }
 
 //棋子名字

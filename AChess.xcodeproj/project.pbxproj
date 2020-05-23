@@ -12,8 +12,12 @@
 		C709C50823DD86D100944C01 /* utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = C709C50723DD86D100944C01 /* utils.swift */; };
 		C709C50A23DD86EF00944C01 /* enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = C709C50923DD86EF00944C01 /* enums.swift */; };
 		C70C152324420F530086C259 /* playerStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70C152224420F530086C259 /* playerStruct.swift */; };
+		C72C2FE22478D10F005AE2F7 /* settingStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72C2FE12478D10F005AE2F7 /* settingStruct.swift */; };
 		C72D0EC623DFF8F800CC0EFB /* textNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72D0EC523DFF8F800CC0EFB /* textNode.swift */; };
 		C72E92F623F195FD008F890F /* chessCollections.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72E92F523F195FD008F890F /* chessCollections.swift */; };
+		C72ED6E9246FF0CD00BECBB4 /* MainController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72ED6E8246FF0CD00BECBB4 /* MainController.swift */; };
+		C72ED6EB24703DA700BECBB4 /* ConfigGameController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72ED6EA24703DA700BECBB4 /* ConfigGameController.swift */; };
+		C72EF22D2470F4890002C54A /* mulitiUserSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72EF22C2470F4890002C54A /* mulitiUserSession.swift */; };
 		C73426A223D9E338003B7697 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C73426A123D9E338003B7697 /* AppDelegate.swift */; };
 		C73426A423D9E338003B7697 /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = C73426A323D9E338003B7697 /* art.scnassets */; };
 		C73426A623D9E338003B7697 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C73426A523D9E338003B7697 /* ViewController.swift */; };
@@ -77,8 +81,12 @@
 		C709C50723DD86D100944C01 /* utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = utils.swift; sourceTree = "<group>"; };
 		C709C50923DD86EF00944C01 /* enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = enums.swift; sourceTree = "<group>"; };
 		C70C152224420F530086C259 /* playerStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = playerStruct.swift; sourceTree = "<group>"; };
+		C72C2FE12478D10F005AE2F7 /* settingStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = settingStruct.swift; sourceTree = "<group>"; };
 		C72D0EC523DFF8F800CC0EFB /* textNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = textNode.swift; sourceTree = "<group>"; };
 		C72E92F523F195FD008F890F /* chessCollections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = chessCollections.swift; sourceTree = "<group>"; };
+		C72ED6E8246FF0CD00BECBB4 /* MainController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainController.swift; sourceTree = "<group>"; };
+		C72ED6EA24703DA700BECBB4 /* ConfigGameController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigGameController.swift; sourceTree = "<group>"; };
+		C72EF22C2470F4890002C54A /* mulitiUserSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mulitiUserSession.swift; sourceTree = "<group>"; };
 		C7300483240010860085F358 /* PromiseKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PromiseKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C734269E23D9E338003B7697 /* AChess.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AChess.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C73426A123D9E338003B7697 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -174,8 +182,17 @@
 				C757833823F26A5300B0DCE3 /* chessStruct.swift */,
 				C751227323F518D7002CC4B4 /* dummyAI.swift */,
 				C70C152224420F530086C259 /* playerStruct.swift */,
+				C72C2FE12478D10F005AE2F7 /* settingStruct.swift */,
 			);
 			path = Datas;
+			sourceTree = "<group>";
+		};
+		C72EF22B2470F46B0002C54A /* MultiUser */ = {
+			isa = PBXGroup;
+			children = (
+				C72EF22C2470F4890002C54A /* mulitiUserSession.swift */,
+			);
+			path = MultiUser;
 			sourceTree = "<group>";
 		};
 		C734269523D9E338003B7697 = {
@@ -203,6 +220,7 @@
 		C73426A023D9E338003B7697 /* AChess */ = {
 			isa = PBXGroup;
 			children = (
+				C72EF22B2470F46B0002C54A /* MultiUser */,
 				C7F481A3240A6131002EBEED /* Localization */,
 				C72E92F423F195DD008F890F /* Datas */,
 				C7C759F023DB2B5F00274596 /* nodesClass */,
@@ -210,6 +228,8 @@
 				C73426A123D9E338003B7697 /* AppDelegate.swift */,
 				C73426A323D9E338003B7697 /* art.scnassets */,
 				C73426A523D9E338003B7697 /* ViewController.swift */,
+				C72ED6E8246FF0CD00BECBB4 /* MainController.swift */,
+				C72ED6EA24703DA700BECBB4 /* ConfigGameController.swift */,
 				C73426A723D9E338003B7697 /* Main.storyboard */,
 				C73426AA23D9E33B003B7697 /* Assets.xcassets */,
 				C73426AC23D9E33B003B7697 /* LaunchScreen.storyboard */,
@@ -480,11 +500,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				C7F481A2240A5EF8002EBEED /* LocalizationTool.swift in Sources */,
+				C72C2FE22478D10F005AE2F7 /* settingStruct.swift in Sources */,
+				C72ED6EB24703DA700BECBB4 /* ConfigGameController.swift in Sources */,
 				C709C50823DD86D100944C01 /* utils.swift in Sources */,
 				C7DD950823DE9ACE0096CE0C /* actions.swift in Sources */,
+				C72EF22D2470F4890002C54A /* mulitiUserSession.swift in Sources */,
 				C7DB34BB23FEC88200DBE512 /* abilities.swift in Sources */,
 				C792198623F66978008B6950 /* protocol.swift in Sources */,
 				C709C50A23DD86EF00944C01 /* enums.swift in Sources */,
+				C72ED6E9246FF0CD00BECBB4 /* MainController.swift in Sources */,
 				C7AFB4FC23EAF8B400B21E09 /* customPlanenode.swift in Sources */,
 				C7DD951323DF06590096CE0C /* baseChessNode.swift in Sources */,
 				C72D0EC623DFF8F800CC0EFB /* textNode.swift in Sources */,

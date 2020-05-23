@@ -14,9 +14,12 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
     
     
     
-    var gameConfig = ["isSharedBoard": 0]
+    var gameConfig = settingStruct(isShareBoard: true, playerNumber: 2)
     var currentSlaveId:[MCPeerID] = [MCPeerID(displayName: UIDevice.current.name)]
     
+    @IBOutlet weak var playerNumberLabel: UILabel!
+    @IBOutlet weak var playerNumberStepper: UIStepper!
+    @IBOutlet weak var shareBoardSwitch: UISwitch!
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var settingTableView: UITableView!
     @IBOutlet weak var userStackView: UIStackView!
@@ -47,6 +50,9 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
         timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updataSecond), userInfo: nil, repeats: true)
         timer!.fire()
         
+        //监听设置组件
+        shareBoardSwitch.addTarget(self, action: #selector(switchChange), for: .valueChanged)
+        playerNumberStepper.addTarget(self, action: #selector(stepperChanged), for: .valueChanged)
         
         multipeerSession = multiUserSession(receivedDataHandler: receivedData)
     }
@@ -65,6 +71,14 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
             print(currentSlaveId)
             tableView.reloadData()
         }
+    }
+    
+    @objc func switchChange() { //是否共享棋盘
+        gameConfig.isShareBoard = shareBoardSwitch.isOn
+    }
+    @objc func stepperChanged(_ stepper:UIStepper) { //玩家数量
+        gameConfig.playerNumber = stepper.value
+        playerNumberLabel.text = String(Int(stepper.value))
     }
     
     func stopTimer() {
