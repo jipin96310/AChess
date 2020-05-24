@@ -14,7 +14,7 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
     
     
     
-    var gameConfig = settingStruct(isShareBoard: true, playerNumber: 2)
+    var gameConfig = settingStruct(isShareBoard: true, playerNumber: 2, isMaster: false)
     var currentSlaveId:[playerStruct] = [playerStruct(playerName: UIDevice.current.name, curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: false, playerID: MCPeerID(displayName: UIDevice.current.name))]
     
     @IBOutlet weak var playerNumberLabel: UILabel!
@@ -84,7 +84,6 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
                 }
             }
             currentSlaveId = newConnectedPeers
-            print(currentSlaveId)
             tableView.reloadData()
         }
     }
@@ -110,7 +109,7 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
             let decoder = JSONDecoder()
             if let masterConfig = try? decoder.decode(settingStruct.self, from: data){ //如果是解析的游戏配置文件 说明自己是从机
                 DispatchQueue.main.async {
-                   self.performSegue(withIdentifier: "StartGamtDetail", sender: masterConfig)
+                   self.performSegue(withIdentifier: "StartGameSlave", sender: masterConfig)
                 }
             }
             
@@ -123,12 +122,26 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "StartGamtDetail"{ //你按下了开始 你成为了主机
             let controller = segue.destination as! ViewController
-            controller.gameConfigStr = gameConfig
+            var masterConfig = gameConfig
+            masterConfig.isMaster = true
+            controller.gameConfigStr = masterConfig
             //发送游戏配置给所有从机
             let encoder = JSONEncoder()
             let encoded = try? encoder.encode(gameConfig)
             self.multipeerSession.sendToAllPeers(encoded!)
+            
+            
+            controller.multipeerSession = multipeerSession
+        } else if segue.identifier == "StartGameSlave"{ //你按下了开始 你成为了主机
+            let controller = segue.destination as! ViewController
+            var slaveConfig = gameConfig
+            slaveConfig.isMaster = false
+            controller.gameConfigStr = slaveConfig
+            
+            
+            controller.multipeerSession = multipeerSession
         }
+        
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell{
@@ -151,6 +164,7 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
         }
     }
     
+
     
 
     

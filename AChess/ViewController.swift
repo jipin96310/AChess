@@ -16,6 +16,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 
     @IBOutlet var sceneView: ARSCNView!
    
+    @IBOutlet weak var messageLabel: UILabel!
     
     var setting = (controlMethod : 0, particalOn : 0)//0:  0 用tap的方式操作。1用手识别操作  这个数据应该存在数据库或缓存里作为全局变量
     
@@ -34,7 +35,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var allyBoardNode : SCNNode = SCNNode()
     let totalUpdateTime:Double = 1 //刷新时间
     var isFreezed:Bool = false //是否冻结
-    
+    var multipeerSession: multiUserSession! //多人session
   
     
     var handPoint = SCNNode() // use for mode1 with hand
@@ -49,7 +50,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     //以下数据需要保存
     var boardPool : [String : Int] = ["" : 0] //卡池
     var freezedChessNodes: [baseChessNode] = []
-    var gameConfigStr = settingStruct(isShareBoard: true, playerNumber: 2)
+    var gameConfigStr = settingStruct(isShareBoard: true, playerNumber: 2, isMaster: false)
     
     var boardNode :[[baseChessNode]] = [[],[]] //chesses
         {
@@ -315,9 +316,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
-         print("gameconfig",gameConfigStr)
-        
+        messageLabel.text = String(gameConfigStr.isMaster)
         // Set the view's delegate
         sceneView.delegate = self
         
@@ -330,6 +329,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         
         // Set the scene to the view
         //sceneView.scene = scene
+        
+        multipeerSession.changeHandler(newHandler: receivedData)
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -396,6 +398,46 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         
         // Pause the view's session
         sceneView.session.pause()
+    }
+    
+    
+    
+    // MARK: - Multiuser shared session
+
+    var mapProvider: MCPeerID?
+
+    /// - Tag: ReceiveData
+    func receivedData(_ data: Data, from peer: MCPeerID) {
+        
+        do {
+            
+            if let worldMap = try? NSKeyedUnarchiver.unarchivedObject(ofClass: ARWorldMap.self, from: data) {
+                // Run the session with the received world map.
+                let configuration = ARWorldTrackingConfiguration()
+                configuration.planeDetection = .horizontal
+                configuration.initialWorldMap = worldMap
+                sceneView.session.run(configuration, options: [.resetTracking, .removeExistingAnchors])
+                
+                // Remember who provided the map for showing UI feedback.
+                mapProvider = peer
+            } else if let anchor = try? NSKeyedUnarchiver.unarchivedObject(ofClass: ARPlaneAnchor.self, from: data) {
+                // Add anchor to the session, ARSCNView delegate adds visible content.
+                anchor.setValue("customPlane", forKey: "name")
+                sceneView.session.add(anchor: anchor)
+            }
+            else if let anchor = try? NSKeyedUnarchiver.unarchivedObject(ofClass: ARAnchor.self, from: data) {
+                // Add anchor to the session, ARSCNView delegate adds visible content.
+                anchor.setValue("playerBoard", forKey: "name")
+                sceneView.session.add(anchor: anchor)
+            }
+            else {
+                print("unknown data recieved from \(peer)")
+            }
+            
+            
+        } catch {
+            print("can't decode data recieved from \(peer)")
+        }
     }
 
     // MARK: - ARSCNViewDelegate
@@ -988,8 +1030,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             if !hitTestResult.isEmpty {
                 if isPlayerBoardinited == false {
                    //self.addChessTest(hitTestResult: hitTestResult.first!)
-                    self.initPlayerBoard(hitTestResult: hitTestResult.first!)
-                    isPlayerBoardinited = true
+                    //playGroundNode.geometry?.firstMaterial?.diffuse.contents = UIColor.red
+                    self.initPlayerBoardAndSend(hitTestResult: hitTestResult.first!)
+                   
                 } else {
                     //self.addChessTest(hitTestResult: hitTestResult.first!)
                     guard let sceneView = sender.view as? ARSCNView else {return}
@@ -2765,12 +2808,21 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         
         return t1 + t2 + t3
     }
-    func initPlayerBoard(hitTestResult: ARHitTestResult) {
+    
+    //master ohone init the playerboard and send to peers
+    func initPlayerBoardAndSend(hitTestResult: ARHitTestResult) {
+        if  isPlayerBoardinited {
+            return
+        } else {
+            isPlayerBoardinited = true
+        }
+        
         playerBoardNode = createPlayerBoard()
         //playerBoardNode.eulerAngles = SCNVector3(45.degreesToRadius, 0, 0)
         //playGroundNode.geometry?.firstMaterial?.isDoubleSided = true
         //playGroundNode.geometry?.firstMaterial?.diffuse.contents = UIColor.red
-        let positionOFPlane = hitTestResult.worldTransform.columns.3
+        let hitTransform = hitTestResult.worldTransform
+        let positionOFPlane = hitTransform.columns.3
         let xP = positionOFPlane.x
         let yP = positionOFPlane.y
         let zP = positionOFPlane.z
@@ -2779,12 +2831,47 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         //playGroundNode.physicsBody?.categoryBitMask = BitMaskCategoty.playGround.rawValue
         //playGroundNode.physicsBody?.contactTestBitMask = BitMaskCategoty.baseCard.rawValue
         self.sceneView.scene.rootNode.addChildNode(playerBoardNode)
-       
+        
+        if (gameConfigStr.isMaster) {
+            let anchor = ARAnchor(name: "playerBoard", transform: hitTransform)
+            // Send the anchor info to peers, so they can place the same content.
+            guard let data = try? NSKeyedArchiver.archivedData(withRootObject: anchor, requiringSecureCoding: true)
+                else { fatalError("can't encode anchor") }
+            self.multipeerSession.sendToAllPeers(data)
+        }
+        
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01, execute: {
+            self.initGameTest()
+        })
+        
+        }
+    //just add the player board node
+    func initPlayerBoard(playerBoardPosition: SCNVector3) {
+        playerBoardNode = createPlayerBoard()
+        //playerBoardNode.eulerAngles = SCNVector3(45.degreesToRadius, 0, 0)
+        //playGroundNode.geometry?.firstMaterial?.isDoubleSided = true
+        //playGroundNode.geometry?.firstMaterial?.diffuse.contents = UIColor.red
+//        let positionOFPlane = hitTestResult.worldTransform.columns.3
+//        let xP = positionOFPlane.x
+//        let yP = positionOFPlane.y
+//        let zP = positionOFPlane.z
+        playerBoardNode.position = playerBoardPosition
+        playerBoardNode.physicsBody = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(node: playerBoardNode))
+        //playGroundNode.physicsBody?.categoryBitMask = BitMaskCategoty.playGround.rawValue
+        //playGroundNode.physicsBody?.contactTestBitMask = BitMaskCategoty.baseCard.rawValue
+        self.sceneView.scene.rootNode.addChildNode(playerBoardNode)
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.01, execute: {
                                        self.initGameTest()
         })
        
     }
+    
+    
+    
+    
+    
     func initHandNode() {
         let newNode = SCNNode(geometry: SCNCylinder(radius: 0.05, height: 0.005))
         newNode.name = ContactCategory.hand.rawValue
@@ -2876,39 +2963,76 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     // MARK: - ARSCNViewDelegate
 
     public func renderer(_: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
-        guard let _ = anchor as? ARPlaneAnchor else { return nil }
+        
+        
+        if let _ = anchor as? ARPlaneAnchor {
+           return customPlaneNode()
+        } else if let anchorName = anchor.name, anchorName.hasPrefix("playerBoard") {
+           return playerBoardNode
+        } else { return nil }
 
         // We return a special type of SCNNode for ARPlaneAnchors
-       return customPlaneNode()
+       
     }
 
     public func renderer(_: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
-        if isPlayerBoardinited {
-            return
-        }
         
-        guard let planeAnchor = anchor as? ARPlaneAnchor,
-            let planeNode = node as? customPlaneNode else {
-            return
+        
+        
+        if (gameConfigStr.isMaster) { //主机
+            if isPlayerBoardinited {
+                return
+            }
+            
+            guard let planeAnchor = anchor as? ARPlaneAnchor,
+                let planeNode = node as? customPlaneNode else {
+                    return
+            }
+            if planeNode.position.y > 0 {
+                return
+            }
+            planeNode.update(from: planeAnchor)
+            // Send the anchor info to peers, so they can place the same content.
+//            guard let data = try? NSKeyedArchiver.archivedData(withRootObject: planeAnchor, requiringSecureCoding: true)
+//                else { fatalError("can't encode anchor") }
+//            print("datasent", multipeerSession.connectedPeers)
+            //self.multipeerSession.sendToAllPeers(data)
+            
+        } else { //从机
+            if let anchorName = anchor.name, anchorName.hasPrefix("playerBoard") {
+                self.initPlayerBoard(playerBoardPosition: node.position)
+            } else if let anchorName = anchor.name, anchorName.hasPrefix("customPlane") {
+                guard let planeAnchor = anchor as? ARPlaneAnchor,
+                    let planeNode = node as? customPlaneNode else {
+                        return
+                }
+               planeNode.update(from: planeAnchor)
+            }
         }
-        if planeNode.position.y > 0 {
-            return
-        }
-        planeNode.update(from: planeAnchor)
+       
     }
 
     public func renderer(_: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
-        if isPlayerBoardinited {
-            return
+        if (gameConfigStr.isMaster) { //主机
+            if isPlayerBoardinited {
+                return
+            }
+            guard let planeAnchor = anchor as? ARPlaneAnchor,
+                let planeNode = node as? customPlaneNode else {
+                    return
+            }
+            if planeNode.position.y > 0 {
+                return
+            }
+            planeNode.update(from: planeAnchor)
+             //Send the anchor info to peers, so they can place the same content.
+            guard let data = try? NSKeyedArchiver.archivedData(withRootObject: planeAnchor, requiringSecureCoding: true)
+                else { fatalError("can't encode anchor") }
+            print("datasent", multipeerSession.connectedPeers)
+            //self.multipeerSession.sendToAllPeers(data)
+        } else {//从机
         }
-        guard let planeAnchor = anchor as? ARPlaneAnchor,
-            let planeNode = node as? customPlaneNode else {
-            return
-        }
-        if planeNode.position.y > 0 {
-            return
-        }
-        planeNode.update(from: planeAnchor)
+        
     }
 }
 
