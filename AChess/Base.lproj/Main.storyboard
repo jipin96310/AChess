@@ -113,7 +113,10 @@
                                                 </switch>
                                             </subviews>
                                             <constraints>
+                                                <constraint firstAttribute="bottom" secondItem="EOP-ZW-xkC" secondAttribute="bottom" id="WrB-uT-R7C"/>
+                                                <constraint firstItem="EOP-ZW-xkC" firstAttribute="leading" secondItem="yNa-W8-EXq" secondAttribute="leading" constant="20" id="n2v-Dr-J6Z"/>
                                                 <constraint firstAttribute="width" constant="200" id="oif-hS-wrr"/>
+                                                <constraint firstItem="EOP-ZW-xkC" firstAttribute="top" secondItem="yNa-W8-EXq" secondAttribute="top" id="zlR-CZ-gsR"/>
                                             </constraints>
                                         </stackView>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="是否共享棋盘" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="T2C-T8-DWO">
@@ -136,7 +139,7 @@
                                         <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UP9-oZ-172">
                                             <rect key="frame" x="0.0" y="0.0" width="200" height="44"/>
                                             <subviews>
-                                                <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="2" minimumValue="2" maximumValue="8" translatesAutoresizingMaskIntoConstraints="NO" id="5OA-wb-r0T">
+                                                <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="2" minimumValue="2" maximumValue="8" stepValue="3" translatesAutoresizingMaskIntoConstraints="NO" id="5OA-wb-r0T">
                                                     <rect key="frame" x="0.0" y="0.0" width="200" height="44"/>
                                                 </stepper>
                                             </subviews>
@@ -202,6 +205,7 @@
                         <outlet property="playerNumberStepper" destination="5OA-wb-r0T" id="ukA-Jt-vhd"/>
                         <outlet property="shareBoardSwitch" destination="EOP-ZW-xkC" id="WL2-8k-d0x"/>
                         <outlet property="tableView" destination="G8j-Cv-MTd" id="lOf-14-eq8"/>
+                        <segue destination="BV1-FR-VrT" kind="show" identifier="StartGameSlave" id="9ww-bY-KZr"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="54r-h7-AXz" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -236,18 +240,28 @@
                             <arscnView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BrB-h1-WRS">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="862"/>
                             </arscnView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8X4-Fj-M7u">
+                                <rect key="frame" x="0.0" y="817" width="414" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
+                            <constraint firstItem="8X4-Fj-M7u" firstAttribute="leading" secondItem="fQZ-KI-GVf" secondAttribute="leading" id="2vb-qK-ckV"/>
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="leading" secondItem="fQZ-KI-GVf" secondAttribute="leading" id="GsS-dJ-CKf"/>
+                            <constraint firstItem="fQZ-KI-GVf" firstAttribute="trailing" secondItem="8X4-Fj-M7u" secondAttribute="trailing" id="KKJ-Z0-g84"/>
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="bottom" secondItem="fQZ-KI-GVf" secondAttribute="bottom" id="VpT-BR-CcM"/>
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="trailing" secondItem="fQZ-KI-GVf" secondAttribute="trailing" id="XyZ-9z-H8e"/>
+                            <constraint firstItem="8X4-Fj-M7u" firstAttribute="bottom" secondItem="fQZ-KI-GVf" secondAttribute="bottom" constant="10" id="oPW-CO-xXa"/>
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="top" secondItem="U0K-SW-4ec" secondAttribute="top" id="rJc-2c-zQA"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="fQZ-KI-GVf"/>
                     </view>
                     <navigationItem key="navigationItem" id="vnD-4k-KPt"/>
                     <connections>
+                        <outlet property="messageLabel" destination="8X4-Fj-M7u" id="HVr-q7-Z4R"/>
                         <outlet property="sceneView" destination="BrB-h1-WRS" id="5nT-qQ-ynl"/>
                     </connections>
                 </viewController>
@@ -256,4 +270,7 @@
             <point key="canvasLocation" x="170" y="196"/>
         </scene>
     </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="9ww-bY-KZr"/>
+    </inferredMetricsTieBreakers>
 </document>

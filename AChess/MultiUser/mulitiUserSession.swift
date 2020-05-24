@@ -17,7 +17,7 @@ class multiUserSession: NSObject {
     private var serviceAdvertiser: MCNearbyServiceAdvertiser!
     private var serviceBrowser: MCNearbyServiceBrowser!
     
-    private let receivedDataHandler: (Data, MCPeerID) -> Void
+    private var receivedDataHandler: (Data, MCPeerID) -> Void
     
     /// - Tag: MultipeerSetup
     init(receivedDataHandler: @escaping (Data, MCPeerID) -> Void ) {
@@ -37,6 +37,13 @@ class multiUserSession: NSObject {
         serviceBrowser.startBrowsingForPeers()
     }
     
+    func changeHandler(newHandler: @escaping (Data, MCPeerID) -> Void) {
+        self.receivedDataHandler = newHandler
+    }
+    
+    func getMyId() -> MCPeerID{
+        return myPeerID
+    }
     func sendToPeer(_ data: Data, _ selectPeers: [MCPeerID]) {
         do {
             try session.send(data, toPeers: selectPeers, with: .reliable)

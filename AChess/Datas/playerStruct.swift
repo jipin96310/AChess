@@ -7,7 +7,7 @@
 //
 
 import Foundation
-
+import MultipeerConnectivity
 //curCoin: GlobalNumberSettings.roundBaseCoin.rawValue + 50, curLevel: 1, curBlood: 40, curChesses: []
 
 public struct playerStruct {
@@ -18,14 +18,18 @@ public struct playerStruct {
     var curBlood: Int
     var curChesses: [baseChessNode] //棋子
     var curAura: [String]
+    var isComputer: Bool
+    var playerID: MCPeerID?
    
 
-    init(playerName: String, curCoin: Int, curLevel: Int, curBlood: Int, curChesses: [baseChessNode], curAura: [String]) {
+    init(playerName: String, curCoin: Int, curLevel: Int, curBlood: Int, curChesses: [baseChessNode], curAura: [String], isComputer: Bool, playerID: MCPeerID?) {
         self.playerName = playerName
         self.curCoin    = curCoin
         self.curLevel   = curLevel
         self.curBlood   = curBlood
         self.curChesses = curChesses
         self.curAura    = curAura
+        self.isComputer = isComputer
+        self.playerID = playerID
     }
 }

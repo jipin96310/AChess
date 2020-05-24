@@ -23,7 +23,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     //以下数据为实时记录数据 无需保存
     var rootNodeDefalutColor = [UIColor.red, UIColor.green]
     var isPlayerBoardinited = false
-    var playerBoardNode = createPlayerBoard()
+    var playerBoardNode = createPlayerBoard() //棋盘节点
+    var curPlaneNode:customPlaneNode? = nil
     var randomButtonTopNode: SCNNode = SCNNode()
     var upgradeButtonTopNode: SCNNode = SCNNode()
     var endButtonTopNode: SCNNode = SCNNode()
@@ -1029,10 +1030,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             let hitTestResult = sceneView.hitTest(touchLocation, types: [.existingPlaneUsingExtent])
             if !hitTestResult.isEmpty {
                 if isPlayerBoardinited == false {
-                   //self.addChessTest(hitTestResult: hitTestResult.first!)
-                    //playGroundNode.geometry?.firstMaterial?.diffuse.contents = UIColor.red
-                    self.initPlayerBoardAndSend(hitTestResult: hitTestResult.first!)
-                   
+                    if gameConfigStr.isMaster {
+                        curPlaneNode?.removeFromParentNode()
+                        self.initPlayerBoardAndSend(hitTestResult: hitTestResult.first!)
+                    }
                 } else {
                     //self.addChessTest(hitTestResult: hitTestResult.first!)
                     guard let sceneView = sender.view as? ARSCNView else {return}
@@ -2966,7 +2967,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         
         
         if let _ = anchor as? ARPlaneAnchor {
-           return customPlaneNode()
+           curPlaneNode = customPlaneNode()
+           return curPlaneNode
         } else if let anchorName = anchor.name, anchorName.hasPrefix("playerBoard") {
            return playerBoardNode
         } else { return nil }
@@ -3001,13 +3003,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         } else { //从机
             if let anchorName = anchor.name, anchorName.hasPrefix("playerBoard") {
                 self.initPlayerBoard(playerBoardPosition: node.position)
-            } else if let anchorName = anchor.name, anchorName.hasPrefix("customPlane") {
-                guard let planeAnchor = anchor as? ARPlaneAnchor,
-                    let planeNode = node as? customPlaneNode else {
-                        return
-                }
-               planeNode.update(from: planeAnchor)
+                node.removeFromParentNode()
             }
+//            else if let anchorName = anchor.name, anchorName.hasPrefix("customPlane") {
+//                guard let planeAnchor = anchor as? ARPlaneAnchor,
+//                    let planeNode = node as? customPlaneNode else {
+//                        return
+//                }
+//               planeNode.update(from: planeAnchor)
+//            }
         }
        
     }
@@ -3026,9 +3030,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
             planeNode.update(from: planeAnchor)
              //Send the anchor info to peers, so they can place the same content.
-            guard let data = try? NSKeyedArchiver.archivedData(withRootObject: planeAnchor, requiringSecureCoding: true)
-                else { fatalError("can't encode anchor") }
-            print("datasent", multipeerSession.connectedPeers)
+//            guard let data = try? NSKeyedArchiver.archivedData(withRootObject: planeAnchor, requiringSecureCoding: true)
+//                else { fatalError("can't encode anchor") }
+//            print("datasent", multipeerSession.connectedPeers)
             //self.multipeerSession.sendToAllPeers(data)
         } else {//从机
         }

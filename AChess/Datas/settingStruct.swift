@@ -7,17 +7,17 @@
 //
 
 import Foundation
+import MultipeerConnectivity
 
-
-public struct settingStruct {
+public struct settingStruct : Codable {
     
     var isShareBoard: Bool
-    var playerNumber: Double
-   
-   
+    var playerNumber: Int
+    var isMaster: Bool
 
-    init(isShareBoard: Bool, playerNumber: Double) {
+    init(isShareBoard: Bool, playerNumber: Int, isMaster: Bool) {
         self.isShareBoard = isShareBoard
-        self.playerNumber    = playerNumber
+        self.playerNumber = playerNumber
+        self.isMaster = isMaster
     }
 }
