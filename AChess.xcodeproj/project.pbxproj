@@ -33,6 +33,8 @@
 		C771AFF523E80CC5007C99F0 /* extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C771AFF423E80CC5007C99F0 /* extensions.swift */; };
 		C792198623F66978008B6950 /* protocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C792198523F66978008B6950 /* protocol.swift */; };
 		C7AFB4FC23EAF8B400B21E09 /* customPlanenode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7AFB4FB23EAF8B400B21E09 /* customPlanenode.swift */; };
+		C7B4D71B24837FDD008F3B1F /* codebleChessStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B4D71A24837FDD008F3B1F /* codebleChessStruct.swift */; };
+		C7B4D71D24838AB6008F3B1F /* codblePlayerStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B4D71C24838AB6008F3B1F /* codblePlayerStruct.swift */; };
 		C7DB34BB23FEC88200DBE512 /* abilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DB34BA23FEC88200DBE512 /* abilities.swift */; };
 		C7DD950823DE9ACE0096CE0C /* actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DD950723DE9ACE0096CE0C /* actions.swift */; };
 		C7DD950E23DEB8F80096CE0C /* particals.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = C7DD950D23DEB8F80096CE0C /* particals.scnassets */; };
@@ -109,6 +111,8 @@
 		C771AFF423E80CC5007C99F0 /* extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = extensions.swift; sourceTree = "<group>"; };
 		C792198523F66978008B6950 /* protocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = protocol.swift; sourceTree = "<group>"; };
 		C7AFB4FB23EAF8B400B21E09 /* customPlanenode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = customPlanenode.swift; sourceTree = "<group>"; };
+		C7B4D71A24837FDD008F3B1F /* codebleChessStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = codebleChessStruct.swift; sourceTree = "<group>"; };
+		C7B4D71C24838AB6008F3B1F /* codblePlayerStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = codblePlayerStruct.swift; sourceTree = "<group>"; };
 		C7DB34BA23FEC88200DBE512 /* abilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = abilities.swift; sourceTree = "<group>"; };
 		C7DD950723DE9ACE0096CE0C /* actions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = actions.swift; sourceTree = "<group>"; };
 		C7DD950D23DEB8F80096CE0C /* particals.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = particals.scnassets; sourceTree = "<group>"; };
@@ -183,6 +187,8 @@
 				C751227323F518D7002CC4B4 /* dummyAI.swift */,
 				C70C152224420F530086C259 /* playerStruct.swift */,
 				C72C2FE12478D10F005AE2F7 /* settingStruct.swift */,
+				C7B4D71A24837FDD008F3B1F /* codebleChessStruct.swift */,
+				C7B4D71C24838AB6008F3B1F /* codblePlayerStruct.swift */,
 			);
 			path = Datas;
 			sourceTree = "<group>";
@@ -499,6 +505,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C7B4D71B24837FDD008F3B1F /* codebleChessStruct.swift in Sources */,
 				C7F481A2240A5EF8002EBEED /* LocalizationTool.swift in Sources */,
 				C72C2FE22478D10F005AE2F7 /* settingStruct.swift in Sources */,
 				C72ED6EB24703DA700BECBB4 /* ConfigGameController.swift in Sources */,
@@ -520,6 +527,7 @@
 				C751227423F518D7002CC4B4 /* dummyAI.swift in Sources */,
 				C70C152324420F530086C259 /* playerStruct.swift in Sources */,
 				C75E6A8D240272F3000B01BD /* ComScript.swift in Sources */,
+				C7B4D71D24838AB6008F3B1F /* codblePlayerStruct.swift in Sources */,
 				C73426A223D9E338003B7697 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -20,6 +20,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     
     var setting = (controlMethod : 0, particalOn : 0)//0:  0 用tap的方式操作。1用手识别操作  这个数据应该存在数据库或缓存里作为全局变量
     
+    
+    
     //以下数据为实时记录数据 无需保存
     var rootNodeDefalutColor = [UIColor.red, UIColor.green]
     var isPlayerBoardinited = false
@@ -52,6 +54,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var boardPool : [String : Int] = ["" : 0] //卡池
     var freezedChessNodes: [baseChessNode] = []
     var gameConfigStr = settingStruct(isShareBoard: true, playerNumber: 2, isMaster: false)
+    var curMasterID: MCPeerID? //如果是从机会获取到主机的id
+    var currentSlaveId: [playerStruct]? //如果是主机会获取到所有的从机id  index 0 是主机id
     
     var boardNode :[[baseChessNode]] = [[],[]] //chesses
         {
@@ -421,17 +425,34 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 
                 // Remember who provided the map for showing UI feedback.
                 mapProvider = peer
-            } else if let anchor = try? NSKeyedUnarchiver.unarchivedObject(ofClass: ARPlaneAnchor.self, from: data) {
+            } else if let anchor = try? NSKeyedUnarchiver.unarchivedObject(ofClass: ARPlaneAnchor.self, from: data) { //地板anchor
                 // Add anchor to the session, ARSCNView delegate adds visible content.
                 anchor.setValue("customPlane", forKey: "name")
                 sceneView.session.add(anchor: anchor)
             }
-            else if let anchor = try? NSKeyedUnarchiver.unarchivedObject(ofClass: ARAnchor.self, from: data) {
+            else if let anchor = try? NSKeyedUnarchiver.unarchivedObject(ofClass: ARAnchor.self, from: data) { //棋盘anchor
                 // Add anchor to the session, ARSCNView delegate adds visible content.
                 anchor.setValue("playerBoard", forKey: "name")
                 sceneView.session.add(anchor: anchor)
-            }
-            else {
+            } else if let strFlag = String(data: data, encoding: String.Encoding.utf8) {
+                if strFlag == "readyBattle" && gameConfigStr.isMaster { //从机准备成功
+                    if currentSlaveId != nil {
+                        for i in 0 ..< currentSlaveId!.count {
+                            if currentSlaveId![i].playerID === peer {
+                               currentSlaveId![i].playerStatus = true //准备完成
+                               break
+                            }
+                        }
+                       
+                    }
+                    if checkIfAllReady() {
+                        switchGameStage()
+                    }
+                } else if strFlag == EnumMessageCommand.switchGameStage.rawValue && !gameConfigStr.isMaster { //从机切换至战斗
+                    //主机分配从机对手
+                    switchGameStage()
+                }
+            } else {
                 print("unknown data recieved from \(peer)")
             }
             
@@ -1068,7 +1089,26 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                 SCNAction.move(by: SCNVector3(0,-0.005,0), duration: 0.25),
                                 SCNAction.move(by: SCNVector3(0,0.005,0), duration: 0.25)
                             ]))
-                            switchGameStage()
+                            if(gameConfigStr.isMaster) {
+                                for i in 0 ..< currentSlaveId!.count {
+                                    if currentSlaveId![i].playerID === multipeerSession.getMyId() {
+                                       currentSlaveId![i].playerStatus = true //准备完成
+                                       break
+                                    }
+                                }
+                                if checkIfAllReady() {
+                                    switchGameStage()
+                                }
+                            } else {
+                                if let desId = curMasterID {
+                                    let readyStr = "readyBattle"
+                                    guard let data = readyStr.data(using: String.Encoding.utf8)
+                                        else { fatalError("can't encode anchor") }
+                                     multipeerSession.sendToPeer(data, [desId])
+                                }
+                               
+                            }
+                            
                         } else if isNameButton(hitTestResult.first!.node, "freezeButton") {
                             if isFreezed {
                                 freezeButtonTopNode.runAction(SCNAction.sequence([
@@ -1086,6 +1126,19 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 }
             }
         }
+    
+    func checkIfAllReady() -> Bool { //检查是否所有人都准备完毕
+        if currentSlaveId != nil {
+            for i in 0 ..< currentSlaveId!.count {
+                if !currentSlaveId![i].isComputer && !currentSlaveId![i].playerStatus {
+                    return false
+                }
+            }
+        }
+        return true
+    }
+    
+    
     func findRootPos( _ rootNode: SCNNode ) -> [Int]? {
         var nodePos: [Int]? = nil
         for out in 0 ..< boardRootNode.count {
@@ -1700,6 +1753,45 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
     func switchGameStage() {
         if curStage == EnumsGameStage.exchangeStage.rawValue {  //交易转战斗
+            /*主机通知从机切换游戏阶段*/
+            if gameConfigStr.isMaster {
+//                let commandStr = EnumMessageCommand.switchGameStage.rawValue
+//                guard let data = commandStr.data(using: String.Encoding.utf8)
+//                    else { fatalError("can't encode command") }
+//                multipeerSession.sendToAllPeers(data)
+                if currentSlaveId != nil {
+                var codePlayers:[Data] = []
+                var pIDs:[MCPeerID] = []
+                currentSlaveId?.forEach{(player) in
+                    if player.playerID == multipeerSession.getMyId() || player.isComputer { //本主机和电脑no need to notify
+                        return
+                    }
+                    guard let idData = try? NSKeyedArchiver.archivedData(withRootObject: player.playerID, requiringSecureCoding: true)
+                    else { fatalError("can't encode!") }
+                    let curPlayerStuct = codblePlayerStruct(playerName: player.playerName, curCoin: player.curCoin, curLevel: player.curLevel, curBlood: player.curBlood, curChesses: [], curAura: player.curAura, isComputer: player.isComputer, encodePlayerID: idData)
+                    guard let data = try? NSKeyedArchiver.archivedData(withRootObject: curPlayerStuct, requiringSecureCoding: true)
+                    else { fatalError("can't encode!") }
+                    codePlayers.append(data)
+                    pIDs.append(player.playerID!)
+                }
+                
+                    
+                    
+                if codePlayers.count == 2 { //TODO 实验阶段 让iphone 和ipad pro进行对战
+                   
+                    multipeerSession.sendToPeer(codePlayers[1], [pIDs[0]])
+                    
+                   
+                }
+                
+                
+                
+                    for i in 0 ..< currentSlaveId!.count {//清空玩家准备状态
+                        currentSlaveId![i].setPlayerStatus(curStatus: false)
+                    }
+                }
+            }
+            
             disableButtons() //禁止buttons点击和手势事件
             let delayTime = PlayerBoardTextAppear(TextContent: "BattleStage".localized) //弹出切换回合提示
             delay(delayTime) {
@@ -1866,12 +1958,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 boardNode[0].append(tempChess)
 
             }
-//            for index in 0 ..< boardNode[1].count  {
-//                if let curNode = playerBoardNode.childNode(withName: "a" + String(index + 1), recursively: true) {
-//                    playerBoardNode.addChildNode(boardNode[1][index])
-//                    //updateWholeBoardPosition()
-//                }
-//            }
             return
         case EnumsGameStage.battleStage.rawValue:
              let enemies = feedEnemies()
@@ -2833,7 +2919,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         //playGroundNode.physicsBody?.contactTestBitMask = BitMaskCategoty.baseCard.rawValue
         self.sceneView.scene.rootNode.addChildNode(playerBoardNode)
         
-        if (gameConfigStr.isMaster) {
+        if (gameConfigStr.isMaster) { //如果是主机发送
             let anchor = ARAnchor(name: "playerBoard", transform: hitTransform)
             // Send the anchor info to peers, so they can place the same content.
             guard let data = try? NSKeyedArchiver.archivedData(withRootObject: anchor, requiringSecureCoding: true)
@@ -2849,6 +2935,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         }
     //just add the player board node
     func initPlayerBoard(playerBoardPosition: SCNVector3) {
+        if  isPlayerBoardinited {
+            return
+        } else {
+            isPlayerBoardinited = true
+        }
         playerBoardNode = createPlayerBoard()
         //playerBoardNode.eulerAngles = SCNVector3(45.degreesToRadius, 0, 0)
         //playGroundNode.geometry?.firstMaterial?.isDoubleSided = true

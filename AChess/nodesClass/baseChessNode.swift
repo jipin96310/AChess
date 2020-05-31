@@ -163,6 +163,49 @@ public class baseChessNode: SCNNode {
         chessDesc = formatChessDesc()
         descTextNode.string = chessDesc
        }
+    
+    func exportCodeableStruct() -> codableChessStruct? {
+        for i in 0 ..< chessCollectionsLevel[chessRarity - 1].count {
+            if chessCollectionsLevel[chessRarity - 1][i].name == name {
+                return codableChessStruct(chessRarityIndex: i, atkNum: atkNum!, defNum: defNum!, chessRarity: chessRarity, chessLevel: chessLevel, chessKind: chessKind, abilities: abilities, temporaryBuff: temporaryBuff)
+            }
+        }
+        return nil
+    }
+    
+    
+    convenience init(statusNum: Int, codeChessInfo: codableChessStruct) {
+        self.init()
+        chessStatus = statusNum
+        let curIndex = codeChessInfo.chessRarityIndex ?? 0
+        let curRaity = codeChessInfo.chessRarity ?? 1
+        let curChessStruct = chessCollectionsLevel[curRaity - 1][curIndex]
+        self.init(statusNum: statusNum, chessInfo: curChessStruct)
+        //codeable
+        atkNum = codeChessInfo.atkNum
+        defNum = codeChessInfo.defNum
+        atkTextNode.string = String(atkNum!)
+        defTextNode.string = String(defNum!)
+        chessLevel = codeChessInfo.chessLevel!
+        changeStarLabel()
+        chessKind = codeChessInfo.chessKind
+        abilities = codeChessInfo.abilities
+        temporaryBuff = codeChessInfo.temporaryBuff
+        if let bgPicNode = self.childNode(withName: "bgpic", recursively: true) { //control the pic of bottom
+                   bgPicNode.geometry?.firstMaterial?.diffuse.contents = chessKindBgImage[chessKind]!
+               }
+               
+               if let shellNode = self.childNode(withName: "shell", recursively: true) { //control the shield
+                   if temporaryBuff.contains(EnumAbilities.shell.rawValue) {
+                       shellNode.isHidden = false
+                   } else {
+                       shellNode.isHidden = true
+                   }
+               }
+               
+        setBait() //诱饵
+    }
+    
     convenience init(statusNum: Int, chessInfo: chessStruct) {
         self.init()
         chessStatus = statusNum

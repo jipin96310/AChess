@@ -12,7 +12,7 @@ import MultipeerConnectivity
 
 class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
-    
+    var masterServerID: MCPeerID?
     
     var gameConfig = settingStruct(isShareBoard: true, playerNumber: 2, isMaster: false)
     var currentSlaveId:[playerStruct] = [playerStruct(playerName: UIDevice.current.name, curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: false, playerID: MCPeerID(displayName: UIDevice.current.name))]
@@ -108,11 +108,11 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
         do {
             let decoder = JSONDecoder()
             if let masterConfig = try? decoder.decode(settingStruct.self, from: data){ //如果是解析的游戏配置文件 说明自己是从机
+                masterServerID = peer //记录主机id
                 DispatchQueue.main.async {
                    self.performSegue(withIdentifier: "StartGameSlave", sender: masterConfig)
                 }
             }
-            
         } catch {
             print("can't decode data recieved from \(peer)")
         }
@@ -125,6 +125,7 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
             var masterConfig = gameConfig
             masterConfig.isMaster = true
             controller.gameConfigStr = masterConfig
+            controller.currentSlaveId = currentSlaveId
             //发送游戏配置给所有从机
             let encoder = JSONEncoder()
             let encoded = try? encoder.encode(gameConfig)
@@ -132,12 +133,13 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
             
             
             controller.multipeerSession = multipeerSession
-        } else if segue.identifier == "StartGameSlave"{ //你按下了开始 你成为了主机
+        } else if segue.identifier == "StartGameSlave"{ //你成为了从机
             let controller = segue.destination as! ViewController
             var slaveConfig = gameConfig
             slaveConfig.isMaster = false
-            controller.gameConfigStr = slaveConfig
             
+            controller.gameConfigStr = slaveConfig
+            controller.curMasterID = masterServerID
             
             controller.multipeerSession = multipeerSession
         }

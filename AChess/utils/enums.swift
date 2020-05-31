@@ -220,6 +220,10 @@ enum EnumAuraName: String {
 enum EnumAbilityType: String {
     case inherit = "Inheritance"
 }
+//command
+enum EnumMessageCommand: String {
+    case switchGameStage = "SwitchGameStage"
+}
 
 
 
