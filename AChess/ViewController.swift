@@ -38,6 +38,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var allyBoardNode : SCNNode = SCNNode()
     let totalUpdateTime:Double = 1 //刷新时间
     var isFreezed:Bool = false //是否冻结
+    var isWaiting:Bool = false //是否在等待
     var multipeerSession: multiUserSession! //多人session
   
     
@@ -415,7 +416,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     func receivedData(_ data: Data, from peer: MCPeerID) {
         
         do {
-            
+            let decoder = JSONDecoder() //decode json: playerstruct
+           
             if let worldMap = try? NSKeyedUnarchiver.unarchivedObject(ofClass: ARWorldMap.self, from: data) {
                 // Run the session with the received world map.
                 let configuration = ARWorldTrackingConfiguration()
@@ -434,13 +436,24 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 // Add anchor to the session, ARSCNView delegate adds visible content.
                 anchor.setValue("playerBoard", forKey: "name")
                 sceneView.session.add(anchor: anchor)
-            } else if let strFlag = String(data: data, encoding: String.Encoding.utf8) {
+            } else  if let enemyPlayerStruct = try? decoder.decode(codblePlayerStruct.self, from: data){ //收到了对手的信息
+                if enemyPlayerStruct.encodePlayerID != nil {
+                    if let decodeID = try? NSKeyedUnarchiver.unarchivedObject(ofClass: MCPeerID.self, from: enemyPlayerStruct.encodePlayerID!) {
+                        multipeerSession.connectedPeers.forEach{(curPlayer) in
+                            if curPlayer == decodeID {
+                                print("same uuid", curPlayer, decodeID)
+                            }
+                        }
+                    }
+                }
+              
+            }else if let strFlag = String(data: data, encoding: String.Encoding.utf8) {
                 if strFlag == "readyBattle" && gameConfigStr.isMaster { //从机准备成功
                     if currentSlaveId != nil {
                         for i in 0 ..< currentSlaveId!.count {
                             if currentSlaveId![i].playerID === peer {
-                               currentSlaveId![i].playerStatus = true //准备完成
-                               break
+                                currentSlaveId![i].playerStatus = true //准备完成
+                                break
                             }
                         }
                        
@@ -1084,11 +1097,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                 SCNAction.move(by: SCNVector3(0,0.005,0), duration: 0.25)
                             ]))
                             upgradePlayerLevel(curPlayerId)
-                        } else if isNameButton(hitTestResult.first!.node, "endButton"){
+                        } else if isNameButton(hitTestResult.first!.node, "endButton") && !isWaiting {
                             endButtonTopNode.runAction(SCNAction.sequence([
                                 SCNAction.move(by: SCNVector3(0,-0.005,0), duration: 0.25),
-                                SCNAction.move(by: SCNVector3(0,0.005,0), duration: 0.25)
+//                                SCNAction.move(by: SCNVector3(0,0.005,0), duration: 0.25)
                             ]))
+                            endButtonNode.geometry?.firstMaterial?.diffuse.contents = UIColor.gray //灰显图标
+                            isWaiting = true
                             if(gameConfigStr.isMaster) {
                                 for i in 0 ..< currentSlaveId!.count {
                                     if currentSlaveId![i].playerID === multipeerSession.getMyId() {
@@ -1769,19 +1784,19 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     guard let idData = try? NSKeyedArchiver.archivedData(withRootObject: player.playerID, requiringSecureCoding: true)
                     else { fatalError("can't encode!") }
                     let curPlayerStuct = codblePlayerStruct(playerName: player.playerName, curCoin: player.curCoin, curLevel: player.curLevel, curBlood: player.curBlood, curChesses: [], curAura: player.curAura, isComputer: player.isComputer, encodePlayerID: idData)
-                    guard let data = try? NSKeyedArchiver.archivedData(withRootObject: curPlayerStuct, requiringSecureCoding: true)
-                    else { fatalError("can't encode!") }
-                    codePlayers.append(data)
+//                    guard let data = try? NSKeyedArchiver.archivedData(withRootObject: curPlayerStuct, requiringSecureCoding: true)
+//                    else { fatalError("can't encode!") }
+                    
+                    
+                    let encoder = JSONEncoder()
+                    guard let encodedData = try? encoder.encode(curPlayerStuct)
+                    else { fatalError("can't encode player struct!") }
+                    codePlayers.append(encodedData)
                     pIDs.append(player.playerID!)
                 }
-                
-                    
-                    
-                if codePlayers.count == 2 { //TODO 实验阶段 让iphone 和ipad pro进行对战
-                   
+          
+                if codePlayers.count >= 2 { //TODO 实验阶段 让第一个从机和第二个从机对战 第一额从机收消息
                     multipeerSession.sendToPeer(codePlayers[1], [pIDs[0]])
-                    
-                   
                 }
                 
                 
@@ -1882,6 +1897,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 }
             }
         } else if curStage == EnumsGameStage.battleStage.rawValue { //战斗转交易
+            //恢复结束按钮
+            isWaiting = false
+            endButtonTopNode.geometry?.firstMaterial?.diffuse.contents = UIColor.black
+            endButtonTopNode.runAction(SCNAction.sequence([
+                SCNAction.move(by: SCNVector3(0,0.005,0), duration: 0)
+            ]))
             let delayTime = PlayerBoardTextAppear(TextContent: "ExchangeStage".localized) //弹出切换回合提示
             delay(delayTime){
                 self.recoverButtons()
