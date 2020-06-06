@@ -232,7 +232,6 @@ public class baseChessNode: SCNNode {
         
         
         if let aniPicNode = self.childNode(withName: "animalpic", recursively: true) {
-            print(chessName)
             aniPicNode.geometry?.firstMaterial?.diffuse.contents = UIImage(named: chessName)
         }
         

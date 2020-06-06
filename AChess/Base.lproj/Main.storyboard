@@ -139,7 +139,7 @@
                                         <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UP9-oZ-172">
                                             <rect key="frame" x="0.0" y="0.0" width="200" height="44"/>
                                             <subviews>
-                                                <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="2" minimumValue="2" maximumValue="8" stepValue="3" translatesAutoresizingMaskIntoConstraints="NO" id="5OA-wb-r0T">
+                                                <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="2" minimumValue="2" maximumValue="8" stepValue="2" translatesAutoresizingMaskIntoConstraints="NO" id="5OA-wb-r0T">
                                                     <rect key="frame" x="0.0" y="0.0" width="200" height="44"/>
                                                 </stepper>
                                             </subviews>

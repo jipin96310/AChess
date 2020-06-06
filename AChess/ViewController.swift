@@ -344,6 +344,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 
         
         super.viewWillAppear(animated)
+        navigationController?.interactivePopGestureRecognizer?.isEnabled = false; //禁用向左滑动
         guard ARWorldTrackingConfiguration.isSupported else {
             fatalError("""
                 ARKit is not available on this device. For apps that require ARKit
@@ -401,7 +402,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
+        navigationController?.interactivePopGestureRecognizer?.isEnabled = true;
         // Pause the view's session
         sceneView.session.pause()
     }
