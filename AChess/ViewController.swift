@@ -362,7 +362,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         
         //hide the transparent ndoe
         tempTransParentNode.isHidden = true
-        
+        //refresh cur user data
+        if multipeerSession != nil {
+            let curPlayerId = multipeerSession.getMyId()
+            playerStatues[0].playerName = curPlayerId.displayName
+            playerStatues[0].playerID = curPlayerId
+        }
         
         //tap gesture added
         longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action:  #selector(onLongPress))
@@ -437,14 +442,19 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 // Add anchor to the session, ARSCNView delegate adds visible content.
                 anchor.setValue("playerBoard", forKey: "name")
                 sceneView.session.add(anchor: anchor)
-            } else  if let enemyPlayerStruct = try? decoder.decode(codblePlayerStruct.self, from: data){ //收到了对手的信息
+            } else  if let enemyPlayerStruct = try? decoder.decode(codblePlayerStruct.self, from: data){ //收到了对手的信息 把自己的信息也打包发给对手
                 if enemyPlayerStruct.encodePlayerID != nil {
                     if let decodeID = try? NSKeyedUnarchiver.unarchivedObject(ofClass: MCPeerID.self, from: enemyPlayerStruct.encodePlayerID!) {
-                        multipeerSession.connectedPeers.forEach{(curPlayer) in
-                            if curPlayer == decodeID {
-                                print("same uuid", curPlayer, decodeID)
-                            }
+                        //更新敌人数据
+                        playerStatues[1].playerID = decodeID
+                        var tempEnemybaseChess:[baseChessNode] = []
+                        enemyPlayerStruct.curChesses.forEach{(encodeChess) in
+                            tempEnemybaseChess.append(baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, codeChessInfo: encodeChess))
                         }
+                        playerStatues[1].curChesses = tempEnemybaseChess
+                        switchGameStage() //收到对手阵容开始比赛
+                        //收到了对手的信息 把自己的信息也打包发给对手
+                        //let encodedData = encodeCodablePlayerStruct(playerID: player.playerID!, player: player)
                     }
                 }
               
@@ -1230,11 +1240,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         curChess.removeFromParentNode()
         
     }
-    func checkCollisionWithChess(_ pressLocation: SCNVector3) {
-//        let node = SCNNode()
-//        node.coll
-    }
-    //test func remember to delete
+
+    
+    /*****add chess func********/
     func initChessWithPos(pos: SCNVector3,sta: Int, info: chessStruct) -> baseChessNode{
         let chessNode = baseChessNode(statusNum: EnumsChessStage.forSale.rawValue, chessInfo: info)
 
@@ -1262,6 +1270,32 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         chessNode.position = SCNVector3(xP,yP,zP)
         return chessNode
     }
+    func initChessWithPos(pos: SCNVector3,sta: Int, chessNode: baseChessNode) -> baseChessNode{
+        let xP = pos.x
+        let yP = pos.y
+        let zP = pos.z
+        ///////
+        // We create a Physically Based Rendering material
+        let reflectiveMaterial = SCNMaterial()
+        reflectiveMaterial.lightingModel = .physicallyBased
+        // We want our ball to look metallic
+        reflectiveMaterial.metalness.contents = 1.0
+        // And shiny
+        reflectiveMaterial.roughness.contents = 0.0
+        chessNode.geometry?.firstMaterial = reflectiveMaterial
+
+        let body = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(geometry: SCNCylinder(radius: 0.01, height: 0.01), options: nil))
+        //body.mass = 5
+        //body.isAffectedByGravity = true
+        chessNode.physicsBody = body
+        
+        chessNode.physicsBody?.categoryBitMask = BitMaskCategoty.baseChess.rawValue
+        chessNode.physicsBody?.contactTestBitMask = BitMaskCategoty.hand.rawValue
+        
+        chessNode.position = SCNVector3(xP,yP,zP)
+        return chessNode
+    }
+     /****end********/
     func addChessTest(hitTestResult: ARHitTestResult) {
         
         let positionOFPlane = hitTestResult.worldTransform.columns.3
@@ -1767,6 +1801,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
         }
     }
+    
+    
+
+    
     func switchGameStage() {
         if curStage == EnumsGameStage.exchangeStage.rawValue {  //交易转战斗
             /*主机通知从机切换游戏阶段*/
@@ -1779,25 +1817,17 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 var codePlayers:[Data] = []
                 var pIDs:[MCPeerID] = []
                 currentSlaveId?.forEach{(player) in
-                    if player.playerID == multipeerSession.getMyId() || player.isComputer { //本主机和电脑no need to notify
+                    if player.isComputer { //本主机和电脑no need to notify player.playerID == multipeerSession.getMyId() ||
                         return
                     }
-                    guard let idData = try? NSKeyedArchiver.archivedData(withRootObject: player.playerID, requiringSecureCoding: true)
-                    else { fatalError("can't encode!") }
-                    let curPlayerStuct = codblePlayerStruct(playerName: player.playerName, curCoin: player.curCoin, curLevel: player.curLevel, curBlood: player.curBlood, curChesses: [], curAura: player.curAura, isComputer: player.isComputer, encodePlayerID: idData)
-//                    guard let data = try? NSKeyedArchiver.archivedData(withRootObject: curPlayerStuct, requiringSecureCoding: true)
-//                    else { fatalError("can't encode!") }
-                    
-                    
-                    let encoder = JSONEncoder()
-                    guard let encodedData = try? encoder.encode(curPlayerStuct)
-                    else { fatalError("can't encode player struct!") }
+      
+                    let encodedData = encodeCodablePlayerStruct(playerID: player.playerID!, player: player)
                     codePlayers.append(encodedData)
                     pIDs.append(player.playerID!)
                 }
           
-                if codePlayers.count >= 2 { //TODO 实验阶段 让第一个从机和第二个从机对战 第一额从机收消息
-                    multipeerSession.sendToPeer(codePlayers[1], [pIDs[0]])
+                if codePlayers.count >= 2 { //TODO 实验阶段 让第一个从机和主机对战
+                    multipeerSession.sendToPeer(codePlayers[0], [pIDs[1]])
                 }
                 
                 
@@ -1975,14 +2005,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 let curNode = boardRootNode[0][index + curStartIndex]
                 
                 let randomStruct =  getRandomChessStructFromPool(curPlayerLevel)
-                let tempChess = initChessWithPos(pos: curNode.position, sta: EnumsChessStage.forSale.rawValue, info: randomStruct )
+                let tempChess = initChessWithPos(pos: curNode.position, sta: EnumsChessStage.forSale.rawValue, info: randomStruct)
        
                 boardNode[0].append(tempChess)
 
             }
             return
         case EnumsGameStage.battleStage.rawValue:
-             let enemies = feedEnemies()
+            let enemies = playerStatues[1].curChesses
              if enemies.count > GlobalNumberSettings.chessNumber.rawValue {
                 return
              }
@@ -1990,7 +2020,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
              
              for index in 0 ..< enemies.count {
                     let curNode = boardRootNode[0][index + curStartIndex]
-                    let tempChess = initChessWithPos(pos: curNode.position, sta: EnumsChessStage.enemySide.rawValue, info:  enemies[index])
+                    let tempChess = initChessWithPos(pos: curNode.position, sta: EnumsChessStage.enemySide.rawValue, chessNode:  enemies[index])
                     boardNode[0].append(tempChess)
              }
 

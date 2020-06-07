@@ -8,6 +8,7 @@
 
 import Foundation
 import ARKit
+import MultipeerConnectivity
 // import scn files as scnnode
 public func createCard() -> SCNNode{
     let scene = SCNScene(named: "art.scnassets/baseCard.scn")!
@@ -153,6 +154,14 @@ func randomDiffNumsFromArrs<T>(outputNums: Int, inputArr: [T]) -> [T]{ //获取�
     return tempArr
 }
 
-
+func encodeCodablePlayerStruct(playerID: MCPeerID, player: playerStruct) -> Data{ //转换出codable 玩家数据
+    guard let idData = try? NSKeyedArchiver.archivedData(withRootObject: playerID, requiringSecureCoding: true)
+    else { fatalError("can't encode!") }
+    let curPlayerStuct = codblePlayerStruct(playerName: player.playerName, curCoin: player.curCoin, curLevel: player.curLevel, curBlood: player.curBlood, curChesses: [], curAura: player.curAura, isComputer: player.isComputer, encodePlayerID: idData)
+    let encoder = JSONEncoder()
+    guard let encodedData = try? encoder.encode(curPlayerStuct)
+    else { fatalError("can't encode player struct!") }
+    return encodedData
+}
 
 
