@@ -299,7 +299,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var storageRootNode : [SCNNode] = []
    
     //var backupBoardNode:[[baseChessNode]] = [[],[]]
-    var playerStatues: [playerStruct] = [playerStruct(playerName: "player1", curCoin: GlobalNumberSettings.roundBaseCoin.rawValue + 50, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: false, playerID: MCPeerID(displayName: "player1")), playerStruct(playerName: "player2", curCoin: 40, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: false,  playerID: MCPeerID(displayName: "player2"))] {
+    var playerStatues: [playerStruct] = [playerStruct(playerName: "player1", curCoin: GlobalNumberSettings.roundBaseCoin.rawValue + 50, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: false, playerID: MCPeerID(displayName: "player1")), playerStruct(playerName: "player2", curCoin: 40, curLevel: 1, curBlood: 40, curChesses: [baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[1][1]), baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[1][1]), baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[1][1])], curAura: [], isComputer: false,  playerID: MCPeerID(displayName: "player2"))] {
         didSet {
             moneyTextNode.string = String(playerStatues[curPlayerId].curCoin)
             levelTextNode.string = String(playerStatues[curPlayerId].curLevel)
@@ -1978,7 +1978,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         return dummyAICrew[curRound]
     }
     func getRandomChessStructFromPool(_ curLevel : Int) -> chessStruct { //不可能出现所有都小于等于0的情况 出现了就直接用现有的
-        var randomLevel = Int.randomIntNumber(lower: 1, upper: curLevel + 1)
+        var randomLevel = 3//Int.randomIntNumber(lower: 1, upper: curLevel + 1)
         var randomNum =  Int.randomIntNumber(lower: 0, upper: chessCollectionsLevel[randomLevel - 1].count)
         var curChessInfo =  chessCollectionsLevel[randomLevel - 1][randomNum]
         var randomTime = 1
@@ -2012,7 +2012,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
             return
         case EnumsGameStage.battleStage.rawValue:
-            let enemies = playerStatues[1].curChesses
+            var enemies:[baseChessNode] = []
+            playerStatues[1].curChesses.forEach{(curChess) in
+                enemies.append(curChess.copyable())
+            }
              if enemies.count > GlobalNumberSettings.chessNumber.rawValue {
                 return
              }
