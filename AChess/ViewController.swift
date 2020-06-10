@@ -1983,7 +1983,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         return dummyAICrew[curRound]
     }
     func getRandomChessStructFromPool(_ curLevel : Int) -> chessStruct { //不可能出现所有都小于等于0的情况 出现了就直接用现有的
-        var randomLevel = 4//Int.randomIntNumber(lower: 1, upper: curLevel + 1)
+        var randomLevel = Int.randomIntNumber(lower: 1, upper: curLevel + 1)
         var randomNum =  Int.randomIntNumber(lower: 0, upper: chessCollectionsLevel[randomLevel - 1].count)
         var curChessInfo =  chessCollectionsLevel[randomLevel - 1][randomNum]
         var randomTime = 1
