@@ -2164,7 +2164,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         funcArr.append({() in
                             return self.aoeDamagePromise(practicleName: "particals.scnassets/oceanaura.scnp", boardSide: oppoBoardIndex, damageNum: 4)
                         })
-                    } else if oppoOceanNum >= 3{ //oceanlevel1
+                    } else { //oceanlevel1
                         funcArr.append({() in
                             return self.aoeDamagePromise(practicleName: "particals.scnassets/oceanaura.scnp", boardSide: oppoBoardIndex, damageNum: 1)
                         })
