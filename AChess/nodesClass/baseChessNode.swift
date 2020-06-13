@@ -20,6 +20,9 @@ public class baseChessNode: SCNNode {
 
     private let damgeTextNode = TextNode(textScale: SCNVector3(0.5, 0.5, 0.01))
     private let abilitiesTriggerTextNode = TextNode(textScale: SCNVector3(0.5, 0.5, 0.01))
+    
+    var isActive = false
+    
     var chessName: String = "" {
         didSet {
             nameTextNode.string = chessName.localized
@@ -512,13 +515,13 @@ public class baseChessNode: SCNNode {
         return tempDescStr
     }
     func setActive() { //用于标识棋子可被选择 用于战吼 等场景。当前的操作就是把棋子变绿 之后确定棋子模型后优化
-        
+        isActive = true
         if let sideNode = self.childNode(withName: "side", recursively: true) {
             sideNode.geometry?.firstMaterial?.diffuse.contents = UIColor.green
         }
     }
     func cancelActive() {
-      
+      isActive = false
        if let sideNode = self.childNode(withName: "side", recursively: true) {
            sideNode.geometry?.firstMaterial?.diffuse.contents = chessColorRarity[chessRarity]
         }

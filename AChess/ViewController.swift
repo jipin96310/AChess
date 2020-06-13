@@ -137,17 +137,25 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     if let mountainNum = chessKindMap[EnumChessKind.mountain.rawValue] {
                         if mountainNum >= 3 && mountainNum < 6 {
                             newAuraArr.append(EnumAuraName.mountainLevel1.rawValue)
-                        } else if mountainNum > 6 {
+                        } else if mountainNum >= 6 {
                             newAuraArr.append(EnumAuraName.mountainLevel2.rawValue)
                         }
                     }
                     if let oceanNum = chessKindMap[EnumChessKind.ocean.rawValue] {
                         if oceanNum >= 3 && oceanNum < 6 {
                             newAuraArr.append(EnumAuraName.oceanLevel1.rawValue)
-                        } else if oceanNum > 6 {
+                        } else if oceanNum >= 6 {
                             newAuraArr.append(EnumAuraName.oceanLevel2.rawValue)
                         }
                     }
+                    if let plainNum = chessKindMap[EnumChessKind.plain.rawValue] {
+                        if plainNum >= 3 && plainNum < 6 {
+                            newAuraArr.append(EnumAuraName.plainLevel1.rawValue)
+                        } else if plainNum >= 6 {
+                            newAuraArr.append(EnumAuraName.plainLevel2.rawValue)
+                        }
+                    }
+                    
                     //
                      playerStatues[curPlayerId].curAura = newAuraArr //清空光环
   
@@ -287,8 +295,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var storageNode : [baseChessNode] = [] {
         didSet(oldBoard) {
             
-                for innerIndex in 0 ..< oldBoard.count {
-                    if !oldBoard[innerIndex].contains(storageNode[innerIndex]) {
+                for innerIndex in 0 ..< storageNode.count {
+                    if !oldBoard.contains(storageNode[innerIndex]) {
                         storageNode[innerIndex].position.y = 0.01
                         playerBoardNode.addChildNode(storageNode[innerIndex])
                     }
@@ -588,7 +596,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                 }
                                 
                                 if curIndexArr[0] == 2 { //storageNode
-                                    if boardNode[curIndexArr[0]].count < GlobalCommonNumber.storageNumber {
+                                    if storageNode.count < GlobalCommonNumber.storageNumber {
                                         storageNode.insert(tempTransParentNode, at: curIndexArr[1])
                                     }
                                 } else {
@@ -991,6 +999,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             if let curBaseChess = findChessRootNode(curNode!) {
                                 
                                 if curDragPoint!.abilities.contains(EnumAbilities.instantAddBuff.rawValue) {
+                                    if !curBaseChess.isActive {
+                                        return
+                                    }
                                     if case let curBaseAtt as Int = curDragPoint?.rattleFunc[EnumKeyName.baseAttack.rawValue] {
                                         if case let curBaseDef as Int = curDragPoint?.rattleFunc[EnumKeyName.baseDef.rawValue] {
                                             curBaseChess.AddBuff(AtkNumber: curDragPoint!.chessLevel * curBaseAtt , DefNumber: curDragPoint!.chessLevel * curBaseDef)
@@ -998,10 +1009,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                     }
                                     
                                 } else if curDragPoint!.abilities.contains(EnumAbilities.instantAddAbility.rawValue) {
-                                    if case let curBaseKind as [String] = curDragPoint?.rattleFunc[EnumKeyName.baseKind.rawValue] {
-                                        if !curBaseKind.contains(curBaseChess.chessKind) {
-                                            return
-                                        }
+                                    if !curBaseChess.isActive {
+                                        return
                                     }
                                     if case let curBaseAbility as String = curDragPoint?.rattleFunc[EnumKeyName.abilityKind.rawValue] {
                                         curBaseChess.AddBilities(Abilities: [curBaseAbility])
@@ -1353,88 +1362,90 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         for index in 0 ..< curAddChesses.count {
             let curAddChess = curAddChesses[index]
             
-             var hasSummonAbility:[String : Int] = [:]
-            
-            boardNode[curBoardSide].forEach{ (curChess) in
-                if (curChess.abilities.contains(EnumAbilities.summonChessAddBuff.rawValue)) { //召唤一个棋子以后加buff 无论当前阶段
-                    if hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue] != nil {
-                        hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue]! += curChess.chessLevel
-                    } else {
-                        hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue] = curChess.chessLevel
-                    }
-                }
+            if curAddChess.chessStatus != EnumsChessStage.owned.rawValue { //第一次购买的棋子才生效
+                var hasSummonAbility:[String : Int] = [:]
                 
-                if (curChess.abilities.contains(EnumAbilities.afterSummonChessAddShell.rawValue)) && curStage == EnumsGameStage.battleStage.rawValue { //召唤一个棋子以后加shell
-                    if curAddChess.chessKind == EnumChessKind.plain.rawValue {
-                        curChess.AddTempBuff(tempBuff: [EnumAbilities.shell.rawValue])
+                boardNode[curBoardSide].forEach{ (curChess) in
+                    if (curChess.abilities.contains(EnumAbilities.summonChessAddBuff.rawValue)) { //召唤一个棋子以后加buff 无论当前阶段
+                        if hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue] != nil {
+                            hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue]! += curChess.chessLevel
+                        } else {
+                            hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue] = curChess.chessLevel
+                        }
                     }
-                }
-                
-       
-                if curBoardSide == BoardSide.allySide.rawValue { //只有在友军才触发
-                    if (curChess.abilities.contains(EnumAbilities.summonChessAddMountainBuff.rawValue)) {
-                         if hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue] != nil {
-                             hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue]! += curChess.chessLevel
-                         } else {
-                             hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue] = curChess.chessLevel
-                         }
-                     }
                     
-                      if (curChess.abilities.contains(EnumAbilities.summonChessAddSelfBuff.rawValue)) {
-                          if case let curKindArr as [String] = curChess.rattleFunc[EnumKeyName.baseKind.rawValue] {
-                              if curKindArr.contains(curAddChess.chessKind) {
-                                  let curBaseAtt = curChess.rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
-                                  let curBaseDef = curChess.rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
-                                  curChess.AddBuff(AtkNumber: curBaseAtt as! Int * curChess.chessLevel, DefNumber: curBaseDef as! Int * curChess.chessLevel)
-                              }
-                          }
-                      }
-                }
-            }
-        
-            
-            if hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue] != nil && hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue]! > 0 { //召唤生物 给其加buff  暂时狮子专属 就给平原生物加
-                           if curAddChess.chessKind == EnumChessKind.plain.rawValue {
-                            if !curAddChess.temporaryBuff.contains(EnumAbilities.summonChessAddBuff.rawValue) {
-                                curAddChess.AddTempBuff(tempBuff: [EnumAbilities.summonChessAddBuff.rawValue])
-                                curAddChess.AddBuff(AtkNumber: hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue]! * 3, DefNumber: 0)
+                    if (curChess.abilities.contains(EnumAbilities.afterSummonChessAddShell.rawValue)) && curStage == EnumsGameStage.battleStage.rawValue { //召唤一个棋子以后加shell
+                        if curAddChess.chessKind == EnumChessKind.plain.rawValue {
+                            curChess.AddTempBuff(tempBuff: [EnumAbilities.shell.rawValue])
+                        }
+                    }
+                    
+                    
+                    if curBoardSide == BoardSide.allySide.rawValue { //只有在友军才触发
+                        if (curChess.abilities.contains(EnumAbilities.summonChessAddMountainBuff.rawValue)) {
+                            if hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue] != nil {
+                                hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue]! += curChess.chessLevel
+                            } else {
+                                hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue] = curChess.chessLevel
                             }
-                          }
-            }
-            
-            if curBoardSide == BoardSide.allySide.rawValue {
-                curAddChess.chessStatus = EnumsChessStage.owned.rawValue //确保友方必定被拥有
-                
-                if hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue] != nil && hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue]! > 0 {
-                    boardNode[BoardSide.allySide.rawValue].forEach{(curChess) in
-                        if (curChess.chessKind == EnumChessKind.mountain.rawValue) {
-                            curChess.AddBuff(AtkNumber: hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue], DefNumber: hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue])
                         }
                         
-                    }
-                }
-                
-                //
-                if curAddChess.abilities.contains(EnumAbilities.afterSummonAdjecentAddBuff.rawValue) {
-                    if curAddChess.chessName == EnumChessName.baboon.rawValue { //狒狒专属
-                        if let curIndex = curInsertIndex {
-                            let leftIndex = curIndex - 1
-                            let rightIndex = curIndex + 1
-                            if leftIndex > 0 && leftIndex < boardNode[curBoardSide].count {
-                                boardNode[curBoardSide][leftIndex].AddBuff(AtkNumber: curAddChess.chessLevel * 2, DefNumber: curAddChess.chessLevel * 2)
+                        if (curChess.abilities.contains(EnumAbilities.summonChessAddSelfBuff.rawValue)) {
+                            if case let curKindArr as [String] = curChess.rattleFunc[EnumKeyName.baseKind.rawValue] {
+                                if curKindArr.contains(curAddChess.chessKind) {
+                                    let curBaseAtt = curChess.rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
+                                    let curBaseDef = curChess.rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
+                                    curChess.AddBuff(AtkNumber: curBaseAtt as! Int * curChess.chessLevel, DefNumber: curBaseDef as! Int * curChess.chessLevel)
+                                }
                             }
-                            if rightIndex > 0 && rightIndex < boardNode[curBoardSide].count {
-                                boardNode[curBoardSide][rightIndex].AddBilities(Abilities: [EnumAbilities.bait.rawValue])
-                            }
-                        } else { //append
-                            boardNode[curBoardSide].last?.AddBuff(AtkNumber: curAddChess.chessLevel * 2, DefNumber: curAddChess.chessLevel * 2)
                         }
                     }
                 }
+                
+                
+                if hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue] != nil && hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue]! > 0 { //召唤生物 给其加buff  暂时狮子专属 就给平原生物加
+                    if curAddChess.chessKind == EnumChessKind.plain.rawValue {
+                        if !curAddChess.temporaryBuff.contains(EnumAbilities.summonChessAddBuff.rawValue) {
+                            curAddChess.AddTempBuff(tempBuff: [EnumAbilities.summonChessAddBuff.rawValue])
+                            curAddChess.AddBuff(AtkNumber: hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue]! * 3, DefNumber: 0)
+                        }
+                    }
+                }
+                
+                if curBoardSide == BoardSide.allySide.rawValue {
+                    curAddChess.chessStatus = EnumsChessStage.owned.rawValue //确保友方必定被拥有
+                    
+                    if hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue] != nil && hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue]! > 0 {
+                        boardNode[BoardSide.allySide.rawValue].forEach{(curChess) in
+                            if (curChess.chessKind == EnumChessKind.mountain.rawValue) {
+                                curChess.AddBuff(AtkNumber: hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue], DefNumber: hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue])
+                            }
+                            
+                        }
+                    }
+                    
+                    //
+                    if curAddChess.abilities.contains(EnumAbilities.afterSummonAdjecentAddBuff.rawValue) {
+                        if curAddChess.chessName == EnumChessName.baboon.rawValue { //狒狒专属
+                            if let curIndex = curInsertIndex {
+                                let leftIndex = curIndex - 1
+                                let rightIndex = curIndex
+                                if leftIndex >= 0 && leftIndex < boardNode[curBoardSide].count {
+                                    boardNode[curBoardSide][leftIndex].AddBuff(AtkNumber: curAddChess.chessLevel * 2, DefNumber: curAddChess.chessLevel * 2)
+                                }
+                                if rightIndex >= 0 && rightIndex < boardNode[curBoardSide].count {
+                                    boardNode[curBoardSide][rightIndex].AddBilities(Abilities: [EnumAbilities.bait.rawValue])
+                                }
+                            } else { //append
+                                boardNode[curBoardSide].last?.AddBuff(AtkNumber: curAddChess.chessLevel * 2, DefNumber: curAddChess.chessLevel * 2)
+                            }
+                        }
+                    }
+                }
+                
             }
             
-           
-            }
+        }
         
        
         
@@ -1606,9 +1617,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 
                     if curChessPoint.abilities.contains(EnumAbilities.liveInGroup.rawValue) && self.boardNode[curBoardSide].count < GlobalCommonNumber.chessNumber { // <7
                         let randomNumber = Int.randomIntNumber(lower: 0, upper: 10) //0-9
-                        //if randomNumber < 2 * victim.chessLevel { //20% 40% 60%
-                            let copyChess = attacker.copyable()
-                            attacker.abilities = [] //empty ability,in case it keep adding
+                        //if randomNumber < 2 * victim.chessLevel { //20% 40% 60% attacker
+                            let copyChess = baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: chessStruct(
+                                name: attacker.chessName, desc: "", atkNum: attacker.atkNum!, defNum: attacker.defNum!, chessRarity: attacker.chessRarity, chessLevel: attacker.chessLevel, chessKind: attacker.chessKind, abilities: [], temporaryBuff: [], rattleFunc: [:], inheritFunc: [:]
+                            ))
                             if let curAttIndex = self.boardNode[curBoardSide].index(of: attacker) {
                                 actionPromiseArr.append({() in
                                     return Promise<Double>(resolver: {(resolver) in
@@ -2160,7 +2172,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
               if let oceanNum = chessKindMap[EnumChessKind.ocean.rawValue] {
                   let oppoOceanNum = oppoChessKindMap[EnumChessKind.ocean.rawValue] ?? 0
                   if oceanNum >= 3 && oceanNum < 6 { //oceanlevel1
-                    if oppoOceanNum > 6 { //如果偷取的光环效果更好就用偷取的
+                    if oppoOceanNum >= 6 { //如果偷取的光环效果更好就用偷取的
                         funcArr.append({() in
                             return self.aoeDamagePromise(practicleName: "particals.scnassets/oceanaura.scnp", boardSide: oppoBoardIndex, damageNum: 4)
                         })
@@ -2169,7 +2181,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             return self.aoeDamagePromise(practicleName: "particals.scnassets/oceanaura.scnp", boardSide: oppoBoardIndex, damageNum: 1)
                         })
                     }
-                  } else if oceanNum > 6 { //oceanlevel2
+                  } else if oceanNum >= 6 { //oceanlevel2
                     funcArr.append({() in
                         return self.aoeDamagePromise(practicleName: "particals.scnassets/oceanaura.scnp", boardSide: oppoBoardIndex, damageNum: 4)
                     })
@@ -2177,7 +2189,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                   }
               } else {
                 let oppoOceanNum = oppoChessKindMap[EnumChessKind.ocean.rawValue] ?? 0
-                if oppoOceanNum > 6 { //oceanlevel1
+                if oppoOceanNum >= 6 { //oceanlevel1
                   funcArr.append({() in
                       return self.aoeDamagePromise(practicleName: "particals.scnassets/oceanaura.scnp", boardSide: oppoBoardIndex, damageNum: 1)
                   })
@@ -2235,24 +2247,24 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
         })
         if let mountainNum = chessKindMap[EnumChessKind.mountain.rawValue]{
-            if mountainNum > 6{
+            if mountainNum >= 6{
                 curAuraArr.append(EnumAuraName.mountainLevel2.rawValue)
             } else if mountainNum >= 3 {
                 curAuraArr.append(EnumAuraName.mountainLevel1.rawValue)
             }
         }
         if let oceanNum = chessKindMap[EnumChessKind.ocean.rawValue]{
-            if oceanNum > 6{
-                curAuraArr.append(EnumAuraName.oceanLevel1.rawValue)
-            } else if oceanNum >= 3 {
+            if oceanNum >= 6{
                 curAuraArr.append(EnumAuraName.oceanLevel2.rawValue)
+            } else if oceanNum >= 3 {
+                curAuraArr.append(EnumAuraName.oceanLevel1.rawValue)
             }
         }
         if let plainNum = chessKindMap[EnumChessKind.plain.rawValue]{
-            if plainNum > 6{
-                curAuraArr.append(EnumAuraName.plainLevel1.rawValue)
-            } else if plainNum >= 3 {
+            if plainNum >= 6{
                 curAuraArr.append(EnumAuraName.plainLevel2.rawValue)
+            } else if plainNum >= 3 {
+                curAuraArr.append(EnumAuraName.plainLevel1.rawValue)
             }
         }
         return curAuraArr
