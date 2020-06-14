@@ -164,4 +164,13 @@ func encodeCodablePlayerStruct(playerID: MCPeerID, player: playerStruct) -> Data
     return encodedData
 }
 
+func findIndexOfFirstAttack(curBoard: [baseChessNode]) -> Int {
+    for i in 0 ..< curBoard.count {
+        if curBoard[i].rstAttackTimes > 0 {
+            return i
+        }
+    }
+    return curBoard.count
+}
+
 

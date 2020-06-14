@@ -1679,9 +1679,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         }
     }
     
-    func aRoundTaskAsyncTemp(_ beginIndex: inout [Int],_ attSide: Int, _ resolver: Resolver<Any>, _ changeRound: Bool?) {
-        var beginIndexCopy = beginIndex
-        var curIndex = beginIndex[attSide] //拷贝的
+    func aRoundTaskAsyncTemp(_ attSide: Int, _ resolver: Resolver<Any>, _ changeRound: Bool?) {
+
+        var curIndex = findIndexOfFirstAttack(curBoard: self.boardNode[attSide])
+        
         var nextSide = attSide == BoardSide.enemySide.rawValue ? BoardSide.allySide.rawValue : BoardSide.enemySide.rawValue
         //统计当前有嘲讽的地方随从
         var baitIndex: [Int] = []
@@ -1718,13 +1719,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 } else {
                     if res[0] == 0{ //attacker eliminated
                         //index不动
-                    } else {
-                        beginIndexCopy[attSide] += 1
                     }
                 }
                 
                 if self.boardNode[attSide].count > 0 && self.boardNode[nextSide].count > 0 {
-                    self.aRoundTaskAsyncTemp(&beginIndexCopy, nextSide, resolver, shouldChange)
+                    self.aRoundTaskAsyncTemp(nextSide, resolver, shouldChange)
                 } else {
                     resolver.fulfill("success")
                 }
@@ -1734,9 +1733,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 // self.loginProto(loginInfo: loginInfo)和self.loginDeal(res: res) 包装的两个promise执行了resolver.reject(),就会执行此代码段
                 print("aRoundTaskAsyncTempError", err)
             }
-        } else if boardNode[attSide].count > 0 && boardNode[nextSide].count > 0 {
-            var nextRoundIndex = [0, 0]
-            self.aRoundTaskAsyncTemp(&nextRoundIndex,nextSide, resolver, nil)//从头开始
+        } else if boardNode[attSide].count > 0 && boardNode[nextSide].count > 0 { //还有棋子 但是index到底了
+            self.boardNode[attSide].forEach{ curC in
+                curC.recoverAttackTimes() //恢复攻击频率
+            }
+            self.aRoundTaskAsyncTemp(attSide, resolver, nil)//从头开始
         } else {
             resolver.fulfill("success")
         }
@@ -1776,7 +1777,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         return Promise<Any>(resolver: { (resolver) in
            var beginIndex = [0, 0]
            var randomSide = Int.randomIntNumber(lower: 0, upper: 2)
-           aRoundTaskAsyncTemp(&beginIndex,randomSide, resolver, nil)
+           aRoundTaskAsyncTemp(randomSide, resolver, nil)
             })
 //            var beginIndex = 0
 //            aRoundTask(&beginIndex)
@@ -2783,6 +2784,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 
             
             //resolve promise
+            attacker.attackOnce() //进行一次攻击频率
             delay(SCNAction.sequence(attackSequence).duration , task: {
 
                 resolver.fulfill(actionResult)

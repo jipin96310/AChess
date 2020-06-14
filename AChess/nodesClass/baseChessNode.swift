@@ -22,6 +22,7 @@ public class baseChessNode: SCNNode {
     private let abilitiesTriggerTextNode = TextNode(textScale: SCNVector3(0.5, 0.5, 0.01))
     
     var isActive = false
+    var rstAttackTimes = 1 //剩余攻击次数
     
     var chessName: String = "" {
         didSet {
@@ -105,6 +106,9 @@ public class baseChessNode: SCNNode {
     var abilities: [String] = [] {
         didSet {
             setBait()
+            if abilities.contains(EnumAbilities.rapid.rawValue) {
+                rstAttackTimes = 2
+            }
         }
     }
     var temporaryBuff: [String] = [] //临时性的Buff 类似硬壳 攻击 生命之类
@@ -233,6 +237,9 @@ public class baseChessNode: SCNNode {
         initChessPrice()
         priceTextNode.string = String(chessPrice)
         
+        if abilities.contains(EnumAbilities.rapid.rawValue) { //如果是风怒则有两次剩余攻击机会
+            rstAttackTimes = 2
+        }
         
         if let aniPicNode = self.childNode(withName: "animalpic", recursively: true) {
             aniPicNode.geometry?.firstMaterial?.diffuse.contents = UIImage(named: chessName)
@@ -521,7 +528,9 @@ public class baseChessNode: SCNNode {
         }
         return tempDescStr
     }
-    func setActive() { //用于标识棋子可被选择 用于战吼 等场景。当前的操作就是把棋子变绿 之后确定棋子模型后优化
+    
+    //用于标识棋子可被选择 用于战吼 等场景。当前的操作就是把棋子变绿 之后确定棋子模型后优化
+    func setActive() {
         isActive = true
         if let sideNode = self.childNode(withName: "side", recursively: true) {
             sideNode.geometry?.firstMaterial?.diffuse.contents = UIColor.green
@@ -533,6 +542,20 @@ public class baseChessNode: SCNNode {
            sideNode.geometry?.firstMaterial?.diffuse.contents = chessColorRarity[chessRarity]
         }
     }
+    /*攻击频率相关方法*/
+    func attackOnce() {
+        if rstAttackTimes > 0 {
+            rstAttackTimes -= 1
+        }
+    }
+    func recoverAttackTimes() {
+        if abilities.contains(EnumAbilities.rapid.rawValue){
+            rstAttackTimes = 2
+        } else {
+            rstAttackTimes = 1
+        }
+    }
+    
     func initChessPrice() {
         if abilities.contains(EnumAbilities.customValue.rawValue) {
             
