@@ -307,7 +307,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var storageRootNode : [SCNNode] = []
    
     //var backupBoardNode:[[baseChessNode]] = [[],[]]
-    var playerStatues: [playerStruct] = [playerStruct(playerName: "player1", curCoin: GlobalNumberSettings.roundBaseCoin.rawValue + 50, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: false, playerID: MCPeerID(displayName: "player1")), playerStruct(playerName: "player2", curCoin: 40, curLevel: 1, curBlood: 40, curChesses: [baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[1][1]), baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[1][1]), baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[1][1])], curAura: [], isComputer: false,  playerID: MCPeerID(displayName: "player2"))] {
+    var playerStatues: [playerStruct] = [playerStruct(playerName: "player1", curCoin: GlobalNumberSettings.roundBaseCoin.rawValue + 50, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: false, playerID: MCPeerID(displayName: "player1")), playerStruct(playerName: "player2", curCoin: 40, curLevel: 1, curBlood: 40, curChesses: [baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[2][17]), baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[2][17]), baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[2][17])], curAura: [], isComputer: false,  playerID: MCPeerID(displayName: "player2"))] {
         didSet {
             moneyTextNode.string = String(playerStatues[curPlayerId].curCoin)
             levelTextNode.string = String(playerStatues[curPlayerId].curLevel)
@@ -1668,7 +1668,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
     func aRoundTaskAsyncTest(_ beginIndex: inout [Int],_ attSide: Int, _ resolver: Resolver<Any>) {
         firstly {
-            // 首先会调用此位置的代码
             return self.addnewchess()
         }.then { (res: (Bool)) in
             // 如果攻击动作完成了
@@ -1676,7 +1675,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         }.done{ (res) in
             self.addnewchess()
         }.catch { (err)  in
-            // self.loginProto(loginInfo: loginInfo)和self.loginDeal(res: res) 包装的两个promise执行了resolver.reject(),就会执行此代码段
             print("aRoundTaskAsyncTempError")
         }
     }
@@ -2718,19 +2716,38 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             
             var totalTime = 0.00
             
-            //
-            
-            
+            //bloodChangeAction([attacker, victim], [attRstBlood, vicRstBlood])
+            var damageNums = [victim.atkNum!, attackAtt]
+            var changeNodes = [attacker, victim]
+            var changeNums = [attRstBlood, vicRstBlood]
+            //溅射攻击
+            if attacker.abilities.contains(EnumAbilities.sputtering.rawValue) {
+                
+                var adjCHP:[Int] = []
+                var adjDam:[Int] = []
+                adjacentChesses.forEach{(curC) in
+                    if curC.temporaryBuff.contains(EnumAbilities.shell.rawValue) { //如果被攻击者有shell
+                        adjCHP.append(curC.defNum!)
+                        adjDam.append(0)
+                    } else {
+                        adjCHP.append(curC.defNum! - attacker.atkNum!) //溅射伤害不继承剧毒
+                        adjDam.append(attacker.atkNum!)
+                    }
+                }
+                changeNodes += adjacentChesses
+                changeNums += adjCHP
+                damageNums += adjDam
+            }
             attackSequence += [
-                damageAppearAction([attacker, victim], [victim.atkNum! , attackAtt]),   //伤害弹出动画
-                bloodChangeAction([attacker, victim], [attRstBlood, vicRstBlood])
+                damageAppearAction(changeNodes, damageNums),   //伤害弹出动画
+                bloodChangeAction(changeNodes, changeNums)
             ]
+                    
             //尖刺
             if victim.abilities.contains(EnumAbilities.spine.rawValue) {
                 //blood calculate
                 let spineDam = victim.chessLevel
                 attRstBlood = attRstBlood - spineDam
-                
                 attackSequence += [
                     SCNAction.customAction(duration: 0.5, action: {_,_ in
                         victim.abilityTrigger(abilityEnum: EnumAbilities.spine.rawValue.localized)
@@ -2739,27 +2756,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     bloodChangeAction([attacker], [attRstBlood])
                 ]
             }
-            //溅射攻击
-            if attacker.abilities.contains(EnumAbilities.sputtering.rawValue) {
-               
-                
-                attackSequence += [
-                    SCNAction.customAction(duration: 0.5, action: {_,_ in
-                        adjacentChesses.forEach({ curAdChess in
-                            curAdChess.getDamage(damageNumber: attacker.atkNum!, chessBoard: &self.boardNode[victimBoardIndex])
-                        })
-                    })
-                ]
-                
-               
-                
-            }
-            
-            
-            
-            
-            
-            
+
+           
             //alive test 计算是否还存在
             actionResult[0] = attRstBlood > 0 ? 1 : 0
             actionResult[1] = vicRstBlood > 0 ? 1 : 0
@@ -2782,20 +2780,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 totalTime += action.duration
             }
             actionResult.append(totalTime)
-            //
-//            attackSequence += [
-//                SCNAction.customAction(duration: 0.5, action: {_,_ in
-//                    /*进行攻击结束后的结算*/
-////                    if actionResult[0] == 0 { //attacker eliminated
-////                        attackBoard.remove(at: attackIndex)
-////                    }
-////                    if actionResult[1] == 0 { //victim elinminated
-////                        victimBoard.remove(at: victimIndex)
-////                    }
-//                    resolve.fulfill(actionResult)
-//                }),
-//            ]
-            
+
             
             //resolve promise
             delay(SCNAction.sequence(attackSequence).duration , task: {

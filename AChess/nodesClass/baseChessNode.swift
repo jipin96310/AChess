@@ -325,13 +325,20 @@ public class baseChessNode: SCNNode {
        
     }
     func getDamage(damageNumber: Int, chessBoard: inout [baseChessNode]){
-        damageNum = damageNumber
-        defNum = defNum! - damageNumber
-        if defNum! <= 0 {
-            for index in 0 ..< chessBoard.count {
-                if chessBoard[index] == self {
-                    chessBoard.remove(at: index)
-                    break
+        if damageNumber <= 0 {
+            return
+        }
+        if temporaryBuff.contains(EnumAbilities.shell.rawValue) {
+           toggleShell(status: false)
+        } else {
+            damageNum = damageNumber
+            defNum = defNum! - damageNumber
+            if defNum! <= 0 {
+                for index in 0 ..< chessBoard.count {
+                    if chessBoard[index] == self {
+                        chessBoard.remove(at: index)
+                        break
+                    }
                 }
             }
         }

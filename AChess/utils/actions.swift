@@ -41,21 +41,24 @@ func bloodChangeAction(_ changeNodes: [baseChessNode], _ changeNums: [Int]) -> S
             print("error! the num of nodes is not equal to the num of numbers")
         })
     }
-
+    
     let bloodSequence : [SCNAction] = [SCNAction.fadeOut(duration: 0.3), SCNAction.removeFromParentNode()]
     return SCNAction.customAction(duration: 1, action: { _,_ in
-           for index in 0 ..< changeNodes.count {
-               let curNode = changeNodes[index]
-               //let otherNode = index == 0 ? changeNodes[1] : changeNodes[0]
-               let curBlood = changeNums[index]
-                //add explosion effect
-                addExplosion(curNode)
-               if curBlood > 0 {
-                   curNode.defNum = changeNums[index]
-               } else {
-                   curNode.runAction(SCNAction.sequence(bloodSequence))
-               }
-           }
+        for index in 0 ..< changeNodes.count {
+            let curNode = changeNodes[index]
+            //let otherNode = index == 0 ? changeNodes[1] : changeNodes[0]
+            let curBlood = changeNums[index]
+            //add explosion effect
+            addExplosion(curNode)
+            if curBlood > 0 {
+                if curNode.temporaryBuff.contains(EnumAbilities.shell.rawValue) {
+                    curNode.toggleShell(status: false) //抵消伤害 shell 消失
+                }
+                curNode.defNum = changeNums[index]
+            } else {
+                curNode.runAction(SCNAction.sequence([SCNAction.fadeOut(duration: 0.3), SCNAction.removeFromParentNode()]))
+            }
+        }
     })
 }
 func damageAppearAction(_ appearNodes: [baseChessNode], _ damageNum: [Int]) -> SCNAction{
