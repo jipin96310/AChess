@@ -173,7 +173,7 @@ public class baseChessNode: SCNNode {
     
     func exportCodeableStruct() -> codableChessStruct? {
         for i in 0 ..< chessCollectionsLevel[chessRarity - 1].count {
-            if chessCollectionsLevel[chessRarity - 1][i].name == name {
+            if chessCollectionsLevel[chessRarity - 1][i].name == chessName {
                 return codableChessStruct(chessRarityIndex: i, atkNum: atkNum!, defNum: defNum!, chessRarity: chessRarity, chessLevel: chessLevel, chessKind: chessKind, abilities: abilities, temporaryBuff: temporaryBuff)
             }
         }

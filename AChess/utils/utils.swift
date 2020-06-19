@@ -157,7 +157,13 @@ func randomDiffNumsFromArrs<T>(outputNums: Int, inputArr: [T]) -> [T]{ //获取�
 func encodeCodablePlayerStruct(playerID: MCPeerID, player: playerStruct) -> Data{ //转换出codable 玩家数据
     guard let idData = try? NSKeyedArchiver.archivedData(withRootObject: playerID, requiringSecureCoding: true)
     else { fatalError("can't encode!") }
-    let curPlayerStuct = codblePlayerStruct(playerName: player.playerName, curCoin: player.curCoin, curLevel: player.curLevel, curBlood: player.curBlood, curChesses: [], curAura: player.curAura, isComputer: player.isComputer, encodePlayerID: idData)
+    var tempCodeChesses:[codableChessStruct] = []
+    player.curChesses.forEach{ curC in
+        if let enCurC = curC.exportCodeableStruct() {
+            tempCodeChesses.append(enCurC)
+        }
+    }
+    let curPlayerStuct = codblePlayerStruct(playerName: player.playerName, curCoin: player.curCoin, curLevel: player.curLevel, curBlood: player.curBlood, curChesses: tempCodeChesses, curAura: player.curAura, isComputer: player.isComputer, encodePlayerID: idData)
     let encoder = JSONEncoder()
     guard let encodedData = try? encoder.encode(curPlayerStuct)
     else { fatalError("can't encode player struct!") }
@@ -171,6 +177,22 @@ func findIndexOfFirstAttack(curBoard: [baseChessNode]) -> Int {
         }
     }
     return curBoard.count
+}
+func copyChessArr(curBoard: [baseChessNode]) -> [baseChessNode] {
+    var tempArr:[baseChessNode] = []
+    curBoard.forEach{ curC in
+        tempArr.append(curC.copyable())
+    }
+    return tempArr
+}
+func findSimiInstance<T: Equatable>(arr: [T], obj: T) -> T{ //用于寻找数组中半等的对象
+    for i in 0 ..< arr.count {
+        if arr[i] == obj {
+            print("obj found!")
+            return arr[i]
+        }
+    }
+    return obj
 }
 
 

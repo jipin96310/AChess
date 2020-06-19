@@ -63,7 +63,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             didSet(oldBoard) {
   
                 if (curStage == EnumsGameStage.exchangeStage.rawValue) {
-           
+                    //
+                    playerStatues[0].curChesses = copyChessArr(curBoard: boardNode[BoardSide.allySide.rawValue])
+                    //
                     var chessTimesDic:[[String : [Int]]] = [[:],[:],[:]] //棋子map 刷新问题
                     var chessKindMap:[String : Int] = [:]
                     var newCombineChess: [baseChessNode] = []
@@ -451,7 +453,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 anchor.setValue("playerBoard", forKey: "name")
                 sceneView.session.add(anchor: anchor)
             } else  if let enemyPlayerStruct = try? decoder.decode(codblePlayerStruct.self, from: data){ //收到了对手的信息 把自己的信息也打包发给对手
-                if enemyPlayerStruct.encodePlayerID != nil {
+                if enemyPlayerStruct.encodePlayerID != nil && curStage != EnumsGameStage.battleStage.rawValue {
                     if let decodeID = try? NSKeyedUnarchiver.unarchivedObject(ofClass: MCPeerID.self, from: enemyPlayerStruct.encodePlayerID!) {
                         //更新敌人数据
                         playerStatues[1].playerID = decodeID
@@ -460,14 +462,24 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             tempEnemybaseChess.append(baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, codeChessInfo: encodeChess))
                         }
                         playerStatues[1].curChesses = tempEnemybaseChess
-                        switchGameStage() //收到对手阵容开始比赛
-                        //收到了对手的信息 把自己的信息也打包发给对手
-                        //let encodedData = encodeCodablePlayerStruct(playerID: player.playerID!, player: player)
+                        
+                        
+                         //收到了对手的信息 把自己的信息也打包发给对手
+                        if gameConfigStr.isMaster { //如果主机收到了就不用再发了
+                            switchGameStage() //收到对手阵容开始比赛
+                        } else if peer == curMasterID { //从机 如果信息来自主机则发送给对手
+                            let encodedData = encodeCodablePlayerStruct(playerID: multipeerSession.getMyId(), player: playerStatues[0])
+                            multipeerSession.sendToPeer(encodedData, [decodeID])
+                        } else { //从机 信息不是来自主机 则开始游戏
+                            switchGameStage() //收到对手阵容开始比赛
+                        }
+                        
+                        
                     }
                 }
               
             }else if let strFlag = String(data: data, encoding: String.Encoding.utf8) {
-                if strFlag == "readyBattle" && gameConfigStr.isMaster { //从机准备成功
+                if strFlag == "readyBattle" && gameConfigStr.isMaster { //主机收到从机准备成功
                     if currentSlaveId != nil {
                         for i in 0 ..< currentSlaveId!.count {
                             if currentSlaveId![i].playerID === peer {
@@ -478,7 +490,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                        
                     }
                     if checkIfAllReady() {
-                        switchGameStage()
+                        masterArrangeBattles()
                     }
                 } else if strFlag == EnumMessageCommand.switchGameStage.rawValue && !gameConfigStr.isMaster { //从机切换至战斗
                     //主机分配从机对手
@@ -1123,12 +1135,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             ]))
                             upgradePlayerLevel(curPlayerId)
                         } else if isNameButton(hitTestResult.first!.node, "endButton") && !isWaiting {
-                            endButtonTopNode.runAction(SCNAction.sequence([
-                                SCNAction.move(by: SCNVector3(0,-0.005,0), duration: 0.25),
-//                                SCNAction.move(by: SCNVector3(0,0.005,0), duration: 0.25)
-                            ]))
-                            endButtonNode.geometry?.firstMaterial?.diffuse.contents = UIColor.gray //灰显图标
-                            isWaiting = true
+                            //TODO
+//                            endButtonTopNode.runAction(SCNAction.sequence([
+//                                SCNAction.move(by: SCNVector3(0,-0.005,0), duration: 0.25)
+//                            ]))
+//                            endButtonNode.geometry?.firstMaterial?.diffuse.contents = UIColor.gray //灰显图标
+//                            isWaiting = true
+                            //TODO
                             if(gameConfigStr.isMaster) {
                                 for i in 0 ..< currentSlaveId!.count {
                                     if currentSlaveId![i].playerID === multipeerSession.getMyId() {
@@ -1137,7 +1150,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                     }
                                 }
                                 if checkIfAllReady() {
-                                    switchGameStage()
+                                    masterArrangeBattles()
                                 }
                             } else {
                                 if let desId = curMasterID {
@@ -1166,6 +1179,36 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 }
             }
         }
+    func masterArrangeBattles() {
+        /*主机通知从机切换游戏阶段*/
+        if gameConfigStr.isMaster { //主机分配对手信息
+            if currentSlaveId != nil {
+                var codePlayers:[Data] = []
+                var pIDs:[MCPeerID] = []
+                currentSlaveId?.forEach{(player) in
+                    if player.isComputer { //本主机和电脑no need to notify player.playerID == multipeerSession.getMyId() ||
+                        return
+                    }
+                    var tempP = player
+                    if player.playerID == multipeerSession.getMyId() { //如果是主机就把真实数据发出去 这样二次收到就不用再发了
+                        tempP.curChesses = playerStatues[0].curChesses
+                    }
+                    let encodedData = encodeCodablePlayerStruct(playerID: player.playerID!, player: tempP)
+                    codePlayers.append(encodedData)
+                    pIDs.append(player.playerID!)
+                }
+                if codePlayers.count >= 2 { //TODO 实验阶段 让第一个从机和主机对战
+                    let curId = findSimiInstance(arr: multipeerSession.connectedPeers, obj: pIDs[1])
+                    multipeerSession.sendToPeer(codePlayers[0], [curId])
+                }
+                
+                
+                for i in 0 ..< currentSlaveId!.count {//清空玩家准备状态
+                    currentSlaveId![i].setPlayerStatus(curStatus: false)
+                }
+            }
+        }
+    }
     
     func checkIfAllReady() -> Bool { //检查是否所有人都准备完毕
         if currentSlaveId != nil {
@@ -1823,37 +1866,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     
     func switchGameStage() {
         if curStage == EnumsGameStage.exchangeStage.rawValue {  //交易转战斗
-            /*主机通知从机切换游戏阶段*/
-            if gameConfigStr.isMaster {
-//                let commandStr = EnumMessageCommand.switchGameStage.rawValue
-//                guard let data = commandStr.data(using: String.Encoding.utf8)
-//                    else { fatalError("can't encode command") }
-//                multipeerSession.sendToAllPeers(data)
-                if currentSlaveId != nil {
-                var codePlayers:[Data] = []
-                var pIDs:[MCPeerID] = []
-                currentSlaveId?.forEach{(player) in
-                    if player.isComputer { //本主机和电脑no need to notify player.playerID == multipeerSession.getMyId() ||
-                        return
-                    }
-      
-                    let encodedData = encodeCodablePlayerStruct(playerID: player.playerID!, player: player)
-                    codePlayers.append(encodedData)
-                    pIDs.append(player.playerID!)
-                }
-          
-                if codePlayers.count >= 2 { //TODO 实验阶段 让第一个从机和主机对战
-                    multipeerSession.sendToPeer(codePlayers[0], [pIDs[1]])
-                }
-                
-                
-                
-                    for i in 0 ..< currentSlaveId!.count {//清空玩家准备状态
-                        currentSlaveId![i].setPlayerStatus(curStatus: false)
-                    }
-                }
-            }
-            
             disableButtons() //禁止buttons点击和手势事件
             let delayTime = PlayerBoardTextAppear(TextContent: "BattleStage".localized) //弹出切换回合提示
             delay(delayTime) {
@@ -2624,10 +2636,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             let leftIndex = victimIndex - 1
             let rightIndex = victimIndex + 1
             var adjacentChesses:[baseChessNode] = []
-            if leftIndex > 0 && leftIndex < victimBoard.count {
+            if leftIndex >= 0 && leftIndex < victimBoard.count {
                 adjacentChesses.append(self.boardNode[victimBoardIndex][leftIndex])
             }
-            if rightIndex > 0 && rightIndex < victimBoard.count {
+            if rightIndex >= 0 && rightIndex < victimBoard.count {
                 adjacentChesses.append(self.boardNode[victimBoardIndex][rightIndex])
                 
             }

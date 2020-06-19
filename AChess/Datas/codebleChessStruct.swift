@@ -11,7 +11,7 @@ import Foundation
 import Foundation
 
 public struct codableChessStruct: Codable {
-    var chessRarityIndex: Int?
+    var chessRarityIndex: Int? //当前稀有度的序号
     var atkNum: Int?
     var defNum: Int?
     var chessRarity: Int? //棋子稀有度
