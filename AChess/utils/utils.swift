@@ -194,5 +194,21 @@ func findSimiInstance<T: Equatable>(arr: [T], obj: T) -> T{ //用于寻找数组
     }
     return obj
 }
+func randomSplit<T>(arr: [T]) -> [[T]]?{ //用于将数组分成2个一组
+    if arr.count % 2 != 0 { //不支持奇数
+        return nil
+    }
+    var res:[[T]] = []
+    var tempArr = arr
+    while (tempArr.count > 0) {
+        var curTwo:[T] = []
+        let n1 = Int.randomIntNumber(lower: 0, upper: tempArr.count)
+        curTwo.append(tempArr.remove(at: n1))
+        let n2 = Int.randomIntNumber(lower: 0, upper: tempArr.count)
+        curTwo.append(tempArr.remove(at: n2))
+        res.append(curTwo)
+    }
+    return res
+}
 
 

@@ -452,25 +452,28 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 // Add anchor to the session, ARSCNView delegate adds visible content.
                 anchor.setValue("playerBoard", forKey: "name")
                 sceneView.session.add(anchor: anchor)
-            } else  if let enemyPlayerStruct = try? decoder.decode(codblePlayerStruct.self, from: data){ //收到了对手的信息 把自己的信息也打包发给对手
+            } else  if let enemyPlayerStruct = try? decoder.decode(codblePlayerStruct.self, from: data){
                 if enemyPlayerStruct.encodePlayerID != nil && curStage != EnumsGameStage.battleStage.rawValue {
                     if let decodeID = try? NSKeyedUnarchiver.unarchivedObject(ofClass: MCPeerID.self, from: enemyPlayerStruct.encodePlayerID!) {
-                        //更新敌人数据
+                        /*更新敌人数据*/
                         playerStatues[1].playerID = decodeID
                         var tempEnemybaseChess:[baseChessNode] = []
                         enemyPlayerStruct.curChesses.forEach{(encodeChess) in
                             tempEnemybaseChess.append(baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, codeChessInfo: encodeChess))
                         }
-                        playerStatues[1].curChesses = tempEnemybaseChess
-                        
-                        
+                        if enemyPlayerStruct.isComputer {
+                            feedEnemies()
+                        } else {
+                          playerStatues[1].curChesses = tempEnemybaseChess
+                        }
+                        /*end*/
                          //收到了对手的信息 把自己的信息也打包发给对手
                         if gameConfigStr.isMaster { //如果主机收到了就不用再发了
                             switchGameStage() //收到对手阵容开始比赛
-                        } else if peer == curMasterID { //从机 如果信息来自主机则发送给对手
+                        } else if peer == curMasterID { //从机 如果信息来自主机则发送给对手 是没有对手阵容的
                             let encodedData = encodeCodablePlayerStruct(playerID: multipeerSession.getMyId(), player: playerStatues[0])
                             multipeerSession.sendToPeer(encodedData, [decodeID])
-                        } else { //从机 信息不是来自主机 则开始游戏
+                        } else { //从机 信息不是来自主机 则是有对手阵容的 则开始游戏
                             switchGameStage() //收到对手阵容开始比赛
                         }
                         
@@ -1183,26 +1186,37 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         /*主机通知从机切换游戏阶段*/
         if gameConfigStr.isMaster { //主机分配对手信息
             if currentSlaveId != nil {
-                var codePlayers:[Data] = []
-                var pIDs:[MCPeerID] = []
-                currentSlaveId?.forEach{(player) in
-                    if player.isComputer { //本主机和电脑no need to notify player.playerID == multipeerSession.getMyId() ||
-                        return
+                if let arrangedArr = randomSplit(arr: currentSlaveId!) {
+                    arrangedArr.forEach{ twoArr in
+                        for i in 0 ..< twoArr.count {
+                            var curPlayer = twoArr[i]
+                            if curPlayer.playerID == multipeerSession.getMyId()
+                            { //如果是主机则继续
+                                continue
+                            }
+                            var oppoPlayer = i == 0 ? twoArr[1] : twoArr[0]
+                            if !curPlayer.isComputer { //不是电脑
+                                //序列化对手的信息
+                                if oppoPlayer.playerID == multipeerSession.getMyId() { //如果是主机就把真实数据发出去 这样二次收到就不用再发了
+                                    oppoPlayer.curChesses = playerStatues[0].curChesses
+                                }
+                                let encodedData = encodeCodablePlayerStruct(playerID: oppoPlayer.playerID!, player: oppoPlayer)
+                                let curId = findSimiInstance(arr: multipeerSession.connectedPeers, obj: curPlayer.playerID!)
+                                currentSlaveId![i].setPlayerStatus(curStatus: false)
+                                multipeerSession.sendToPeer(encodedData, [curId])
+                                break
+                            } else { //如果是电脑
+                               if oppoPlayer.playerID == multipeerSession.getMyId() { //是电脑对手的话 主机直接开打
+                                   feedEnemies()
+                                   switchGameStage()
+                                }
+                            }
+                        }
+                        
                     }
-                    var tempP = player
-                    if player.playerID == multipeerSession.getMyId() { //如果是主机就把真实数据发出去 这样二次收到就不用再发了
-                        tempP.curChesses = playerStatues[0].curChesses
-                    }
-                    let encodedData = encodeCodablePlayerStruct(playerID: player.playerID!, player: tempP)
-                    codePlayers.append(encodedData)
-                    pIDs.append(player.playerID!)
                 }
-                if codePlayers.count >= 2 { //TODO 实验阶段 让第一个从机和主机对战
-                    let curId = findSimiInstance(arr: multipeerSession.connectedPeers, obj: pIDs[1])
-                    multipeerSession.sendToPeer(codePlayers[0], [curId])
-                }
-                
-                
+
+
                 for i in 0 ..< currentSlaveId!.count {//清空玩家准备状态
                     currentSlaveId![i].setPlayerStatus(curStatus: false)
                 }
@@ -1213,7 +1227,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     func checkIfAllReady() -> Bool { //检查是否所有人都准备完毕
         if currentSlaveId != nil {
             for i in 0 ..< currentSlaveId!.count {
-                if !currentSlaveId![i].isComputer && !currentSlaveId![i].playerStatus {
+                if !currentSlaveId![i].isComputer && !currentSlaveId![i].playerStatus { //不是电脑 且没准备
                     return false
                 }
             }
@@ -2002,8 +2016,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         }
         return true
     }
-    func feedEnemies() -> [chessStruct] {
-        return dummyAICrew[curRound]
+    func feedEnemies() {
+        var tempArr:[baseChessNode] = []
+        dummyAICrew[curRound].forEach{ curStr in
+            tempArr.append(baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: curStr))
+        }
+        playerStatues[1].curChesses = tempArr
     }
     func getRandomChessStructFromPool(_ curLevel : Int) -> chessStruct { //不可能出现所有都小于等于0的情况 出现了就直接用现有的
         var randomLevel = Int.randomIntNumber(lower: 1, upper: curLevel + 1)
