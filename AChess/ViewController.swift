@@ -233,7 +233,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                                 let damTime = dealDamageAction(startVector: erasedChess.position, endVector: curChess.position)
                                                 delay(damTime, task: {
                                                     curChess.getDamage(damageNumber: curRattleDamage * curStar, chessBoard: &self.boardNode[oppoBoardSide])
-                                                    self.updateWholeBoardPosition()
+                                                    //self.updateWholeBoardPosition()
                                                 })
                                             }                                           
                                         }
@@ -468,11 +468,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         }
                         /*end*/
                          //收到了对手的信息 把自己的信息也打包发给对手
-                        if gameConfigStr.isMaster { //如果主机收到了就不用再发了
+                        if gameConfigStr.isMaster || enemyPlayerStruct.isComputer { //如果主机收到了就不用再发了 如果是电脑直接开打
                             switchGameStage() //收到对手阵容开始比赛
                         } else if peer == curMasterID { //从机 如果信息来自主机则发送给对手 是没有对手阵容的
                             let encodedData = encodeCodablePlayerStruct(playerID: multipeerSession.getMyId(), player: playerStatues[0])
-                            multipeerSession.sendToPeer(encodedData, [decodeID])
+                            let curId = findSimiInstance(arr: multipeerSession.connectedPeers, obj: decodeID)
+                            multipeerSession.sendToPeer(encodedData, [curId])
+                            if decodeID == curMasterID { //如果对手也是主机 那么是有阵容的
+                                switchGameStage()
+                            }
                         } else { //从机 信息不是来自主机 则是有对手阵容的 则开始游戏
                             switchGameStage() //收到对手阵容开始比赛
                         }
@@ -502,8 +506,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             } else {
                 print("unknown data recieved from \(peer)")
             }
-            
-            
+         
         } catch {
             print("can't decode data recieved from \(peer)")
         }
@@ -1978,13 +1981,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             ]))
             let delayTime = PlayerBoardTextAppear(TextContent: "ExchangeStage".localized) //弹出切换回合提示
             delay(delayTime){
+                let lastChesses = copyChessArr(curBoard: self.playerStatues[self.curPlayerId].curChesses) //拷贝上轮阵容 防止切换模式清空
                 self.recoverButtons()
                 self.curStage = EnumsGameStage.exchangeStage.rawValue
                 self.boardNode[1].forEach{(curChess) in
                     curChess.removeFromParentNode()
                 }
                 self.boardNode[1] = []
-                self.playerStatues[self.curPlayerId].curChesses.forEach{(curChess) in
+                lastChesses.forEach{(curChess) in
                     self.boardNode[1].append(curChess.copyable())
                 }
                 
