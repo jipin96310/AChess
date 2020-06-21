@@ -250,26 +250,27 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                 }
                                 if erasedChess.abilities.contains(EnumAbilities.inheritSummonSth.rawValue) {
                                     if case var curHeritChess as [chessStruct] = erasedChess.inheritFunc[EnumKeyName.summonChess.rawValue] {
-                                        
+                                        erasedChess.abilityTrigger(abilityEnum: EnumAbilities.inheritSummonSth.rawValue.localized)
                                         if erasedChess.chessName == EnumChessName.mouse.rawValue && curHeritChess.count > 0 { //老鼠特殊处理
                                             let randomNum = Int.randomIntNumber(lower: 1, upper: 5)
                                             let newSummonArr = Array(repeating: curHeritChess[0], count: randomNum)
                                             curHeritChess = newSummonArr
                                         }
                                         
-                                        
-                                        
-                                        erasedChess.abilityTrigger(abilityEnum: EnumAbilities.inheritSummonSth.rawValue.localized)
-                                        for index in 0 ..< curHeritChess.count { //appendnewnode里会计算数量 多余的棋子会被砍掉
-                                            if innerIndex <= self.boardNode[boardIndex].count {
-                                                self.appendNewNodeToBoard(curBoardSide: boardIndex, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: curHeritChess[index])], curInsertIndex: innerIndex + index)
-                                            } else {
-                                                self.appendNewNodeToBoard(curBoardSide: boardIndex, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: curHeritChess[index])], curInsertIndex: innerIndex + index)
-                                            }
-                                            
-                                            
-                                            
+                                        var newChesses:[baseChessNode] = []
+                                        curHeritChess.forEach{ curC in //敌人也是owned
+                                            newChesses.append(baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: curC))
                                         }
+                                        //for index in 0 ..< curHeritChess.count { //appendnewnode里会计算数量 多余的棋子会被砍掉
+                                       // inheritPromiseArr.append({() in
+                                            //return Promise<Double>(resolver: {(resolver) in
+                                                if innerIndex <= self.boardNode[boardIndex].count {
+                                                    self.appendNewNodeToBoard(curBoardSide: boardIndex, curAddChesses: newChesses, curInsertIndex: innerIndex)
+                                                } else {
+                                                    self.appendNewNodeToBoard(curBoardSide: boardIndex, curAddChesses: newChesses, curInsertIndex: innerIndex)
+                                                }
+                                           // })
+                                        //})
                                         
                                     } else if case let curRattleRarity as Int = erasedChess.inheritFunc[EnumKeyName.baseRarity.rawValue] {
                                         erasedChess.abilityTrigger(abilityEnum: EnumAbilities.inheritAddBuff.rawValue.localized)
@@ -299,19 +300,22 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 
                 
                 recyclePromise(taskArr: inheritPromiseArr, curIndex: 0).done{ _ in
-                    if self.updatePromise != nil && isAlive {
-                        self.updatePromise?.fulfill(0) //fufill的时间用不上 hardcode 0
-                        self.updatePromise = nil
-                    }
                     needDeleteChesses.forEach{ curC in
                         curC.removeFromParentNode()
                     }
                     DispatchQueue.main.async{
-                        self.updateWholeBoardPosition() //dont delete
+                        let updateTime = self.updateWholeBoardPosition()
+                        if self.updatePromise != nil && isAlive {
+                            delay(updateTime, task: {
+                                self.updatePromise?.fulfill(0) //fufill的时间用不上 hardcode 0
+                                self.updatePromise = nil
+                                
+                            })
+                        }
+                        
                     }
                 }
-                  
-            }
+        }
         }
     var boardRootNode :[[SCNNode]] = [[],[]] //chess holder
     var storageNode : [baseChessNode] = [] {
@@ -2651,8 +2655,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             newTrackPoint.addParticleSystem(explosion)
            
         }
-        
-        
         newTrackPoint.position = startVector
         newTrackPoint.position.y = 0.1
         playerBoardNode.addChildNode(newTrackPoint)
