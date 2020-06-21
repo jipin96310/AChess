@@ -38,7 +38,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var allyBoardNode : SCNNode = SCNNode()
     let totalUpdateTime:Double = 1 //刷新时间
     var isFreezed:Bool = false //是否冻结
-    var isWaiting:Bool = false //是否在等待
+    var isWaiting:Bool = false //是否在等待所有玩家准备
+    var updatePromise:Resolver<Double>? = nil
     var multipeerSession: multiUserSession! //多人session
   
     
@@ -176,6 +177,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     }
                 }
 
+                var inheritPromiseArr:[() -> (Promise<Double>)] = []
+                var isAlive = true //是否有延展性消灭
+                var needDeleteChesses:[baseChessNode] = [] //需要删除的棋子
                 for boardIndex in 0 ..< oldBoard.count {
                     for innerIndex in 0 ..< oldBoard[boardIndex].count {
                         if !boardNode[boardIndex].contains(oldBoard[boardIndex][innerIndex]) {
@@ -230,11 +234,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 //                                            erasedChess.abilityTrigger(abilityEnum: EnumAbilities.inheritDamage.rawValue.localized)
                                             for vIndex in 0 ..< damageChess.count {
                                                 let curChess = damageChess[vIndex] as! baseChessNode
-                                                let damTime = dealDamageAction(startVector: erasedChess.position, endVector: curChess.position)
-                                                delay(damTime, task: {
-                                                    curChess.getDamage(damageNumber: curRattleDamage * curStar, chessBoard: &self.boardNode[oppoBoardSide])
-                                                    //self.updateWholeBoardPosition()
+                                                inheritPromiseArr.append({() in
+                                                    return Promise<Double>(resolver: {(resolver) in
+                                                        let damTime = self.dealDamageAction(startVector: erasedChess.position, endVector: curChess.position)
+                                                        delay(damTime, task: {
+                                                                isAlive = curChess.getDamage(damageNumber: curRattleDamage * curStar, chessBoard: &self.boardNode[oppoBoardSide])
+                                                                resolver.fulfill(self.totalUpdateTime)
+                                                        })
+                                                    })
                                                 })
+                                                
                                             }                                           
                                         }
                                     }
@@ -282,15 +291,26 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                     //self.updateWholeBoardPosition()
                                 }
                             }
-                            
-                            oldBoard[boardIndex][innerIndex].removeFromParentNode()
+                            needDeleteChesses.append(oldBoard[boardIndex][innerIndex])
+                            //oldBoard[boardIndex][innerIndex].removeFromParentNode()
                         }
                     }
                 }
                 
-                DispatchQueue.main.async{
-                    self.updateWholeBoardPosition() //dont delete
-                }                   
+                
+                recyclePromise(taskArr: inheritPromiseArr, curIndex: 0).done{ _ in
+                    if self.updatePromise != nil && isAlive {
+                        self.updatePromise?.fulfill(0) //fufill的时间用不上 hardcode 0
+                        self.updatePromise = nil
+                    }
+                    needDeleteChesses.forEach{ curC in
+                        curC.removeFromParentNode()
+                    }
+                    DispatchQueue.main.async{
+                        self.updateWholeBoardPosition() //dont delete
+                    }
+                }
+                  
             }
         }
     var boardRootNode :[[SCNNode]] = [[],[]] //chess holder
@@ -1656,6 +1676,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             let victim = victimBoard[victimIndex]
             //var attackerActions: [SCNAction] = []
             var actionPromiseArr:[() -> (Promise<Double>)] = []
+            
+            
+            if attackResult[0] == 0 || attackResult[1] == 0{ //触发亡语
+                actionPromiseArr.append({() in
+                    return Promise<Double>(resolver: {(resolver) in
+                        self.updatePromise = resolver
+                    })
+                })
+            }
+            
             /*进行计算移除被干掉的棋子*/
             if attackResult[0] == 0 { //attacker eliminated
                 self.boardNode[attackBoardIndex].remove(at: attackIndex)
@@ -1664,49 +1694,45 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 self.boardNode[victimBoardIndex].remove(at: victimIndex)
             }
             
-    
+           
             
-            /*进行亡语或群居结算*/
+            /*非亡语结算*/
             for curSide in 0 ... 1 { //0为攻击者 1为防守方
                 let curBoardSide = curSide == 0 ? attackBoardIndex : victimBoardIndex
                 let curChessPoint = curSide == 0 ? attacker : victim
                 let oppositeSide = curSide == 0 ? victimBoardIndex : attackBoardIndex
                 let curChessIndex = curSide == 0 ? attackIndex : victimIndex
                 //
-                if curSide == 0 && attackResult[curSide] != 0 {
-
+                if curSide == 0 && attackResult[curSide] != 0 { //仅攻击方生效
+                    if attacker.abilities.contains(EnumAbilities.afterAttackAoe.rawValue) {
+                        let curBaseDam = attacker.rattleFunc[EnumKeyName.baseDamage.rawValue] ?? 1
+                        actionPromiseArr.append({() in
+                            return self.aoeDamagePromise(practicleName: "particals.scnassets/lightning.scnp", boardSide: victimBoardIndex, damageNum: curBaseDam as! Int * attacker.chessLevel)
+                        })
+                    }
+                    
                     if curChessPoint.abilities.contains(EnumAbilities.liveInGroup.rawValue) && self.boardNode[curBoardSide].count < GlobalCommonNumber.chessNumber { // <7
                         let randomNumber = Int.randomIntNumber(lower: 0, upper: 10) //0-9
                         //if randomNumber < 2 * victim.chessLevel { //20% 40% 60% attacker
-                            let copyChess = baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: chessStruct(
-                                name: attacker.chessName, desc: "", atkNum: attacker.atkNum!, defNum: attacker.defNum!, chessRarity: attacker.chessRarity, chessLevel: attacker.chessLevel, chessKind: attacker.chessKind, abilities: [], temporaryBuff: [], rattleFunc: [:], inheritFunc: [:]
-                            ))
-                            if let curAttIndex = self.boardNode[curBoardSide].index(of: attacker) {
-                                actionPromiseArr.append({() in
-                                    return Promise<Double>(resolver: {(resolver) in
-                                        self.appendNewNodeToBoard(curBoardSide: curBoardSide, curAddChesses: [copyChess], curInsertIndex: curAttIndex + 1)
-                                        delay(self.totalUpdateTime, task: {
-                                            resolver.fulfill(self.totalUpdateTime)
-                                        })
+                        let copyChess = baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: chessStruct(
+                            name: attacker.chessName, desc: "", atkNum: attacker.atkNum!, defNum: attacker.defNum!, chessRarity: attacker.chessRarity, chessLevel: attacker.chessLevel, chessKind: attacker.chessKind, abilities: [], temporaryBuff: [], rattleFunc: [:], inheritFunc: [:]
+                        ))
+                        if let curAttIndex = self.boardNode[curBoardSide].index(of: attacker) {
+                            actionPromiseArr.append({() in
+                                return Promise<Double>(resolver: {(resolver) in
+                                    self.appendNewNodeToBoard(curBoardSide: curBoardSide, curAddChesses: [copyChess], curInsertIndex: curAttIndex + 1)
+                                    delay(self.totalUpdateTime, task: {
+                                        resolver.fulfill(self.totalUpdateTime)
                                     })
                                 })
-                                
-                            }
-                            //
-                        //}
+                            })
+                            
+                        }
                     }
                 }
-                           
             }
             
-            if attackResult[0] != 0 {
-                if attacker.abilities.contains(EnumAbilities.afterAttackAoe.rawValue) {
-                    let curBaseDam = attacker.rattleFunc[EnumKeyName.baseDamage.rawValue] ?? 1
-                    actionPromiseArr.append({() in
-                        return self.aoeDamagePromise(practicleName: "particals.scnassets/lightning.scnp", boardSide: victimBoardIndex, damageNum: curBaseDam as! Int * attacker.chessLevel)
-                    })
-                }
-            }
+           
             
             // resolve promise
             recyclePromise(taskArr: actionPromiseArr, curIndex: 0).done({ _ in 

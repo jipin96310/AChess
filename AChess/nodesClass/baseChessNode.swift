@@ -331,9 +331,9 @@ public class baseChessNode: SCNNode {
         }
        
     }
-    func getDamage(damageNumber: Int, chessBoard: inout [baseChessNode]){
+    func getDamage(damageNumber: Int, chessBoard: inout [baseChessNode]) -> Bool { //true alive false eliminated
         if damageNumber <= 0 {
-            return
+            return true
         }
         if temporaryBuff.contains(EnumAbilities.shell.rawValue) {
            toggleShell(status: false)
@@ -347,8 +347,10 @@ public class baseChessNode: SCNNode {
                         break
                     }
                 }
+                return false
             }
         }
+       return true
     }
     
  

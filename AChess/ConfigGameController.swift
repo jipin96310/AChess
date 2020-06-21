@@ -15,7 +15,9 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
     var masterServerID: MCPeerID?
     
     var gameConfig = settingStruct(isShareBoard: true, playerNumber: 2, isMaster: false)
-    var currentSlaveId:[playerStruct] = [playerStruct(playerName: UIDevice.current.name, curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: false, playerID: MCPeerID(displayName: UIDevice.current.name))]
+    var currentSlaveId:[playerStruct] = [playerStruct(playerName: UIDevice.current.name, curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: false, playerID: MCPeerID(displayName: UIDevice.current.name)),
+        playerStruct(playerName: "动保", curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: true, playerID: nil)
+    ]
     
     @IBOutlet weak var playerNumberLabel: UILabel!
     @IBOutlet weak var playerNumberStepper: UIStepper!
