@@ -260,23 +260,31 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <arscnView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BrB-h1-WRS">
-                                <rect key="frame" x="44" y="0.0" width="808" height="393"/>
+                                <rect key="frame" x="0.0" y="0.0" width="896" height="414"/>
                             </arscnView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8X4-Fj-M7u">
-                                <rect key="frame" x="44" y="382" width="808" height="21"/>
+                                <rect key="frame" x="0.0" y="44" width="41.666666666666664" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Gor-lg-Lbj">
+                                <rect key="frame" x="845" y="64" width="31" height="30"/>
+                                <state key="normal" title="重置"/>
+                                <connections>
+                                    <action selector="resetPlayboard:" destination="BV1-FR-VrT" eventType="touchUpInside" id="a0d-5i-i61"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
-                            <constraint firstItem="8X4-Fj-M7u" firstAttribute="leading" secondItem="fQZ-KI-GVf" secondAttribute="leading" id="2vb-qK-ckV"/>
-                            <constraint firstItem="BrB-h1-WRS" firstAttribute="leading" secondItem="fQZ-KI-GVf" secondAttribute="leading" id="GsS-dJ-CKf"/>
-                            <constraint firstItem="fQZ-KI-GVf" firstAttribute="trailing" secondItem="8X4-Fj-M7u" secondAttribute="trailing" id="KKJ-Z0-g84"/>
-                            <constraint firstItem="BrB-h1-WRS" firstAttribute="bottom" secondItem="fQZ-KI-GVf" secondAttribute="bottom" id="VpT-BR-CcM"/>
-                            <constraint firstItem="BrB-h1-WRS" firstAttribute="trailing" secondItem="fQZ-KI-GVf" secondAttribute="trailing" id="XyZ-9z-H8e"/>
-                            <constraint firstItem="8X4-Fj-M7u" firstAttribute="bottom" secondItem="fQZ-KI-GVf" secondAttribute="bottom" constant="10" id="oPW-CO-xXa"/>
+                            <constraint firstItem="BrB-h1-WRS" firstAttribute="leading" secondItem="U0K-SW-4ec" secondAttribute="leading" id="6qO-mL-dfN"/>
+                            <constraint firstItem="8X4-Fj-M7u" firstAttribute="leading" secondItem="BrB-h1-WRS" secondAttribute="leading" id="8vU-VA-W1N"/>
+                            <constraint firstItem="BrB-h1-WRS" firstAttribute="bottom" secondItem="U0K-SW-4ec" secondAttribute="bottom" id="DMt-qD-4Zf"/>
+                            <constraint firstItem="BrB-h1-WRS" firstAttribute="centerX" secondItem="U0K-SW-4ec" secondAttribute="centerX" id="Wyd-zn-UJg"/>
+                            <constraint firstItem="Gor-lg-Lbj" firstAttribute="top" secondItem="fQZ-KI-GVf" secondAttribute="top" constant="20" id="Zh4-iZ-Hlq"/>
+                            <constraint firstItem="8X4-Fj-M7u" firstAttribute="top" secondItem="fQZ-KI-GVf" secondAttribute="top" id="k8I-3Z-AK5"/>
+                            <constraint firstAttribute="trailing" secondItem="Gor-lg-Lbj" secondAttribute="trailing" constant="20" id="ptS-ZJ-Nws"/>
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="top" secondItem="U0K-SW-4ec" secondAttribute="top" id="rJc-2c-zQA"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="fQZ-KI-GVf"/>

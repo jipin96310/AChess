@@ -42,7 +42,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var updatePromise:Resolver<Double>? = nil
     var multipeerSession: multiUserSession! //多人session
   
-    
     var handPoint = SCNNode() // use for mode1 with hand
     var referencePoint = SCNNode() // use for mode0 with touching on screen
     var tempTransParentNode = baseChessNode()
@@ -1871,6 +1870,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 //            aRoundTask(&beginIndex)
        // }
     }
+    
+    @IBAction func resetPlayboard(_ sender: Any) { //清除底座
+        isPlayerBoardinited = false
+        playerBoardNode.removeFromParentNode()
+    
+    }
+    
     func initBoardRootNode() { //初始化底座node。是必须的 游戏开始必须调用
         if let allyBoardTemp = playerBoardNode.childNode(withName: "allyBoard", recursively: true) {
             allyBoardNode = allyBoardTemp
@@ -2919,9 +2925,18 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             freezeButtonNode = freezeButtonTemp
         }
     }
+    
+    func recoverChess(side: Int){ //用户恢复数据上没删除 只是removenode的棋子
+        boardNode[side].forEach{curC in
+            playerBoardNode.addChildNode(curC)
+        }
+    }
+    
+    
     func initGameTest() {
         initBoardRootNode()
         initBoardChess(initStage: curStage)
+        recoverChess(side: BoardSide.allySide.rawValue)
         initDisplay()
         initButtons()
 //        for index in 1 ..< 7 {
