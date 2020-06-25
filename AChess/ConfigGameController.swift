@@ -24,7 +24,6 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
     @IBOutlet weak var shareBoardSwitch: UISwitch!
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var settingTableView: UITableView!
-    @IBOutlet weak var userStackView: UIStackView!
     var multipeerSession: multiUserSession!
     var timer : Timer? //定时刷新在线玩家
     let computerPlayer = [

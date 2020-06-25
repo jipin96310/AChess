@@ -258,8 +258,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                         }
                                         
                                         var newChesses:[baseChessNode] = []
-                                        curHeritChess.forEach{ curC in //敌人也是owned
-                                            newChesses.append(baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: curC))
+                                        curHeritChess.forEach{ curC in
+                                            newChesses.append(baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: curC))
                                         }
                                         //for index in 0 ..< curHeritChess.count { //appendnewnode里会计算数量 多余的棋子会被砍掉
                                        // inheritPromiseArr.append({() in
@@ -355,7 +355,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onTap))
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        UIDevice.current.setValue(UIInterfaceOrientation.landscapeRight.rawValue, forKey: "orientation") //强制横屏
         messageLabel.text = String(gameConfigStr.isMaster)
         // Set the view's delegate
         sceneView.delegate = self
@@ -446,6 +446,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         sceneView.session.pause()
     }
     
+    override var shouldAutorotate: Bool { //禁用旋转屏幕
+        return false
+    }
     
     
     // MARK: - Multiuser shared session
@@ -1145,15 +1148,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         if isNameButton(hitTestResult.first!.node, "randomButton") {
                             //点击以后randombutton下压
                         
-                             randomButtonTopNode.runAction(SCNAction.sequence([
-                                                             SCNAction.move(by: SCNVector3(0,-0.01,0), duration: 0.25),
-                                                             SCNAction.move(by: SCNVector3(0,0.01,0), duration: 0.25)
-                                                         ]))
-//                            hitTestResult.first?.node.runAction(SCNAction.sequence([
-//                                SCNAction.move(by: SCNVector3(1,0.5,1), duration: 0.5),
-//                                SCNAction.move(by: SCNVector3(1,2,1), duration: 0.5)
-//                            ]))
-                            //
+                            randomButtonTopNode.runAction(SCNAction.sequence([
+                                SCNAction.move(by: SCNVector3(0,-0.01,0), duration: 0.25),
+                                SCNAction.move(by: SCNVector3(0,0.01,0), duration: 0.25)
+                            ]))
+
                             if playerStatues[curPlayerId].curCoin > 0 && !isFreezed {
                                 playerStatues[curPlayerId].curCoin -= 1
                                 initBoardChess(initStage: EnumsGameStage.exchangeStage.rawValue)
@@ -1446,7 +1445,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         for index in 0 ..< curAddChesses.count {
             let curAddChess = curAddChesses[index]
             
-            if curAddChess.chessStatus != EnumsChessStage.owned.rawValue { //第一次购买的棋子才生效
+            if curAddChess.chessStatus != EnumsChessStage.owned.rawValue { //第一次购买的棋子才生效 战斗产生的衍生物是enemyside也会生效
                 var hasSummonAbility:[String : Int] = [:]
                 
                 boardNode[curBoardSide].forEach{ (curChess) in
@@ -1458,7 +1457,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         }
                     }
                     
-                    if (curChess.abilities.contains(EnumAbilities.afterSummonChessAddShell.rawValue)) && curStage == EnumsGameStage.battleStage.rawValue { //召唤一个棋子以后加shell
+                    if (curChess.abilities.contains(EnumAbilities.afterSummonChessAddShell.rawValue)) && curStage == EnumsGameStage.battleStage.rawValue { //召唤一个棋子以后加shell 只有战斗回合触发
                         if curAddChess.chessKind == EnumChessKind.plain.rawValue {
                             curChess.AddTempBuff(tempBuff: [EnumAbilities.shell.rawValue])
                         }
@@ -1496,7 +1495,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     }
                 }
                 
-                if curBoardSide == BoardSide.allySide.rawValue {
+                if curBoardSide == BoardSide.allySide.rawValue && curStage == EnumsGameStage.exchangeStage.rawValue {
                     curAddChess.chessStatus = EnumsChessStage.owned.rawValue //确保友方必定被拥有
                     
                     if hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue] != nil && hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue]! > 0 {
@@ -1507,8 +1506,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             
                         }
                     }
-                    
-                    //
+
                     if curAddChess.abilities.contains(EnumAbilities.afterSummonAdjecentAddBuff.rawValue) {
                         if curAddChess.chessName == EnumChessName.baboon.rawValue { //狒狒专属
                             if let curIndex = curInsertIndex {
@@ -2081,15 +2079,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         case EnumsGameStage.exchangeStage.rawValue:
             let curSaleNumber = 3//playerStatues[curPlayerId].curLevel + 2
             let curStartIndex = (GlobalNumberSettings.chessNumber.rawValue - curSaleNumber) / 2
+            var tempArr:[baseChessNode] = []
             for index in 0 ..< curSaleNumber  {
                 let curNode = boardRootNode[0][index + curStartIndex]
                 
                 let randomStruct =  getRandomChessStructFromPool(curPlayerLevel)
                 let tempChess = initChessWithPos(pos: curNode.position, sta: EnumsChessStage.forSale.rawValue, info: randomStruct)
-       
-                boardNode[0].append(tempChess)
-
+                tempArr.append(tempChess)
             }
+            appendNewNodeToBoard(curBoardSide: BoardSide.enemySide.rawValue, curAddChesses: tempArr, curInsertIndex: nil)
             return
         case EnumsGameStage.battleStage.rawValue:
             var enemies:[baseChessNode] = []
