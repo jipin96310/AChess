@@ -169,13 +169,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 for boardIndex in 0 ..< boardNode.count {
                     for innerIndex in 0 ..< boardNode[boardIndex].count {
                         if !oldBoard[boardIndex].contains(boardNode[boardIndex][innerIndex]) {
-   
-                            boardNode[boardIndex][innerIndex].position.y = 0.01
-                            playerBoardNode.addChildNode(boardNode[boardIndex][innerIndex])
+                            self.boardNode[boardIndex][innerIndex].position.y = 0.01
+                            DispatchQueue.global(qos: .default).asyncAfter(deadline: DispatchTime.now() + 0.3 * Double((innerIndex))) {
+                                self.playerBoardNode.addChildNode(self.boardNode[boardIndex][innerIndex])
+
+                            }
                         }
                     }
                 }
-
+                //以下为战斗回合
                 var inheritPromiseArr:[() -> (Promise<Double>)] = []
                 var isAlive = true //是否有延展性消灭
                 var needDeleteChesses:[baseChessNode] = [] //需要删除的棋子
@@ -1151,11 +1153,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                 SCNAction.move(by: SCNVector3(0,-0.01,0), duration: 0.25),
                                 SCNAction.move(by: SCNVector3(0,0.01,0), duration: 0.25)
                             ]))
+                            DispatchQueue.global(qos: .default).sync {
+                                if playerStatues[curPlayerId].curCoin > 0 && !isFreezed {
+                                    playerStatues[curPlayerId].curCoin -= 1
+                                    initBoardChess(initStage: EnumsGameStage.exchangeStage.rawValue)
+                                }
 
-                            if playerStatues[curPlayerId].curCoin > 0 && !isFreezed {
-                                playerStatues[curPlayerId].curCoin -= 1
-                                initBoardChess(initStage: EnumsGameStage.exchangeStage.rawValue)
                             }
+                            
                         } else if isNameButton(hitTestResult.first!.node, "upgradeButton") {
                             upgradeButtonTopNode.runAction(SCNAction.sequence([
                                 SCNAction.move(by: SCNVector3(0,-0.005,0), duration: 0.25),
@@ -2909,9 +2914,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         if let freezeButtonTopTemp = playerBoardNode.childNode(withName: "freezeButtonTop", recursively: true) {
             freezeButtonTopNode = freezeButtonTopTemp
         }
-        
-        
-        
+ 
         if let randomButtonTemp = playerBoardNode.childNode(withName: "randomButton", recursively: true) {
             randomButtonNode = randomButtonTemp
         }
