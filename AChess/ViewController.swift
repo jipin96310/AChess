@@ -25,8 +25,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     //以下数据为实时记录数据 无需保存
     var rootNodeDefalutColor = [UIColor.red, UIColor.green]
     var isPlayerBoardinited = false
+    var isBoardInfoSent = false
     var playerBoardNode = createPlayerBoard() //棋盘节点
     var curPlaneNode:customPlaneNode? = nil
+    let priceTagNode = TextNode(textScale: SCNVector3(0.03, 0.03, 0))
     var randomButtonTopNode: SCNNode = SCNNode()
     var upgradeButtonTopNode: SCNNode = SCNNode()
     var endButtonTopNode: SCNNode = SCNNode()
@@ -37,6 +39,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var endButtonNode: SCNNode = SCNNode()
     var allyBoardNode : SCNNode = SCNNode()
     let totalUpdateTime:Double = 1 //刷新时间
+    var curUpgradeCoin = 5 {
+        didSet(oldV) {//升级费用
+           priceTagNode.string = String(curUpgradeCoin)
+        }
+    }
     var isFreezed:Bool = false //是否冻结
     var isRandoming:Bool = false // 是否在随机
     var isWaiting:Bool = false //是否在等待所有玩家准备
@@ -170,10 +177,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 for boardIndex in 0 ..< boardNode.count {
                     for innerIndex in 0 ..< boardNode[boardIndex].count {
                         if !oldBoard[boardIndex].contains(boardNode[boardIndex][innerIndex]) {
-                            self.boardNode[boardIndex][innerIndex].position.y = 0.01
+                            let curNode = self.boardNode[boardIndex][innerIndex]
+                            curNode.position.y = 0.01
                             DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.1 * Double((innerIndex))) {
-                                self.playerBoardNode.addChildNode(self.boardNode[boardIndex][innerIndex])
-
+                                if curNode != nil {
+                                    self.playerBoardNode.addChildNode(curNode)
+                                }
                             }
                         }
                     }
@@ -478,6 +487,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 sceneView.session.add(anchor: anchor)
             }
             else if let anchor = try? NSKeyedUnarchiver.unarchivedObject(ofClass: ARAnchor.self, from: data) { //棋盘anchor
+                isBoardInfoSent = true
                 // Add anchor to the session, ARSCNView delegate adds visible content.
                 anchor.setValue("playerBoard", forKey: "name")
                 sceneView.session.add(anchor: anchor)
@@ -1140,6 +1150,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     if gameConfigStr.isMaster {
                         curPlaneNode?.removeFromParentNode()
                         self.initPlayerBoardAndSend(hitTestResult: hitTestResult.first!)
+                    } else {
+                        if isBoardInfoSent { //如果数据接收到过 则从机可以自由放置
+                           self.initPlayerBoardAndSend(hitTestResult: hitTestResult.first!)
+                        }
                     }
                 } else {
                     //self.addChessTest(hitTestResult: hitTestResult.first!)
@@ -1147,11 +1161,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     let touchLocation = sender.location(in: sceneView)
                     let hitTestResult = sceneView.hitTest(touchLocation, options: [SCNHitTestOption.boundingBoxOnly: true, SCNHitTestOption.ignoreHiddenNodes: true])
                     if !hitTestResult.isEmpty {
-                       
+                        
                         if isNameButton(hitTestResult.first!.node, "randomButton") && !isRandoming {
                             //点击以后randombutton下压
                             isRandoming = true
-                          
                             self.randomButtonTopNode.runAction(SCNAction.sequence([
                                 SCNAction.move(by: SCNVector3(0,-0.01,0), duration: 0.25),
                                 SCNAction.customAction(duration: 0, action: { _,_ in
@@ -1174,17 +1187,17 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             upgradePlayerLevel(curPlayerId)
                         } else if isNameButton(hitTestResult.first!.node, "endButton") && !isWaiting {
                             //TODO
-//                            endButtonTopNode.runAction(SCNAction.sequence([
-//                                SCNAction.move(by: SCNVector3(0,-0.005,0), duration: 0.25)
-//                            ]))
-//                            endButtonNode.geometry?.firstMaterial?.diffuse.contents = UIColor.gray //灰显图标
-//                            isWaiting = true
+                            //                            endButtonTopNode.runAction(SCNAction.sequence([
+                            //                                SCNAction.move(by: SCNVector3(0,-0.005,0), duration: 0.25)
+                            //                            ]))
+                            //                            endButtonNode.geometry?.firstMaterial?.diffuse.contents = UIColor.gray //灰显图标
+                            //                            isWaiting = true
                             //TODO
                             if(gameConfigStr.isMaster) {
                                 for i in 0 ..< currentSlaveId!.count {
                                     if currentSlaveId![i].playerID === multipeerSession.getMyId() {
-                                       currentSlaveId![i].playerStatus = true //准备完成
-                                       break
+                                        currentSlaveId![i].playerStatus = true //准备完成
+                                        break
                                     }
                                 }
                                 if checkIfAllReady() {
@@ -1195,9 +1208,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                     let readyStr = "readyBattle"
                                     guard let data = readyStr.data(using: String.Encoding.utf8)
                                         else { fatalError("can't encode anchor") }
-                                     multipeerSession.sendToPeer(data, [desId])
+                                    multipeerSession.sendToPeer(data, [desId])
                                 }
-                               
+                                
                             }
                             
                         } else if isNameButton(hitTestResult.first!.node, "freezeButton") {
@@ -1864,7 +1877,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     playerStatues[curEnemyId].curCoin += (curDamage + GlobalNumberSettings.roundBaseCoin.rawValue)
                 }
             }
-            
+//            if gameConfigStr.isMaster { //如果是主机
+//                //收集所有对手剩余血量状况
+//            } else { //如果是从机
+//               if (playerStatues[curPlayerId].curBlood <= 0) {
+//                  //发送消息给主机
+//               }
+//            }
             resolver.fulfill("success")
         }
         )
@@ -2017,6 +2036,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 }
             }
         } else if curStage == EnumsGameStage.battleStage.rawValue { //战斗转交易
+            curUpgradeCoin -= 1 //升级费用减1
             //恢复结束按钮
             isWaiting = false
             endButtonTopNode.geometry?.firstMaterial?.diffuse.contents = UIColor.black
@@ -2056,9 +2076,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
     func upgradePlayerLevel(_ playerID: Int) -> Bool{
         let playerInfo = playerStatues[playerID]
-        if playerInfo.curCoin > 0 && playerInfo.curLevel < GlobalNumberSettings.maxLevel.rawValue {
-            playerStatues[playerID].curCoin -= 1
+        if playerInfo.curCoin - curUpgradeCoin > 0 && playerInfo.curLevel < GlobalNumberSettings.maxLevel.rawValue {
+            playerStatues[playerID].curCoin -= curUpgradeCoin
             playerStatues[playerID].curLevel += 1
+            if playerStatues[playerID].curLevel >= GlobalNumberSettings.maxLevel.rawValue {
+                priceTagNode.isHidden = true
+            } else {
+               curUpgradeCoin = 5 + (playerStatues[playerID].curLevel - 1) * 2
+            }
         } else {
             return false
         }
@@ -2926,6 +2951,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         }
         if let upgradeButtonTemp = playerBoardNode.childNode(withName: "upgradeButton", recursively: true) {
             upgradeButtonNode = upgradeButtonTemp
+            priceTagNode.position = SCNVector3(-0.008,0.028,0.021)
+            priceTagNode.string = String(curUpgradeCoin)
+            upgradeButtonNode.addChildNode(priceTagNode)
         }
         if let endButtonTemp = playerBoardNode.childNode(withName: "endButton", recursively: true) {
             endButtonNode = endButtonTemp
@@ -3062,19 +3090,17 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         //playGroundNode.physicsBody?.contactTestBitMask = BitMaskCategoty.baseCard.rawValue
         self.sceneView.scene.rootNode.addChildNode(playerBoardNode)
         
-        if (gameConfigStr.isMaster) { //如果是主机发送
+        if (gameConfigStr.isMaster && !isBoardInfoSent) { //如果是主机发送
+            isBoardInfoSent = true
             let anchor = ARAnchor(name: "playerBoard", transform: hitTransform)
             // Send the anchor info to peers, so they can place the same content.
             guard let data = try? NSKeyedArchiver.archivedData(withRootObject: anchor, requiringSecureCoding: true)
                 else { fatalError("can't encode anchor") }
             self.multipeerSession.sendToAllPeers(data)
         }
-        
-        
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.01, execute: {
             self.initGameTest()
         })
-        
         }
     //just add the player board node
     func initPlayerBoard(playerBoardPosition: SCNVector3) {

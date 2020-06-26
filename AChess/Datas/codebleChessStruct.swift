@@ -20,7 +20,7 @@ public struct codableChessStruct: Codable {
     var abilities: [String]
     var temporaryBuff: [String]
 
-    init(chessRarityIndex: Int, atkNum: Int, defNum: Int, chessRarity: Int,chessLevel: Int, chessKind: String, abilities:[String], temporaryBuff: [String]) {
+    init(chessRarityIndex: Int, atkNum: Int, defNum: Int, chessRarity: Int?,chessLevel: Int, chessKind: String, abilities:[String], temporaryBuff: [String]) {
         self.chessRarityIndex = chessRarityIndex
         self.atkNum = atkNum
         self.defNum = defNum

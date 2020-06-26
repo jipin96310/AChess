@@ -177,6 +177,11 @@ public class baseChessNode: SCNNode {
                 return codableChessStruct(chessRarityIndex: i, atkNum: atkNum!, defNum: defNum!, chessRarity: chessRarity, chessLevel: chessLevel, chessKind: chessKind, abilities: abilities, temporaryBuff: temporaryBuff)
             }
         }
+        for i in 0 ..< chessDerivateCollections.count {
+            if chessDerivateCollections[i].name == chessName { //稀有度为-1的是衍生物
+                return codableChessStruct(chessRarityIndex: i, atkNum: atkNum!, defNum: defNum!, chessRarity: nil, chessLevel: chessLevel, chessKind: chessKind, abilities: abilities, temporaryBuff: temporaryBuff)
+            }
+        }
         return nil
     }
     
@@ -186,7 +191,12 @@ public class baseChessNode: SCNNode {
         chessStatus = statusNum
         let curIndex = codeChessInfo.chessRarityIndex ?? 0
         let curRaity = codeChessInfo.chessRarity ?? 1
-        let curChessStruct = chessCollectionsLevel[curRaity - 1][curIndex]
+        let curChessStruct:chessStruct
+        if codeChessInfo.chessRarity != nil {
+            curChessStruct = chessCollectionsLevel[curRaity - 1][curIndex] //普通怪
+        } else {
+            curChessStruct = chessDerivateCollections[curIndex] //衍生物
+        }
         self.init(statusNum: statusNum, chessInfo: curChessStruct)
         //codeable
         atkNum = codeChessInfo.atkNum
