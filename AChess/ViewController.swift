@@ -38,6 +38,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var allyBoardNode : SCNNode = SCNNode()
     let totalUpdateTime:Double = 1 //刷新时间
     var isFreezed:Bool = false //是否冻结
+    var isRandoming:Bool = false // 是否在随机
     var isWaiting:Bool = false //是否在等待所有玩家准备
     var updatePromise:Resolver<Double>? = nil
     var multipeerSession: multiUserSession! //多人session
@@ -170,7 +171,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     for innerIndex in 0 ..< boardNode[boardIndex].count {
                         if !oldBoard[boardIndex].contains(boardNode[boardIndex][innerIndex]) {
                             self.boardNode[boardIndex][innerIndex].position.y = 0.01
-                            DispatchQueue.global(qos: .default).asyncAfter(deadline: DispatchTime.now() + 0.3 * Double((innerIndex))) {
+                            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.1 * Double((innerIndex))) {
                                 self.playerBoardNode.addChildNode(self.boardNode[boardIndex][innerIndex])
 
                             }
@@ -301,8 +302,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 
                 
                 recyclePromise(taskArr: inheritPromiseArr, curIndex: 0).done{ _ in
-                    needDeleteChesses.forEach{ curC in
-                        curC.removeFromParentNode()
+                    for i in 0 ..< needDeleteChesses.count {
+                            needDeleteChesses[i].removeFromParentNode()
                     }
                     DispatchQueue.main.async{
                         let updateTime = self.updateWholeBoardPosition()
@@ -838,13 +839,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                         
                                     } else {//没有特殊的战吼之类的触发 直接放置入 allyboard
                                         if curDragPoint!.abilities.contains(EnumAbilities.instantSummonSth.rawValue) { //战吼召唤
-                                            
+                                            var newAddChesses:[baseChessNode] = []
                                             
                                             if case let curRattleChess as [chessStruct] = curDragPoint?.rattleFunc[EnumKeyName.summonChess.rawValue] {
                                                 for sIndex in 0 ..< curRattleChess.count { //appendnewnode里会计算数量 多余的棋子会被砍掉
-                                                        appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: curRattleChess[sIndex])], curInsertIndex: nil)
-                                                    }
-                                               
+                                                    newAddChesses.append(baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: curRattleChess[sIndex]))
+                                                    //                                                        appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: curRattleChess[sIndex])], curInsertIndex: nil)
+                                                }
+                                                appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curAddChesses: newAddChesses, curInsertIndex: nil)
                                             }
                                             
                                             //updateWholeBoardPosition()
@@ -1146,20 +1148,23 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     let hitTestResult = sceneView.hitTest(touchLocation, options: [SCNHitTestOption.boundingBoxOnly: true, SCNHitTestOption.ignoreHiddenNodes: true])
                     if !hitTestResult.isEmpty {
                        
-                        if isNameButton(hitTestResult.first!.node, "randomButton") {
+                        if isNameButton(hitTestResult.first!.node, "randomButton") && !isRandoming {
                             //点击以后randombutton下压
-                        
-                            randomButtonTopNode.runAction(SCNAction.sequence([
+                            isRandoming = true
+                          
+                            self.randomButtonTopNode.runAction(SCNAction.sequence([
                                 SCNAction.move(by: SCNVector3(0,-0.01,0), duration: 0.25),
-                                SCNAction.move(by: SCNVector3(0,0.01,0), duration: 0.25)
+                                SCNAction.customAction(duration: 0, action: { _,_ in
+                                    if self.playerStatues[self.curPlayerId].curCoin > 0 && !self.isFreezed {
+                                        self.playerStatues[self.curPlayerId].curCoin -= 1
+                                        self.initBoardChess(initStage: EnumsGameStage.exchangeStage.rawValue)
+                                    }
+                                }),
+                                SCNAction.move(by: SCNVector3(0,0.01,0), duration: 0.25),
+                                SCNAction.customAction(duration: 0, action: { _,_ in
+                                    self.isRandoming = false
+                                })
                             ]))
-                            DispatchQueue.global(qos: .default).sync {
-                                if playerStatues[curPlayerId].curCoin > 0 && !isFreezed {
-                                    playerStatues[curPlayerId].curCoin -= 1
-                                    initBoardChess(initStage: EnumsGameStage.exchangeStage.rawValue)
-                                }
-
-                            }
                             
                         } else if isNameButton(hitTestResult.first!.node, "upgradeButton") {
                             upgradeButtonTopNode.runAction(SCNAction.sequence([
@@ -2080,9 +2085,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         return curChessInfo
     }
     func initBoardChess(initStage: Int) {
-        boardNode[0].forEach{(boardNode) in
-            boardNode.removeFromParentNode()
-        }
+//        boardNode[0].forEach{(boardNode) in
+//            boardNode.removeFromParentNode()
+//        }
         boardNode[0] = []
         let curPlayerLevel = playerStatues[curPlayerId].curLevel
         
@@ -2092,10 +2097,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             let curStartIndex = (GlobalNumberSettings.chessNumber.rawValue - curSaleNumber) / 2
             var tempArr:[baseChessNode] = []
             for index in 0 ..< curSaleNumber  {
-                let curNode = boardRootNode[0][index + curStartIndex]
-                
+                let curNode = boardRootNode[0][index + curStartIndex]        
                 let randomStruct =  getRandomChessStructFromPool(curPlayerLevel)
-                let tempChess = initChessWithPos(pos: curNode.position, sta: EnumsChessStage.forSale.rawValue, info: randomStruct)
+                //let tempChess = initChessWithPos(pos: curNode.position, sta: EnumsChessStage.forSale.rawValue, info: randomStruct)
+                let tempChess = baseChessNode(statusNum: EnumsChessStage.forSale.rawValue, chessInfo: randomStruct)
+                tempChess.position = curNode.position
                 tempArr.append(tempChess)
             }
             appendNewNodeToBoard(curBoardSide: BoardSide.enemySide.rawValue, curAddChesses: tempArr, curInsertIndex: nil)
@@ -2108,13 +2114,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
              if enemies.count > GlobalNumberSettings.chessNumber.rawValue {
                 return
              }
-             let curStartIndex = (GlobalNumberSettings.chessNumber.rawValue - enemies.count) / 2
-             
-             for index in 0 ..< enemies.count {
-                    let curNode = boardRootNode[0][index + curStartIndex]
-                    let tempChess = initChessWithPos(pos: curNode.position, sta: EnumsChessStage.enemySide.rawValue, chessNode:  enemies[index])
-                    boardNode[0].append(tempChess)
-             }
+             //let curStartIndex = (GlobalNumberSettings.chessNumber.rawValue - enemies.count) / 2
+            appendNewNodeToBoard(curBoardSide: BoardSide.enemySide.rawValue, curAddChesses: enemies, curInsertIndex: nil)
+//             for index in 0 ..< enemies.count {
+//                    let curNode = boardRootNode[0][index + curStartIndex]
+//                    let tempChess = initChessWithPos(pos: curNode.position, sta: EnumsChessStage.enemySide.rawValue, chessNode:  enemies[index])
+//                    boardNode[0].append(tempChess)
+//             }
 
         default:
             return
