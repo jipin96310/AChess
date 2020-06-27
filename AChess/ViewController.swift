@@ -1881,7 +1881,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     playerStatues[curEnemyId].curCoin += (curDamage + GlobalNumberSettings.roundBaseCoin.rawValue)
                 }
             }
-                print("blood", playerStatues[curEnemyId].curBlood, playerStatues[curPlayerId].curBlood )
 //            if gameConfigStr.isMaster { //如果是主机
 //                //收集所有对手剩余血量状况
 //            } else { //如果是从机 发送给主机
@@ -2022,9 +2021,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 }
                 //playerStatues[curPlayerId].curChesses = boardNode[1]
                 delay(0.5 + totalTime) { //初始化大屏幕和棋盘棋子
-                    self.initDisplay()
                     self.initBoardChess(initStage: EnumsGameStage.battleStage.rawValue)
                     self.curStage = EnumsGameStage.battleStage.rawValue
+                    self.initDisplay()
                     delay(self.totalUpdateTime) { //初始化光环
                         self.initAura().done{ (delaytime) in
                             self.initEnemyAura().done{(eTime) in
@@ -2037,9 +2036,17 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                                     self.switchGameStage()
                                                 } else {
                                                     //棋盘爆炸
-                                                    let removeSequence : [SCNAction] = [SCNAction.fadeOut(duration: 0.3), SCNAction.removeFromParentNode()]
+                                                    let removeSequence : [SCNAction] = [SCNAction.fadeOut(duration: 0.5), SCNAction.removeFromParentNode()]
                                                     addExplosion(self.playerBoardNode)
                                                     self.playerBoardNode.runAction(SCNAction.sequence(removeSequence))
+                                                    let endtextNode = TextNode(textScale: SCNVector3(0.1,0.1,0.01))
+                                                    endtextNode.position = self.playerBoardNode.position
+                                                    endtextNode.position.y -= 0.1
+                                                    endtextNode.geometry?.firstMaterial?.diffuse.contents = UIColor.red
+                                                    endtextNode.string = "waste".localized
+                                                    self.sceneView.scene.rootNode.addChildNode(endtextNode)
+                                                    let rotateAction = SCNAction.rotateBy(x: 0, y: 10, z: 0, duration: 5)
+                                                    endtextNode.runAction(SCNAction.repeatForever(rotateAction))
                                                 }
                                            // }
                                             
@@ -2634,14 +2641,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
             if let battleStageDisplay = playerBoardNode.childNode(withName: "battleStage", recursively: true) {
                 battleStageDisplay.isHidden = false
-                
                 enemyBloodTextNode.position = SCNVector3(-0.3, -0.5, 0.1)
                 battleStageDisplay.addChildNode(enemyBloodTextNode)
                 enemyBloodTextNode.string = String(playerStatues[curEnemyId].curBlood)
                 playerBloodTextNode.position = SCNVector3(0.3, -0.5, 0.1)
                 battleStageDisplay.addChildNode(playerBloodTextNode)
                 playerBloodTextNode.string = String(curPlayer.curBlood)
-                
             }
             return
         default:
