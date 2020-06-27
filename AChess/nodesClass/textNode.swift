@@ -61,7 +61,7 @@ class TextNode: SCNNode {
         let height = CGFloat((max.y - min.y) / scale.y)
         //textGeometry.containerFrame = CGRect(x: 0.0, y: 0.0, width: 1, height: 1)
         if width > 0 && height > 0 {
-            print("width :",max.x - min.x,"height :",max.y - min.y,"depth :",max.z - min.z)
+            //print("width :",max.x - min.x,"height :",max.y - min.y,"depth :",max.z - min.z)
             textGeometry.containerFrame = CGRect(x: 0.0, y: 0.0, width: width, height: height)
         }
     }

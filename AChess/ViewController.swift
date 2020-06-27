@@ -345,7 +345,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var storageRootNode : [SCNNode] = []
    
     //var backupBoardNode:[[baseChessNode]] = [[],[]]
-    var playerStatues: [playerStruct] = [playerStruct(playerName: "player1", curCoin: GlobalNumberSettings.roundBaseCoin.rawValue + 50, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: false, playerID: MCPeerID(displayName: "player1")), playerStruct(playerName: "player2", curCoin: 40, curLevel: 1, curBlood: 40, curChesses: [baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[2][17]), baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[2][17]), baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[2][17])], curAura: [], isComputer: false,  playerID: MCPeerID(displayName: "player2"))] {
+    var playerStatues: [playerStruct] = [playerStruct(playerName: "player1", curCoin: GlobalNumberSettings.roundBaseCoin.rawValue + 50, curLevel: 1, curBlood: 10, curChesses: [], curAura: [], isComputer: false, playerID: MCPeerID(displayName: "player1")), playerStruct(playerName: "player2", curCoin: 40, curLevel: 1, curBlood: 10, curChesses: [baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[2][17]), baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[2][17]), baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[2][17])], curAura: [], isComputer: false,  playerID: MCPeerID(displayName: "player2"))] {
         didSet {
             moneyTextNode.string = String(playerStatues[curPlayerId].curCoin)
             levelTextNode.string = String(playerStatues[curPlayerId].curLevel)
@@ -1861,8 +1861,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
  
     
     
-    func dealWithDamage() -> Promise<Any>{ //伤害清算
-        return Promise<Any>( resolver: { (resolver) in
+    func dealWithDamage() -> Promise<Bool>{ //伤害清算
+        return Promise<Bool>( resolver: { (resolver) in
             if boardNode[0].count > 0 || boardNode[1].count > 0 { //平局的话就不处理了 do nth if its a draw+
                 let curPlayer = playerStatues[curPlayerId]
                 var winner = 1  //you win
@@ -1881,14 +1881,18 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     playerStatues[curEnemyId].curCoin += (curDamage + GlobalNumberSettings.roundBaseCoin.rawValue)
                 }
             }
+                print("blood", playerStatues[curEnemyId].curBlood, playerStatues[curPlayerId].curBlood )
 //            if gameConfigStr.isMaster { //如果是主机
 //                //收集所有对手剩余血量状况
-//            } else { //如果是从机
-//               if (playerStatues[curPlayerId].curBlood <= 0) {
-//                  //发送消息给主机
-//               }
+//            } else { //如果是从机 发送给主机
+//
 //            }
-            resolver.fulfill("success")
+            
+            if (playerStatues[curPlayerId].curBlood <= 0) {
+             resolver.fulfill(false)
+            } else {
+             resolver.fulfill(true)
+            }
         }
         )
     }
@@ -2027,8 +2031,18 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                 self.initBeforeBattle().done{ (beforeBattleTime) in
                                     /*开始战斗*/
                                     self.beginRounds().done { (v1) in
-                                        self.dealWithDamage().done { (v2) in
-                                            self.switchGameStage()
+                                        self.dealWithDamage().done { (isAlive) in
+                                            //if case let isAlive = res as! Bool {
+                                                if isAlive {
+                                                    self.switchGameStage()
+                                                } else {
+                                                    //棋盘爆炸
+                                                    let removeSequence : [SCNAction] = [SCNAction.fadeOut(duration: 0.3), SCNAction.removeFromParentNode()]
+                                                    addExplosion(self.playerBoardNode)
+                                                    self.playerBoardNode.runAction(SCNAction.sequence(removeSequence))
+                                                }
+                                           // }
+                                            
                                         } //伤害清算
                                     }
                                 }
