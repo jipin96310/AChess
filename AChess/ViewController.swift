@@ -28,7 +28,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var isBoardInfoSent = false
     var playerBoardNode = createPlayerBoard() //棋盘节点
     var curPlaneNode:customPlaneNode? = nil
-    let priceTagNode = TextNode(textScale: SCNVector3(0.03, 0.03, 0))
+    let priceTagNode = TextNode(textScale: SCNVector3(0.3, 0.5, 0))
     var randomButtonTopNode: SCNNode = SCNNode()
     var upgradeButtonTopNode: SCNNode = SCNNode()
     var endButtonTopNode: SCNNode = SCNNode()
@@ -41,6 +41,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     let totalUpdateTime:Double = 1 //刷新时间
     var curUpgradeCoin = 5 {
         didSet(oldV) {//升级费用
+            print(curUpgradeCoin)
            priceTagNode.string = String(curUpgradeCoin)
         }
     }
@@ -311,10 +312,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 
                 
                 recyclePromise(taskArr: inheritPromiseArr, curIndex: 0).done{ _ in
-                    for i in 0 ..< needDeleteChesses.count {
-                            needDeleteChesses[i].removeFromParentNode()
-                    }
                     DispatchQueue.main.async{
+                        for i in 0 ..< needDeleteChesses.count {
+                                needDeleteChesses[i].removeFromParentNode()
+                        }
                         let updateTime = self.updateWholeBoardPosition()
                         if self.updatePromise != nil && isAlive {
                             delay(updateTime, task: {
@@ -1168,10 +1169,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             self.randomButtonTopNode.runAction(SCNAction.sequence([
                                 SCNAction.move(by: SCNVector3(0,-0.01,0), duration: 0.25),
                                 SCNAction.customAction(duration: 0, action: { _,_ in
-                                    if self.playerStatues[self.curPlayerId].curCoin > 0 && !self.isFreezed {
-                                        self.playerStatues[self.curPlayerId].curCoin -= 1
-                                        self.initBoardChess(initStage: EnumsGameStage.exchangeStage.rawValue)
+                                    DispatchQueue.main.async() {
+                                        if self.playerStatues[self.curPlayerId].curCoin > 0 && !self.isFreezed {
+                                            self.playerStatues[self.curPlayerId].curCoin -= 1
+                                            self.initBoardChess(initStage: EnumsGameStage.exchangeStage.rawValue)
+                                        }
                                     }
+                                    
                                 }),
                                 SCNAction.move(by: SCNVector3(0,0.01,0), duration: 0.25),
                                 SCNAction.customAction(duration: 0, action: { _,_ in
@@ -2141,12 +2145,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
              }
              //let curStartIndex = (GlobalNumberSettings.chessNumber.rawValue - enemies.count) / 2
             appendNewNodeToBoard(curBoardSide: BoardSide.enemySide.rawValue, curAddChesses: enemies, curInsertIndex: nil)
-//             for index in 0 ..< enemies.count {
-//                    let curNode = boardRootNode[0][index + curStartIndex]
-//                    let tempChess = initChessWithPos(pos: curNode.position, sta: EnumsChessStage.enemySide.rawValue, chessNode:  enemies[index])
-//                    boardNode[0].append(tempChess)
-//             }
-
         default:
             return
         }
@@ -2951,9 +2949,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         }
         if let upgradeButtonTemp = playerBoardNode.childNode(withName: "upgradeButton", recursively: true) {
             upgradeButtonNode = upgradeButtonTemp
-            priceTagNode.position = SCNVector3(-0.008,0.028,0.021)
-            priceTagNode.string = String(curUpgradeCoin)
-            upgradeButtonNode.addChildNode(priceTagNode)
+            if let upgradePriceNode = upgradeButtonTemp.childNode(withName: "upgradePriceNode", recursively: true) {
+                priceTagNode.position = SCNVector3(-0.1,-0.5,0)
+                priceTagNode.string = String(curUpgradeCoin)
+                upgradePriceNode.addChildNode(priceTagNode)
+            }
         }
         if let endButtonTemp = playerBoardNode.childNode(withName: "endButton", recursively: true) {
             endButtonNode = endButtonTemp
