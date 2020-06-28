@@ -186,9 +186,9 @@
 				C757833823F26A5300B0DCE3 /* chessStruct.swift */,
 				C751227323F518D7002CC4B4 /* dummyAI.swift */,
 				C70C152224420F530086C259 /* playerStruct.swift */,
-				C72C2FE12478D10F005AE2F7 /* settingStruct.swift */,
-				C7B4D71A24837FDD008F3B1F /* codebleChessStruct.swift */,
 				C7B4D71C24838AB6008F3B1F /* codblePlayerStruct.swift */,
+				C7B4D71A24837FDD008F3B1F /* codebleChessStruct.swift */,
+				C72C2FE12478D10F005AE2F7 /* settingStruct.swift */,
 			);
 			path = Datas;
 			sourceTree = "<group>";

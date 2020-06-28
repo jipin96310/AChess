@@ -498,13 +498,25 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                
                     if let decodeID = try? NSKeyedUnarchiver.unarchivedObject(ofClass: MCPeerID.self, from: enemyPlayerStruct.encodePlayerID!) {
                         if gameConfigStr.isMaster { //主机每次收到数据都默认更新一下玩家数据信息
-                            
+                            var alivePlayer:[MCPeerID] = []
+                            currentSlaveId![0].curBlood = playerStatues[0].curBlood //update master blood
                                 for i in 0 ..< currentSlaveId!.count {
                                     if currentSlaveId![i].playerID == decodeID {
                                         currentSlaveId![i].curBlood = enemyPlayerStruct.curBlood
                                     }
+                                    if currentSlaveId![i].curBlood > 0 {
+                                        if currentSlaveId![i].playerID != nil {
+                                          alivePlayer.append(currentSlaveId![i].playerID!)
+                                        }
+                                    }
                                 }
-                            
+                            if alivePlayer.count == 1 {
+                                //that player win the game
+                                if alivePlayer[0] == multipeerSession.getMyId() {
+                                    //master win the game
+                                }
+                                return
+                            }
                         }
                         
                         if enemyPlayerStruct.encodePlayerID != nil && enemyPlayerStruct.curChesses != nil && curStage != EnumsGameStage.battleStage.rawValue {
