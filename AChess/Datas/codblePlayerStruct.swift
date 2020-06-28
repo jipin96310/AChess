@@ -18,14 +18,14 @@ public struct codblePlayerStruct: Codable {
     var curCoin: Int
     var curLevel: Int
     var curBlood: Int
-    var curChesses: [codableChessStruct] //棋子
+    var curChesses: [codableChessStruct]? //棋子
     var curAura: [String]
     var isComputer: Bool
     var encodePlayerID: Data?
     var playerStatus: Bool = false //true 准备完成 false 准备未完成
    
 
-    init(playerName: String, curCoin: Int, curLevel: Int, curBlood: Int, curChesses: [codableChessStruct], curAura: [String], isComputer: Bool, encodePlayerID: Data?) {
+    init(playerName: String, curCoin: Int, curLevel: Int, curBlood: Int, curChesses: [codableChessStruct]?, curAura: [String], isComputer: Bool, encodePlayerID: Data?) {
         self.playerName = playerName
         self.curCoin    = curCoin
         self.curLevel   = curLevel

@@ -493,36 +493,47 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 anchor.setValue("playerBoard", forKey: "name")
                 sceneView.session.add(anchor: anchor)
             } else  if let enemyPlayerStruct = try? decoder.decode(codblePlayerStruct.self, from: data){
-                if enemyPlayerStruct.encodePlayerID != nil && curStage != EnumsGameStage.battleStage.rawValue {
+                
+
+               
                     if let decodeID = try? NSKeyedUnarchiver.unarchivedObject(ofClass: MCPeerID.self, from: enemyPlayerStruct.encodePlayerID!) {
-                        /*更新敌人数据*/
-                        playerStatues[1].playerID = decodeID
-                        var tempEnemybaseChess:[baseChessNode] = []
-                        enemyPlayerStruct.curChesses.forEach{(encodeChess) in
-                            tempEnemybaseChess.append(baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, codeChessInfo: encodeChess))
+                        if gameConfigStr.isMaster { //主机每次收到数据都默认更新一下玩家数据信息
+                            
+                                for i in 0 ..< currentSlaveId!.count {
+                                    if currentSlaveId![i].playerID == decodeID {
+                                        currentSlaveId![i].curBlood = enemyPlayerStruct.curBlood
+                                    }
+                                }
+                            
                         }
-                        if enemyPlayerStruct.isComputer {
-                            feedEnemies()
-                        } else {
-                          playerStatues[1].curChesses = tempEnemybaseChess
-                        }
-                        /*end*/
-                         //收到了对手的信息 把自己的信息也打包发给对手
-                        if gameConfigStr.isMaster || enemyPlayerStruct.isComputer { //如果主机收到了就不用再发了 如果是电脑直接开打
-                            switchGameStage() //收到对手阵容开始比赛
-                        } else if peer == curMasterID { //从机 如果信息来自主机则发送给对手 是没有对手阵容的
-                            let encodedData = encodeCodablePlayerStruct(playerID: multipeerSession.getMyId(), player: playerStatues[0])
-                            let curId = findSimiInstance(arr: multipeerSession.connectedPeers, obj: decodeID)
-                            multipeerSession.sendToPeer(encodedData, [curId])
-                            if decodeID == curMasterID { //如果对手也是主机 那么是有阵容的
-                                switchGameStage()
+                        
+                        if enemyPlayerStruct.encodePlayerID != nil && enemyPlayerStruct.curChesses != nil && curStage != EnumsGameStage.battleStage.rawValue {
+                            /*更新敌人数据*/
+                            playerStatues[1].playerID = decodeID
+                            var tempEnemybaseChess:[baseChessNode] = []
+                            enemyPlayerStruct.curChesses!.forEach{(encodeChess) in
+                                tempEnemybaseChess.append(baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, codeChessInfo: encodeChess))
                             }
-                        } else { //从机 信息不是来自主机 则是有对手阵容的 则开始游戏
-                            switchGameStage() //收到对手阵容开始比赛
+                            if enemyPlayerStruct.isComputer {
+                                feedEnemies()
+                            } else {
+                                playerStatues[1].curChesses = tempEnemybaseChess
+                            }
+                            /*end*/
+                            //收到了对手的信息 把自己的信息也打包发给对手
+                            if gameConfigStr.isMaster || enemyPlayerStruct.isComputer { //如果主机收到了就不用再发了 如果是电脑直接开打
+                                switchGameStage() //收到对手阵容开始比赛
+                            } else if peer == curMasterID { //从机 如果信息来自主机则发送给对手 是没有对手阵容的
+                                let encodedData = encodeCodablePlayerStruct(playerID: multipeerSession.getMyId(), player: playerStatues[0])
+                                let curId = findSimiInstance(arr: multipeerSession.connectedPeers, obj: decodeID)
+                                multipeerSession.sendToPeer(encodedData, [curId])
+                                if decodeID == curMasterID { //如果对手也是主机 那么是有阵容的
+                                    switchGameStage()
+                                }
+                            } else { //从机 信息不是来自主机 则是有对手阵容的 则开始游戏
+                                switchGameStage() //收到对手阵容开始比赛
+                            }
                         }
-                        
-                        
-                    }
                 }
               
             }else if let strFlag = String(data: data, encoding: String.Encoding.utf8) {
@@ -1881,11 +1892,19 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     playerStatues[curEnemyId].curCoin += (curDamage + GlobalNumberSettings.roundBaseCoin.rawValue)
                 }
             }
-//            if gameConfigStr.isMaster { //如果是主机
-//                //收集所有对手剩余血量状况
-//            } else { //如果是从机 发送给主机
-//
-//            }
+            if !gameConfigStr.isMaster { //如果是主机
+                //收集所有对手剩余血量状况
+            } else { //如果是从机 发送给主机
+                guard let idData = try? NSKeyedArchiver.archivedData(withRootObject: multipeerSession.getMyId(), requiringSecureCoding: true)
+                else { fatalError("can't encode!") }
+                let tempStatus = codblePlayerStruct(playerName: playerStatues[0].playerName, curCoin: playerStatues[0].curCoin, curLevel: playerStatues[0].curLevel, curBlood: playerStatues[0].curBlood, curChesses: [], curAura: [], isComputer: playerStatues[0].isComputer, encodePlayerID: idData)
+                 let encoder = JSONEncoder()
+                guard let encodedData = try? encoder.encode(tempStatus)
+                else { fatalError("can't encode player struct!") }
+                if let curId = findSimiInstance(arr: multipeerSession.connectedPeers, obj: curMasterID) {
+                   multipeerSession.sendToPeer(encodedData, [curId])
+                }
+            }
             
             if (playerStatues[curPlayerId].curBlood <= 0) {
              resolver.fulfill(false)
