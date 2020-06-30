@@ -210,5 +210,10 @@ func randomSplit<T>(arr: [T]) -> [[T]]?{ //用于将数组分成2个一组
     }
     return res
 }
+func encodeCodable<T:Encodable>(ori: T) -> Data? { //将支持codable协议的类encode
+    let encoder = JSONEncoder()
+    let encoded = try? encoder.encode(ori)
+    return encoded
+}
 
 

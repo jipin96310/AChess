@@ -494,8 +494,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 sceneView.session.add(anchor: anchor)
             } else  if let enemyPlayerStruct = try? decoder.decode(codblePlayerStruct.self, from: data){
                 
-
-               
+          
                     if let decodeID = try? NSKeyedUnarchiver.unarchivedObject(ofClass: MCPeerID.self, from: enemyPlayerStruct.encodePlayerID!) {
                         if gameConfigStr.isMaster { //主机每次收到数据都默认更新一下玩家数据信息
                             var alivePlayer:[MCPeerID] = []
@@ -514,6 +513,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                 //that player win the game
                                 if alivePlayer[0] == multipeerSession.getMyId() {
                                     //master win the game
+                                    winTheGame()
+                                } else { //通知赢的玩家获胜了
+                                    if let strData = encodeCodable(ori: EnumMessageCommand.winTheGame.rawValue) {
+                                        let curId = findSimiInstance(arr: multipeerSession.connectedPeers, obj: alivePlayer[0])
+                                        multipeerSession.sendToPeer(strData, [curId])
+                                    }
                                 }
                                 return
                             }
@@ -565,6 +570,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 } else if strFlag == EnumMessageCommand.switchGameStage.rawValue && !gameConfigStr.isMaster { //从机切换至战斗
                     //主机分配从机对手
                     switchGameStage()
+                } else if strFlag == EnumMessageCommand.winTheGame.rawValue { //赢得比赛
+                    winTheGame()
                 }
             } else {
                 print("unknown data recieved from \(peer)")
@@ -1284,6 +1291,17 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                if oppoPlayer.playerID == multipeerSession.getMyId() { //是电脑对手的话 主机直接开打
                                    feedEnemies()
                                    switchGameStage()
+                                }
+                                if oppoPlayer.isComputer && gameConfigStr.isMaster { //两台都是电脑
+                                    //模拟两方对战结果
+                                    currentSlaveId?.forEach{ curSlave in
+                                        if curSlave.playerID == curPlayer.playerID {
+                                           //
+                                        }
+                                        if curSlave.playerID == curPlayer.playerID {
+                                           //
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -3115,6 +3133,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         //}
         
         return t1 + t2 + t3
+    }
+    func winTheGame() {
+        PlayerBoardTextAppear(TextContent: "win".localized)
+        disableButtons() //禁止buttons点击和手势事件
     }
     
     //master ohone init the playerboard and send to peers

@@ -223,6 +223,7 @@ enum EnumAbilityType: String {
 //command
 enum EnumMessageCommand: String {
     case switchGameStage = "SwitchGameStage"
+    case winTheGame = "WinTheGame"
 }
 
 
