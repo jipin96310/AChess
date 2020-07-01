@@ -65,7 +65,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var freezedChessNodes: [baseChessNode] = []
     var gameConfigStr = settingStruct(isShareBoard: true, playerNumber: 2, isMaster: false)
     var curMasterID: MCPeerID? //如果是从机会获取到主机的id
-    var currentSlaveId: [playerStruct]? //如果是主机会获取到所有的从机id  index 0 是主机id
+    var currentSlaveId: [playerStruct] = []//如果是主机会获取到所有的从机id  index 0 是主机id
     
     var boardNode :[[baseChessNode]] = [[],[]] //chesses
         {
@@ -498,14 +498,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     if let decodeID = try? NSKeyedUnarchiver.unarchivedObject(ofClass: MCPeerID.self, from: enemyPlayerStruct.encodePlayerID!) {
                         if gameConfigStr.isMaster { //主机每次收到数据都默认更新一下玩家数据信息
                             var alivePlayer:[MCPeerID] = []
-                            currentSlaveId![0].curBlood = playerStatues[0].curBlood //update master blood
-                                for i in 0 ..< currentSlaveId!.count {
-                                    if currentSlaveId![i].playerID == decodeID {
-                                        currentSlaveId![i].curBlood = enemyPlayerStruct.curBlood
+                            currentSlaveId[0].curBlood = playerStatues[0].curBlood //update master blood
+                                for i in 0 ..< currentSlaveId.count {
+                                    if currentSlaveId[i].playerID == decodeID {
+                                        currentSlaveId[i].curBlood = enemyPlayerStruct.curBlood
                                     }
-                                    if currentSlaveId![i].curBlood > 0 {
-                                        if currentSlaveId![i].playerID != nil {
-                                          alivePlayer.append(currentSlaveId![i].playerID!)
+                                    if currentSlaveId[i].curBlood > 0 {
+                                        if currentSlaveId[i].playerID != nil {
+                                          alivePlayer.append(currentSlaveId[i].playerID!)
                                         }
                                     }
                                 }
@@ -556,9 +556,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }else if let strFlag = String(data: data, encoding: String.Encoding.utf8) {
                 if strFlag == "readyBattle" && gameConfigStr.isMaster { //主机收到从机准备成功
                     if currentSlaveId != nil {
-                        for i in 0 ..< currentSlaveId!.count {
-                            if currentSlaveId![i].playerID === peer {
-                                currentSlaveId![i].playerStatus = true //准备完成
+                        for i in 0 ..< currentSlaveId.count {
+                            if currentSlaveId[i].playerID === peer {
+                                currentSlaveId[i].playerStatus = true //准备完成
                                 break
                             }
                         }
@@ -1053,9 +1053,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             }
                             
                             emptyBoardSide(curBoardSide: BoardSide.allySide.rawValue) //清空棋盘
-                            self.playerStatues[self.curPlayerId].curChesses.forEach{(curChess) in
-                                appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curAddChesses: [curChess], curInsertIndex: nil)
-                            }
+                            appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curAddChesses: self.playerStatues[self.curPlayerId].curChesses, curInsertIndex: nil)
+                            
       
                             ///以下为恢复操作
                             //回复拖拽的棋子到棋盘
@@ -1228,9 +1227,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             //                            isWaiting = true
                             //TODO
                             if(gameConfigStr.isMaster) {
-                                for i in 0 ..< currentSlaveId!.count {
-                                    if currentSlaveId![i].playerID === multipeerSession.getMyId() {
-                                        currentSlaveId![i].playerStatus = true //准备完成
+                                for i in 0 ..< currentSlaveId.count {
+                                    if currentSlaveId[i].playerID === multipeerSession.getMyId() {
+                                        currentSlaveId[i].playerStatus = true //准备完成
                                         break
                                     }
                                 }
@@ -1268,7 +1267,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         /*主机通知从机切换游戏阶段*/
         if gameConfigStr.isMaster { //主机分配对手信息
             if currentSlaveId != nil {
-                if let arrangedArr = randomSplit(arr: currentSlaveId!) {
+                if let arrangedArr = randomSplit(arr: currentSlaveId) {
                     arrangedArr.forEach{ twoArr in
                         for i in 0 ..< twoArr.count {
                             var curPlayer = twoArr[i]
@@ -1284,7 +1283,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                 }
                                 let encodedData = encodeCodablePlayerStruct(playerID: oppoPlayer.playerID!, player: oppoPlayer)
                                 let curId = findSimiInstance(arr: multipeerSession.connectedPeers, obj: curPlayer.playerID!)
-                                currentSlaveId![i].setPlayerStatus(curStatus: false)
+                                currentSlaveId[i].setPlayerStatus(curStatus: false)
                                 multipeerSession.sendToPeer(encodedData, [curId])
                                 break
                             } else { //如果是电脑
@@ -1293,15 +1292,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                    switchGameStage()
                                 }
                                 if oppoPlayer.isComputer && gameConfigStr.isMaster { //两台都是电脑
+                                    let winSide = Int.randomIntNumber(lower: 0, upper: 2)
+                                    let winDam = Int.randomIntNumber(lower: 1, upper: 10)
                                     //模拟两方对战结果
-                                    currentSlaveId?.forEach{ curSlave in
-                                        if curSlave.playerID == curPlayer.playerID {
-                                           //
-                                        }
-                                        if curSlave.playerID == curPlayer.playerID {
-                                           //
+                                    
+                                    for i in 0 ..< currentSlaveId.count {
+                                        if currentSlaveId[i].playerID == twoArr[winSide].playerID {
+                                            currentSlaveId[i].curBlood -= winDam
                                         }
                                     }
+                                    
                                 }
                             }
                         }
@@ -1310,8 +1310,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 }
 
 
-                for i in 0 ..< currentSlaveId!.count {//清空玩家准备状态
-                    currentSlaveId![i].setPlayerStatus(curStatus: false)
+                for i in 0 ..< currentSlaveId.count {//清空玩家准备状态
+                    currentSlaveId[i].setPlayerStatus(curStatus: false)
                 }
             }
         }
@@ -1319,8 +1319,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     
     func checkIfAllReady() -> Bool { //检查是否所有人都准备完毕
         if currentSlaveId != nil {
-            for i in 0 ..< currentSlaveId!.count {
-                if !currentSlaveId![i].isComputer && !currentSlaveId![i].playerStatus { //不是电脑 且没准备
+            for i in 0 ..< currentSlaveId.count {
+                if !currentSlaveId[i].isComputer && !currentSlaveId[i].playerStatus { //不是电脑 且没准备
                     return false
                 }
             }
@@ -1922,8 +1922,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     playerStatues[curEnemyId].curCoin += (curDamage + GlobalNumberSettings.roundBaseCoin.rawValue)
                 }
             }
-            if !gameConfigStr.isMaster { //如果是主机
-                //收集所有对手剩余血量状况
+            if gameConfigStr.isMaster { //如果是主机
+                for i in 0 ..< currentSlaveId.count {
+                    if currentSlaveId[i].curBlood > 0 && currentSlaveId[i].playerID != multipeerSession.getMyId() {
+                        break
+                    }
+                    if i == currentSlaveId.count - 1
+                    {
+                       winTheGame()
+                    }
+                }
             } else { //如果是从机 发送给主机
                 guard let idData = try? NSKeyedArchiver.archivedData(withRootObject: multipeerSession.getMyId(), requiringSecureCoding: true)
                 else { fatalError("can't encode!") }
