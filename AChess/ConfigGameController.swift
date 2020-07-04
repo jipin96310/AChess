@@ -15,8 +15,8 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
     var masterServerID: MCPeerID?
     
     var gameConfig = settingStruct(isShareBoard: true, playerNumber: 2, isMaster: false)
-    var currentSlaveId:[playerStruct] = [playerStruct(playerName: UIDevice.current.name, curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: false, playerID: MCPeerID(displayName: UIDevice.current.name)),
-        playerStruct(playerName: "动保", curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: true, playerID: nil)
+    var currentSlaveId:[playerStruct] = [playerStruct(playerName: UIDevice.current.name, curCoin: 3, curLevel: 1, curBlood: GlobalCommonNumber.maxBlood, curChesses: [], curAura: [], isComputer: false, playerID: MCPeerID(displayName: UIDevice.current.name)),
+        playerStruct(playerName: "动保", curCoin: 3, curLevel: 1, curBlood: GlobalCommonNumber.maxBlood, curChesses: [], curAura: [], isComputer: true, playerID: nil)
     ]
     
     @IBOutlet weak var playerNumberLabel: UILabel!
@@ -27,13 +27,13 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
     var multipeerSession: multiUserSession!
     var timer : Timer? //定时刷新在线玩家
     let computerPlayer = [
-        playerStruct(playerName: "动保", curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: true, playerID: nil),
-        playerStruct(playerName: "武术家", curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: true, playerID: nil),
-        playerStruct(playerName: "植物人", curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: true, playerID: nil),
-        playerStruct(playerName: "素食主义者", curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: true, playerID: nil),
-        playerStruct(playerName: "科学家", curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: true, playerID: nil),
-        playerStruct(playerName: "道士", curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: true, playerID: nil),
-        playerStruct(playerName: "鬼魂", curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: true, playerID: nil),
+        playerStruct(playerName: "动保", curCoin: 3, curLevel: 1, curBlood: GlobalCommonNumber.maxBlood, curChesses: [], curAura: [], isComputer: true, playerID: nil),
+        playerStruct(playerName: "武术家", curCoin: 3, curLevel: 1, curBlood: GlobalCommonNumber.maxBlood, curChesses: [], curAura: [], isComputer: true, playerID: nil),
+        playerStruct(playerName: "植物人", curCoin: 3, curLevel: 1, curBlood: GlobalCommonNumber.maxBlood, curChesses: [], curAura: [], isComputer: true, playerID: nil),
+        playerStruct(playerName: "素食主义者", curCoin: 3, curLevel: 1, curBlood: GlobalCommonNumber.maxBlood, curChesses: [], curAura: [], isComputer: true, playerID: nil),
+        playerStruct(playerName: "科学家", curCoin: 3, curLevel: 1, curBlood: GlobalCommonNumber.maxBlood, curChesses: [], curAura: [], isComputer: true, playerID: nil),
+        playerStruct(playerName: "道士", curCoin: 3, curLevel: 1, curBlood: GlobalCommonNumber.maxBlood, curChesses: [], curAura: [], isComputer: true, playerID: nil),
+        playerStruct(playerName: "鬼魂", curCoin: 3, curLevel: 1, curBlood: GlobalCommonNumber.maxBlood, curChesses: [], curAura: [], isComputer: true, playerID: nil),
     ]
     
     override func viewDidAppear(_ animated: Bool) {
@@ -74,9 +74,9 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
     //定时操作
     @objc func updataSecond() {
         if multipeerSession != nil {
-            var newConnectedPeers = [playerStruct(playerName: UIDevice.current.name, curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: false, playerID: multipeerSession.getMyId())]
+            var newConnectedPeers = [playerStruct(playerName: UIDevice.current.name, curCoin: 3, curLevel: 1, curBlood: GlobalCommonNumber.maxBlood, curChesses: [], curAura: [], isComputer: false, playerID: multipeerSession.getMyId())]
             multipeerSession.connectedPeers.forEach{(peerId) in
-                newConnectedPeers.append(playerStruct(playerName: peerId.displayName, curCoin: 3, curLevel: 1, curBlood: 40, curChesses: [], curAura: [], isComputer: false, playerID: peerId))
+                newConnectedPeers.append(playerStruct(playerName: peerId.displayName, curCoin: 3, curLevel: 1, curBlood: GlobalCommonNumber.maxBlood, curChesses: [], curAura: [], isComputer: false, playerID: peerId))
             }
 //            newConnectedPeers += multipeerSession.connectedPeers
             if newConnectedPeers.count < gameConfig.playerNumber {

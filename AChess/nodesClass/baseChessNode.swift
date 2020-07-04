@@ -171,6 +171,13 @@ public class baseChessNode: SCNNode {
         descTextNode.string = chessDesc
        }
     
+    public override func runAction(_ action: SCNAction) {
+        if !self.hasActions {
+            super.runAction(action)
+        }
+    }
+    
+    
     func exportCodeableStruct() -> codableChessStruct? {
         for i in 0 ..< chessCollectionsLevel[chessRarity - 1].count {
             if chessCollectionsLevel[chessRarity - 1][i].name == chessName {
@@ -582,6 +589,9 @@ public class baseChessNode: SCNNode {
            chessPrice = (chessRarity / 2) + 3
         }
     }
+    
+    
+   
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

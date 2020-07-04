@@ -12,7 +12,8 @@ public let GlobalCommonNumber = (
     storageNumber : 5,
     chessNumber : 7,
     maxLevel : 5,
-    maxStars: 3
+    maxStars: 3,
+    maxBlood: 5
 )
 public let EvolveAbilities = [
     EnumAbilities.furious.rawValue,
