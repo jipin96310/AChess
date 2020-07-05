@@ -131,7 +131,7 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
             let encoder = JSONEncoder()
             let encoded = try? encoder.encode(gameConfig)
             self.multipeerSession.sendToAllPeers(encoded!)
-            
+            self.multipeerSession.stopBrosingForPeers()
             
             controller.multipeerSession = multipeerSession
         } else if segue.identifier == "StartGameSlave"{ //你成为了从机

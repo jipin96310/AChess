@@ -171,11 +171,11 @@ public class baseChessNode: SCNNode {
         descTextNode.string = chessDesc
        }
     
-    public override func runAction(_ action: SCNAction) {
-        if !self.hasActions {
-            super.runAction(action)
-        }
-    }
+//    public override func runAction(_ action: SCNAction) {
+//        if !self.hasActions {
+//            super.runAction(action)
+//        }
+//    }
     
     
     func exportCodeableStruct() -> codableChessStruct? {

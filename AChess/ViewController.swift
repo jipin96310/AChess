@@ -138,36 +138,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         }
                     }
                      /*棋子合成end*/
-                    
-//                    DispatchQueue.main.async { //暂时屏蔽功能
-//                        /*chess aura*/
-//                        var newAuraArr:[String] = []
-//
-//                        if let mountainNum = chessKindMap[EnumChessKind.mountain.rawValue] {
-//                            if mountainNum >= 3 && mountainNum < 6 {
-//                                newAuraArr.append(EnumAuraName.mountainLevel1.rawValue)
-//                            } else if mountainNum >= 6 {
-//                                newAuraArr.append(EnumAuraName.mountainLevel2.rawValue)
-//                            }
-//                        }
-//                        if let oceanNum = chessKindMap[EnumChessKind.ocean.rawValue] {
-//                            if oceanNum >= 3 && oceanNum < 6 {
-//                                newAuraArr.append(EnumAuraName.oceanLevel1.rawValue)
-//                            } else if oceanNum >= 6 {
-//                                newAuraArr.append(EnumAuraName.oceanLevel2.rawValue)
-//                            }
-//                        }
-//                        if let plainNum = chessKindMap[EnumChessKind.plain.rawValue] {
-//                            if plainNum >= 3 && plainNum < 6 {
-//                                newAuraArr.append(EnumAuraName.plainLevel1.rawValue)
-//                            } else if plainNum >= 6 {
-//                                newAuraArr.append(EnumAuraName.plainLevel2.rawValue)
-//                            }
-//                        }
-//
-//                        //
-//                        self.playerStatues[self.curPlayerId].curAura = newAuraArr //更新光环
-//                    }
   
                 }
                 
@@ -300,8 +270,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                     //self.updateWholeBoardPosition()
                                 }
                             }
-                            needDeleteChesses.append(oldBoard[boardIndex][innerIndex])
-                            //oldBoard[boardIndex][innerIndex].removeFromParentNode()
+                            if oldBoard[boardIndex][innerIndex] !== curDragPoint{
+                                needDeleteChesses.append(oldBoard[boardIndex][innerIndex])
+                            }
                         }
                     }
                 }
@@ -682,27 +653,28 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         curPressNode.geometry?.firstMaterial?.diffuse.contents = UIColor.red
                     } else {
                         if let curPressParent = findChessRootNode(curPressNode) { //按到棋子上了
-                            if let curIndexArr = findChessPos(curPressParent) {
-//                                if let curTransPos = findChessPos(tempTransParentNode) { //找得到就不插入 直接改位置
-//                                    if curTransPos[0] != 2 {
-//                                        boardNode[curTransPos[0]].remove(at: curTransPos[1])
-//                                    } else {
-//                                        storageNode.remove(at: curTransPos[1])
-//                                    }
-//
-//                                }
-//
-//                                if curIndexArr[0] == 2 { //storageNode
-//                                    if storageNode.count < GlobalCommonNumber.storageNumber {
-//                                        storageNode.insert(tempTransParentNode, at: curIndexArr[1])
-//                                    }
-//                                } else {
-//                                    if boardNode[curIndexArr[0]].count < GlobalCommonNumber.chessNumber {
-//                                        boardNode[curIndexArr[0]].insert(tempTransParentNode, at: curIndexArr[1])
-//                                    }
-//                                }
-//
-                                
+                            if !curPressParent.hasActions {
+                                if let curIndexArr = findChessPos(curPressParent) {
+                                    if let curTransPos = findChessPos(tempTransParentNode) { //找得到就不插入 直接改位置
+                                        if curTransPos[0] != 2 {
+                                            boardNode[curTransPos[0]].remove(at: curTransPos[1])
+                                        } else {
+                                            storageNode.remove(at: curTransPos[1])
+                                        }
+
+                                    }
+
+                                    if curIndexArr[0] == 2 { //storageNode
+                                        if storageNode.count < GlobalCommonNumber.storageNumber {
+                                            storageNode.insert(tempTransParentNode, at: curIndexArr[1])
+                                        }
+                                    } else {
+                                        if boardNode[curIndexArr[0]].count < GlobalCommonNumber.chessNumber {
+                                            boardNode[curIndexArr[0]].insert(tempTransParentNode, at: curIndexArr[1])
+                                        }
+                                    }
+                                    
+                                }
                             }
                             
                         } else {
@@ -3014,6 +2986,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         self.sceneView.addGestureRecognizer(tapGestureRecognizer)
     }
     func disableButtons() {
+        curDragPoint = nil
         randomButtonNode.runAction(SCNAction.fadeOut(duration: 1))
         upgradeButtonNode.runAction(SCNAction.fadeOut(duration: 1))
         endButtonNode.runAction(SCNAction.fadeOut(duration: 1))

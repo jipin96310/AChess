@@ -59,6 +59,9 @@ class multiUserSession: NSObject {
             print("error sending data to peers: \(error.localizedDescription)")
         }
     }
+    func stopBrosingForPeers() {
+        serviceBrowser.stopBrowsingForPeers()
+    }
     
     var connectedPeers: [MCPeerID] {
         return session.connectedPeers
