@@ -17,7 +17,44 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     @IBOutlet var sceneView: ARSCNView!
    
     @IBOutlet weak var messageLabel: UILabel!
-    
+    enum SessionState {
+          case setup
+          case seekingSurface
+          case adjustingPlane
+          case placingPlane
+          case waitingForPlane
+          case localizingToPlane
+       
+
+          var localizedInstruction: String? {
+//              guard !UserDefaults.standard.disableInGameUI else { return nil }
+              switch self {
+              case .seekingSurface:
+                  return NSLocalizedString("Find a flat surface to place the game.", comment: "")
+              case .placingPlane:
+                  return NSLocalizedString("Scale, rotate or move the board.", comment: "")
+              case .adjustingPlane:
+                  return NSLocalizedString("Make adjustments and tap to continue.", comment: "")
+//              case .gameInProgress:
+//                  if UserDefaults.standard.hasOnboarded || UserDefaults.standard.spectator {
+//                      return nil
+//                  } else {
+//                      return NSLocalizedString("Move closer to a slingshot.", comment: "")
+//                  }
+              case .waitingForPlane:
+                  return NSLocalizedString("Synchronizing world map…", comment: "")
+              case .localizingToPlane:
+                  return NSLocalizedString("Point the camera towards the table.", comment: "")
+              case .setup:
+                  return nil
+            }
+          }
+      }
+      var sessionState: SessionState = .setup {
+             didSet {
+                 guard oldValue != sessionState else { return }
+             }
+         }
     var setting = (controlMethod : 0, particalOn : 0)//0:  0 用tap的方式操作。1用手识别操作  这个数据应该存在数据库或缓存里作为全局变量
     
     
@@ -38,6 +75,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var freezeButtonNode: SCNNode = SCNNode()
     var endButtonNode: SCNNode = SCNNode()
     var allyBoardNode : SCNNode = SCNNode()
+    var prePlaneNode = PrePlane()
+    var screenCenter: CGPoint {
+          let bounds = sceneView.bounds
+          return CGPoint(x: bounds.midX, y: bounds.midY)
+    }
+    
+    
+    
     let totalUpdateTime:Double = 1 //刷新时间
     var curUpgradeCoin = 5 {
         didSet(oldV) {//升级费用
@@ -276,8 +321,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         }
                     }
                 }
-                
-                
                 recyclePromise(taskArr: inheritPromiseArr, curIndex: 0).done{ _ in
                     //创建队列组
                     let group = DispatchGroup()
@@ -340,6 +383,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     //gesutre reoginzer
     var longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action:  #selector(onLongPress))
     var tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onTap))
+
+    
+    @IBOutlet var rotateGestureRecognizer: CustomRotateGestureRecognizer!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         UIDevice.current.setValue(UIInterfaceOrientation.landscapeRight.rawValue, forKey: "orientation") //强制横屏
@@ -572,10 +619,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         return node
     }
 */
-    
+    func session(_ session: ARSession, didUpdate frame: ARFrame) {
+         if !isPlayerBoardinited {
+                   updatePrePlane(frame: frame)
+            }
+               
+    }
     func session(_ session: ARSession, didFailWithError error: Error) {
         // Present an error message to the user
-        
     }
     
     func sessionWasInterrupted(_ session: ARSession) {
@@ -1964,7 +2015,26 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         playerBoardNode.removeFromParentNode()
     
     }
-    
+    func updatePrePlane(frame: ARFrame) {
+        
+        if prePlaneNode.parent == nil {
+            sceneView.scene.rootNode.addChildNode(prePlaneNode)
+        }
+        print("update!!!")
+        if case .normal = frame.camera.trackingState {
+            
+            if let result = sceneView.hitTest(screenCenter, types: [.estimatedHorizontalPlane, .existingPlaneUsingExtent]).first {
+                // Ignore results that are too close to the camera when initially placing
+                guard result.distance > 0.5 else { return }
+                
+                prePlaneNode.update(with: result, camera: frame.camera)
+            } else {
+                if !prePlaneNode.isBorderHidden {
+                    prePlaneNode.hideBorder()
+                }
+            }
+        }
+    }
     func initBoardRootNode() { //初始化底座node。是必须的 游戏开始必须调用
         if let allyBoardTemp = playerBoardNode.childNode(withName: "allyBoard", recursively: true) {
             allyBoardNode = allyBoardTemp
@@ -3303,81 +3373,81 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
     // MARK: - ARSCNViewDelegate
 
-    public func renderer(_: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
-        
-        
-        if let _ = anchor as? ARPlaneAnchor {
-           curPlaneNode = customPlaneNode()
-           return curPlaneNode
-        } else if let anchorName = anchor.name, anchorName.hasPrefix("playerBoard") {
-           return playerBoardNode
-        } else { return nil }
-
-        // We return a special type of SCNNode for ARPlaneAnchors
-       
-    }
-
-    public func renderer(_: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
-        
-        
-        
-        if (gameConfigStr.isMaster) { //主机
-            if isPlayerBoardinited {
-                return
-            }
-            
-            guard let planeAnchor = anchor as? ARPlaneAnchor,
-                let planeNode = node as? customPlaneNode else {
-                    return
-            }
-            if planeNode.position.y > 0 {
-                return
-            }
-            planeNode.update(from: planeAnchor)
-            // Send the anchor info to peers, so they can place the same content.
-//            guard let data = try? NSKeyedArchiver.archivedData(withRootObject: planeAnchor, requiringSecureCoding: true)
-//                else { fatalError("can't encode anchor") }
-//            print("datasent", multipeerSession.connectedPeers)
-            //self.multipeerSession.sendToAllPeers(data)
-            
-        } else { //从机
-            if let anchorName = anchor.name, anchorName.hasPrefix("playerBoard") {
-                self.initPlayerBoard(playerBoardPosition: node.position)
-                node.removeFromParentNode()
-            }
-//            else if let anchorName = anchor.name, anchorName.hasPrefix("customPlane") {
-//                guard let planeAnchor = anchor as? ARPlaneAnchor,
-//                    let planeNode = node as? customPlaneNode else {
-//                        return
-//                }
-//               planeNode.update(from: planeAnchor)
+//    public func renderer(_: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
+//
+//
+//        if let _ = anchor as? ARPlaneAnchor {
+//           curPlaneNode = customPlaneNode()
+//           return curPlaneNode
+//        } else if let anchorName = anchor.name, anchorName.hasPrefix("playerBoard") {
+//           return playerBoardNode
+//        } else { return nil }
+//
+//        // We return a special type of SCNNode for ARPlaneAnchors
+//
+//    }
+//
+//    public func renderer(_: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
+//
+//
+//
+//        if (gameConfigStr.isMaster) { //主机
+//            if isPlayerBoardinited {
+//                return
 //            }
-        }
-       
-    }
-
-    public func renderer(_: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
-        if (gameConfigStr.isMaster) { //主机
-            if isPlayerBoardinited {
-                return
-            }
-            guard let planeAnchor = anchor as? ARPlaneAnchor,
-                let planeNode = node as? customPlaneNode else {
-                    return
-            }
-            if planeNode.position.y > 0 {
-                return
-            }
-            planeNode.update(from: planeAnchor)
-             //Send the anchor info to peers, so they can place the same content.
-//            guard let data = try? NSKeyedArchiver.archivedData(withRootObject: planeAnchor, requiringSecureCoding: true)
-//                else { fatalError("can't encode anchor") }
-//            print("datasent", multipeerSession.connectedPeers)
-            //self.multipeerSession.sendToAllPeers(data)
-        } else {//从机
-        }
-        
-    }
+//
+//            guard let planeAnchor = anchor as? ARPlaneAnchor,
+//                let planeNode = node as? customPlaneNode else {
+//                    return
+//            }
+//            if planeNode.position.y > 0 {
+//                return
+//            }
+//            planeNode.update(from: planeAnchor)
+//            // Send the anchor info to peers, so they can place the same content.
+////            guard let data = try? NSKeyedArchiver.archivedData(withRootObject: planeAnchor, requiringSecureCoding: true)
+////                else { fatalError("can't encode anchor") }
+////            print("datasent", multipeerSession.connectedPeers)
+//            //self.multipeerSession.sendToAllPeers(data)
+//
+//        } else { //从机
+//            if let anchorName = anchor.name, anchorName.hasPrefix("playerBoard") {
+//                self.initPlayerBoard(playerBoardPosition: node.position)
+//                node.removeFromParentNode()
+//            }
+////            else if let anchorName = anchor.name, anchorName.hasPrefix("customPlane") {
+////                guard let planeAnchor = anchor as? ARPlaneAnchor,
+////                    let planeNode = node as? customPlaneNode else {
+////                        return
+////                }
+////               planeNode.update(from: planeAnchor)
+////            }
+//        }
+//
+//    }
+//
+//    public func renderer(_: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
+//        if (gameConfigStr.isMaster) { //主机
+//            if isPlayerBoardinited {
+//                return
+//            }
+//            guard let planeAnchor = anchor as? ARPlaneAnchor,
+//                let planeNode = node as? customPlaneNode else {
+//                    return
+//            }
+//            if planeNode.position.y > 0 {
+//                return
+//            }
+//            planeNode.update(from: planeAnchor)
+//             //Send the anchor info to peers, so they can place the same content.
+////            guard let data = try? NSKeyedArchiver.archivedData(withRootObject: planeAnchor, requiringSecureCoding: true)
+////                else { fatalError("can't encode anchor") }
+////            print("datasent", multipeerSession.connectedPeers)
+//            //self.multipeerSession.sendToAllPeers(data)
+//        } else {//从机
+//        }
+//
+//    }
 }
 
 

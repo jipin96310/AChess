@@ -261,6 +261,9 @@
                         <subviews>
                             <arscnView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BrB-h1-WRS">
                                 <rect key="frame" x="0.0" y="0.0" width="896" height="414"/>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="9nm-TO-MhX" appends="YES" id="Np0-WI-7T4"/>
+                                </connections>
                             </arscnView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8X4-Fj-M7u">
                                 <rect key="frame" x="0.0" y="44" width="41.666666666666664" height="21"/>
@@ -292,10 +295,17 @@
                     <navigationItem key="navigationItem" id="vnD-4k-KPt"/>
                     <connections>
                         <outlet property="messageLabel" destination="8X4-Fj-M7u" id="HVr-q7-Z4R"/>
+                        <outlet property="rotateGestureRecognizer" destination="9nm-TO-MhX" id="cU0-0l-gpr"/>
                         <outlet property="sceneView" destination="BrB-h1-WRS" id="5nT-qQ-ynl"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SZV-WD-TEh" sceneMemberID="firstResponder"/>
+                <rotationGestureRecognizer id="9nm-TO-MhX" customClass="CustomRotateGestureRecognizer" customModule="AChess" customModuleProvider="target">
+                    <connections>
+                        <action selector="handleRotation:" destination="BV1-FR-VrT" id="tul-DH-k4J"/>
+                        <outlet property="delegate" destination="BV1-FR-VrT" id="9VS-1R-W3V"/>
+                    </connections>
+                </rotationGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="169" y="612"/>
         </scene>

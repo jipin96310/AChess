@@ -216,5 +216,9 @@ func encodeCodable<T:Encodable>(ori: T) -> Data? { //将支持codable协议的�
     return encoded
 }
 
+public func mediant<T>(_ value: T, _ minValue: T, _ maxValue: T) -> T where T: Comparable {
+    return min(max(value, minValue), maxValue)
+}
+
 
 
