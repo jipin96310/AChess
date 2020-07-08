@@ -387,6 +387,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     
     @IBOutlet var rotateGestureRecognizer: CustomRotateGestureRecognizer!
     
+    @IBOutlet var pinchGestureRecognizer: CustomPinchGestureRecognizer!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         UIDevice.current.setValue(UIInterfaceOrientation.landscapeRight.rawValue, forKey: "orientation") //强制横屏

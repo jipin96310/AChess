@@ -12,6 +12,8 @@
 		C709C50823DD86D100944C01 /* utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = C709C50723DD86D100944C01 /* utils.swift */; };
 		C709C50A23DD86EF00944C01 /* enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = C709C50923DD86EF00944C01 /* enums.swift */; };
 		C70C152324420F530086C259 /* playerStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70C152224420F530086C259 /* playerStruct.swift */; };
+		C70E60C624B37A7D00E0540F /* ViewController+Gestures.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70E60C524B37A7D00E0540F /* ViewController+Gestures.swift */; };
+		C710DCF824B617B500E829EB /* CustomPinchGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C710DCF724B617B500E829EB /* CustomPinchGestureRecognizer.swift */; };
 		C72C2FE22478D10F005AE2F7 /* settingStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72C2FE12478D10F005AE2F7 /* settingStruct.swift */; };
 		C72D0EC623DFF8F800CC0EFB /* textNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72D0EC523DFF8F800CC0EFB /* textNode.swift */; };
 		C72E92F623F195FD008F890F /* chessCollections.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72E92F523F195FD008F890F /* chessCollections.swift */; };
@@ -31,10 +33,13 @@
 		C75E6A8D240272F3000B01BD /* ComScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = C75E6A8C240272F3000B01BD /* ComScript.swift */; };
 		C766178A23FD7EF700D11EBF /* nodeColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C766178923FD7EF700D11EBF /* nodeColor.swift */; };
 		C771AFF523E80CC5007C99F0 /* extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C771AFF423E80CC5007C99F0 /* extensions.swift */; };
+		C7744A1524B4C781003ADE4C /* CustomRotateGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7744A1424B4C781003ADE4C /* CustomRotateGestureRecognizer.swift */; };
 		C792198623F66978008B6950 /* protocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C792198523F66978008B6950 /* protocol.swift */; };
 		C7AFB4FC23EAF8B400B21E09 /* customPlanenode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7AFB4FB23EAF8B400B21E09 /* customPlanenode.swift */; };
 		C7B4D71B24837FDD008F3B1F /* codebleChessStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B4D71A24837FDD008F3B1F /* codebleChessStruct.swift */; };
 		C7B4D71D24838AB6008F3B1F /* codblePlayerStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B4D71C24838AB6008F3B1F /* codblePlayerStruct.swift */; };
+		C7BE385924B200BB00DCAA16 /* PrePlane.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7BE385824B200BB00DCAA16 /* PrePlane.swift */; };
+		C7BE385B24B2016F00DCAA16 /* PlaneAnchor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7BE385A24B2016F00DCAA16 /* PlaneAnchor.swift */; };
 		C7DB34BB23FEC88200DBE512 /* abilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DB34BA23FEC88200DBE512 /* abilities.swift */; };
 		C7DD950823DE9ACE0096CE0C /* actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DD950723DE9ACE0096CE0C /* actions.swift */; };
 		C7DD950E23DEB8F80096CE0C /* particals.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = C7DD950D23DEB8F80096CE0C /* particals.scnassets */; };
@@ -83,6 +88,8 @@
 		C709C50723DD86D100944C01 /* utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = utils.swift; sourceTree = "<group>"; };
 		C709C50923DD86EF00944C01 /* enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = enums.swift; sourceTree = "<group>"; };
 		C70C152224420F530086C259 /* playerStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = playerStruct.swift; sourceTree = "<group>"; };
+		C70E60C524B37A7D00E0540F /* ViewController+Gestures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ViewController+Gestures.swift"; sourceTree = "<group>"; };
+		C710DCF724B617B500E829EB /* CustomPinchGestureRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomPinchGestureRecognizer.swift; sourceTree = "<group>"; };
 		C72C2FE12478D10F005AE2F7 /* settingStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = settingStruct.swift; sourceTree = "<group>"; };
 		C72D0EC523DFF8F800CC0EFB /* textNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = textNode.swift; sourceTree = "<group>"; };
 		C72E92F523F195FD008F890F /* chessCollections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = chessCollections.swift; sourceTree = "<group>"; };
@@ -109,10 +116,13 @@
 		C75E6A8C240272F3000B01BD /* ComScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComScript.swift; sourceTree = "<group>"; };
 		C766178923FD7EF700D11EBF /* nodeColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = nodeColor.swift; sourceTree = "<group>"; };
 		C771AFF423E80CC5007C99F0 /* extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = extensions.swift; sourceTree = "<group>"; };
+		C7744A1424B4C781003ADE4C /* CustomRotateGestureRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomRotateGestureRecognizer.swift; sourceTree = "<group>"; };
 		C792198523F66978008B6950 /* protocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = protocol.swift; sourceTree = "<group>"; };
 		C7AFB4FB23EAF8B400B21E09 /* customPlanenode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = customPlanenode.swift; sourceTree = "<group>"; };
 		C7B4D71A24837FDD008F3B1F /* codebleChessStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = codebleChessStruct.swift; sourceTree = "<group>"; };
 		C7B4D71C24838AB6008F3B1F /* codblePlayerStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = codblePlayerStruct.swift; sourceTree = "<group>"; };
+		C7BE385824B200BB00DCAA16 /* PrePlane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrePlane.swift; sourceTree = "<group>"; };
+		C7BE385A24B2016F00DCAA16 /* PlaneAnchor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaneAnchor.swift; sourceTree = "<group>"; };
 		C7DB34BA23FEC88200DBE512 /* abilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = abilities.swift; sourceTree = "<group>"; };
 		C7DD950723DE9ACE0096CE0C /* actions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = actions.swift; sourceTree = "<group>"; };
 		C7DD950D23DEB8F80096CE0C /* particals.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = particals.scnassets; sourceTree = "<group>"; };
@@ -226,6 +236,7 @@
 		C73426A023D9E338003B7697 /* AChess */ = {
 			isa = PBXGroup;
 			children = (
+				C7744A1324B4C758003ADE4C /* Gestures */,
 				C72EF22B2470F46B0002C54A /* MultiUser */,
 				C7F481A3240A6131002EBEED /* Localization */,
 				C72E92F423F195DD008F890F /* Datas */,
@@ -234,6 +245,7 @@
 				C73426A123D9E338003B7697 /* AppDelegate.swift */,
 				C73426A323D9E338003B7697 /* art.scnassets */,
 				C73426A523D9E338003B7697 /* ViewController.swift */,
+				C70E60C524B37A7D00E0540F /* ViewController+Gestures.swift */,
 				C72ED6E8246FF0CD00BECBB4 /* MainController.swift */,
 				C72ED6EA24703DA700BECBB4 /* ConfigGameController.swift */,
 				C73426A723D9E338003B7697 /* Main.storyboard */,
@@ -263,6 +275,15 @@
 			path = AChessUITests;
 			sourceTree = "<group>";
 		};
+		C7744A1324B4C758003ADE4C /* Gestures */ = {
+			isa = PBXGroup;
+			children = (
+				C7744A1424B4C781003ADE4C /* CustomRotateGestureRecognizer.swift */,
+				C710DCF724B617B500E829EB /* CustomPinchGestureRecognizer.swift */,
+			);
+			path = Gestures;
+			sourceTree = "<group>";
+		};
 		C7C759ED23DB291C00274596 /* utils */ = {
 			isa = PBXGroup;
 			children = (
@@ -284,6 +305,8 @@
 				C7DD951223DF06590096CE0C /* baseChessNode.swift */,
 				C72D0EC523DFF8F800CC0EFB /* textNode.swift */,
 				C7AFB4FB23EAF8B400B21E09 /* customPlanenode.swift */,
+				C7BE385824B200BB00DCAA16 /* PrePlane.swift */,
+				C7BE385A24B2016F00DCAA16 /* PlaneAnchor.swift */,
 			);
 			path = nodesClass;
 			sourceTree = "<group>";
@@ -508,15 +531,19 @@
 				C7B4D71B24837FDD008F3B1F /* codebleChessStruct.swift in Sources */,
 				C7F481A2240A5EF8002EBEED /* LocalizationTool.swift in Sources */,
 				C72C2FE22478D10F005AE2F7 /* settingStruct.swift in Sources */,
+				C710DCF824B617B500E829EB /* CustomPinchGestureRecognizer.swift in Sources */,
 				C72ED6EB24703DA700BECBB4 /* ConfigGameController.swift in Sources */,
 				C709C50823DD86D100944C01 /* utils.swift in Sources */,
+				C7BE385B24B2016F00DCAA16 /* PlaneAnchor.swift in Sources */,
 				C7DD950823DE9ACE0096CE0C /* actions.swift in Sources */,
+				C7744A1524B4C781003ADE4C /* CustomRotateGestureRecognizer.swift in Sources */,
 				C72EF22D2470F4890002C54A /* mulitiUserSession.swift in Sources */,
 				C7DB34BB23FEC88200DBE512 /* abilities.swift in Sources */,
 				C792198623F66978008B6950 /* protocol.swift in Sources */,
 				C709C50A23DD86EF00944C01 /* enums.swift in Sources */,
 				C72ED6E9246FF0CD00BECBB4 /* MainController.swift in Sources */,
 				C7AFB4FC23EAF8B400B21E09 /* customPlanenode.swift in Sources */,
+				C70E60C624B37A7D00E0540F /* ViewController+Gestures.swift in Sources */,
 				C7DD951323DF06590096CE0C /* baseChessNode.swift in Sources */,
 				C72D0EC623DFF8F800CC0EFB /* textNode.swift in Sources */,
 				C757833923F26A5300B0DCE3 /* chessStruct.swift in Sources */,
@@ -526,6 +553,7 @@
 				C766178A23FD7EF700D11EBF /* nodeColor.swift in Sources */,
 				C751227423F518D7002CC4B4 /* dummyAI.swift in Sources */,
 				C70C152324420F530086C259 /* playerStruct.swift in Sources */,
+				C7BE385924B200BB00DCAA16 /* PrePlane.swift in Sources */,
 				C75E6A8D240272F3000B01BD /* ComScript.swift in Sources */,
 				C7B4D71D24838AB6008F3B1F /* codblePlayerStruct.swift in Sources */,
 				C73426A223D9E338003B7697 /* AppDelegate.swift in Sources */,

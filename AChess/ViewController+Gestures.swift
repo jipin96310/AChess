@@ -28,5 +28,18 @@ extension ViewController: UIGestureRecognizerDelegate {
              break
          }
      }
+    @IBAction func handlePinch(_ gesture: CustomPinchGestureRecognizer) {
+        guard !isPlayerBoardinited else { return }
+        
+        sessionState = .adjustingPlane
+        
+        switch gesture.state {
+        case .changed where gesture.isThresholdExceeded:
+            prePlaneNode.scale(by: Float(gesture.scale))
+            gesture.scale = 1
+        default:
+            break
+        }
+    }
     
 }
