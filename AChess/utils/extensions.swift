@@ -110,4 +110,10 @@ extension SIMD4 where Scalar == Float {
         return length(self - value) <= tolerance
     }
 }
+extension CGPoint {
+    /// Returns the length of a point when considered as a vector. (Used with gesture recognizers.)
+    var length: CGFloat {
+        return sqrt(x * x + y * y)
+    }
+}
 

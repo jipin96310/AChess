@@ -21,32 +21,29 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
           case setup
           case seekingSurface
           case adjustingPlane
+          case setupBoard
           case placingPlane
           case waitingForPlane
           case localizingToPlane
        
 
           var localizedInstruction: String? {
-//              guard !UserDefaults.standard.disableInGameUI else { return nil }
-              switch self {
-              case .seekingSurface:
-                  return NSLocalizedString("Find a flat surface to place the game.", comment: "")
-              case .placingPlane:
-                  return NSLocalizedString("Scale, rotate or move the board.", comment: "")
-              case .adjustingPlane:
-                  return NSLocalizedString("Make adjustments and tap to continue.", comment: "")
-//              case .gameInProgress:
-//                  if UserDefaults.standard.hasOnboarded || UserDefaults.standard.spectator {
-//                      return nil
-//                  } else {
-//                      return NSLocalizedString("Move closer to a slingshot.", comment: "")
-//                  }
-              case .waitingForPlane:
-                  return NSLocalizedString("Synchronizing world map…", comment: "")
-              case .localizingToPlane:
-                  return NSLocalizedString("Point the camera towards the table.", comment: "")
-              case .setup:
-                  return nil
+            //              guard !UserDefaults.standard.disableInGameUI else { return nil }
+            switch self {
+            case .seekingSurface:
+                return NSLocalizedString("Find a flat surface to place the game.", comment: "")
+            case .placingPlane:
+                return NSLocalizedString("Scale, rotate or move the board.", comment: "")
+            case .adjustingPlane:
+                return NSLocalizedString("Make adjustments and tap to continue.", comment: "")
+            case .setupBoard:
+                return nil
+            case .waitingForPlane:
+                return NSLocalizedString("Synchronizing world map…", comment: "")
+            case .localizingToPlane:
+                return NSLocalizedString("Point the camera towards the table.", comment: "")
+            case .setup:
+                return nil
             }
           }
       }
@@ -64,6 +61,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var isPlayerBoardinited = false
     var isBoardInfoSent = false
     var playerBoardNode = createPlayerBoard() //棋盘节点
+    var panOffset = SIMD3<Float>()
     var curPlaneNode:customPlaneNode? = nil
     let priceTagNode = TextNode(textScale: SCNVector3(0.3, 0.5, 0))
     var randomButtonTopNode: SCNNode = SCNNode()
@@ -388,6 +386,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     @IBOutlet var rotateGestureRecognizer: CustomRotateGestureRecognizer!
     
     @IBOutlet var pinchGestureRecognizer: CustomPinchGestureRecognizer!
+    
+    @IBOutlet var panGestureRecognizer: CustomPanGestureRecognizer!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -2019,10 +2019,20 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
     func updatePrePlane(frame: ARFrame) {
         
+        if sessionState == .setupBoard {
+            // this will advance the session state
+            setupBoard()
+            return
+        }
+        
+        if isPlayerBoardinited {
+            return
+        }
+        
         if prePlaneNode.parent == nil {
             sceneView.scene.rootNode.addChildNode(prePlaneNode)
         }
-        print("update!!!")
+       
         if case .normal = frame.camera.trackingState {
             
             if let result = sceneView.hitTest(screenCenter, types: [.estimatedHorizontalPlane, .existingPlaneUsingExtent]).first {
@@ -3281,7 +3291,45 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
        
     }
     
-    
+    func setupBoard() {
+//        guard let gameManager = self.gameManager else {
+//                   fatalError("gameManager not initialized")
+//               }
+//
+//               os_log(.info, "Setting up level")
+//
+//               if gameBoard.anchor == nil {
+//                   let boardSize = CGSize(width: CGFloat(gameBoard.scale.x), height: CGFloat(gameBoard.scale.x * gameBoard.aspectRatio))
+//                   gameBoard.anchor = BoardAnchor(transform: normalize(gameBoard.simdTransform), size: boardSize)
+//                   sceneView.session.add(anchor: gameBoard.anchor!)
+//               }
+//               gameBoard.hideBorder()
+//
+//               os_signpost(.begin, log: .setupLevel, name: .setupLevel, signpostID: .setupLevel,
+//                           "Setting up Level")
+//               defer { os_signpost(.end, log: .setupLevel, name: .setupLevel, signpostID: .setupLevel,
+//                                   "Finished Setting Up Level") }
+//
+//               sessionState = .gameInProgress
+//
+//               GameTime.setLevelStartTime()
+//               gameManager.start()
+//               gameManager.addLevel(to: renderRoot, gameBoard: gameBoard)
+//               gameManager.restWorld()
+//
+//               if !UserDefaults.standard.disableInGameUI {
+//                   teamBCatapultImages.forEach { $0.isHidden = false }
+//                   teamACatapultImages.forEach { $0.isHidden = false }
+//               }
+//
+//               // stop ranging for beacons after placing board
+//               if UserDefaults.standard.gameRoomMode {
+//                   proximityManager.stop()
+//                   if let location = proximityManager.closestLocation {
+//                       gameManager.updateSessionLocation(location)
+//                   }
+//               }
+    }
     
     
     

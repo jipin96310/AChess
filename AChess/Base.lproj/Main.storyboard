@@ -264,6 +264,7 @@
                                 <connections>
                                     <outletCollection property="gestureRecognizers" destination="9nm-TO-MhX" appends="YES" id="Np0-WI-7T4"/>
                                     <outletCollection property="gestureRecognizers" destination="S1J-Wa-9rA" appends="YES" id="NVs-Ki-UG0"/>
+                                    <outletCollection property="gestureRecognizers" destination="E4R-h2-2Gc" appends="YES" id="Hk1-DG-x3h"/>
                                 </connections>
                             </arscnView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8X4-Fj-M7u">
@@ -296,6 +297,7 @@
                     <navigationItem key="navigationItem" id="vnD-4k-KPt"/>
                     <connections>
                         <outlet property="messageLabel" destination="8X4-Fj-M7u" id="HVr-q7-Z4R"/>
+                        <outlet property="panGestureRecognizer" destination="E4R-h2-2Gc" id="f34-IO-mLB"/>
                         <outlet property="pinchGestureRecognizer" destination="S1J-Wa-9rA" id="Fah-Uv-1Bm"/>
                         <outlet property="rotateGestureRecognizer" destination="9nm-TO-MhX" id="cU0-0l-gpr"/>
                         <outlet property="sceneView" destination="BrB-h1-WRS" id="5nT-qQ-ynl"/>
@@ -314,6 +316,12 @@
                         <outlet property="delegate" destination="BV1-FR-VrT" id="8Ys-1w-lSs"/>
                     </connections>
                 </pinchGestureRecognizer>
+                <panGestureRecognizer minimumNumberOfTouches="1" id="E4R-h2-2Gc" customClass="CustomPanGestureRecognizer" customModule="AChess" customModuleProvider="target">
+                    <connections>
+                        <action selector="handlePan:" destination="BV1-FR-VrT" id="QBn-he-rou"/>
+                        <outlet property="delegate" destination="BV1-FR-VrT" id="gUl-qx-gxS"/>
+                    </connections>
+                </panGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="169" y="612"/>
         </scene>

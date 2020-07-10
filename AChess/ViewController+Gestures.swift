@@ -41,5 +41,39 @@ extension ViewController: UIGestureRecognizerDelegate {
             break
         }
     }
+    @IBAction func handlePan(_ gesture: CustomPanGestureRecognizer) {
+          
+          guard !isPlayerBoardinited else { return }
+          
+          sessionState = .adjustingPlane
+          
+          let location = gesture.location(in: sceneView)
+          let results = sceneView.hitTest(location, types: .existingPlane)
+          guard let nearestPlane = results.first else {
+              return
+          }
+          
+          switch gesture.state {
+          case .began:
+              panOffset = nearestPlane.worldTransform.columns.3.xyz - prePlaneNode.simdWorldPosition
+          case .changed:
+              prePlaneNode.simdWorldPosition = nearestPlane.worldTransform.columns.3.xyz - panOffset
+          default:
+              break
+          }
+      }
+    
+    @IBAction func handleTap(_ gesture: UITapGestureRecognizer) {
+        guard gesture.state == .ended else { return }
+        
+        switch sessionState {
+        case .placingPlane, .adjustingPlane:
+            if !prePlaneNode.isBorderHidden {
+                sessionState = .setupBoard
+            }
+        default:
+            break
+        }
+    }
     
 }
