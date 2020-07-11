@@ -11,7 +11,7 @@ import UIKit.UIGestureRecognizerSubclass
 class CustomPinchGestureRecognizer: UIPinchGestureRecognizer {
     
     /// The threshold in screen pixels after which this gesture is detected.
-    private static let threshold: CGFloat = 40
+    private static let threshold: CGFloat = 30
     
     /// Indicates whether the currently active gesture has exceeeded the threshold.
     private(set) var isThresholdExceeded = false

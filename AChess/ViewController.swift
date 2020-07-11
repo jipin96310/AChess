@@ -645,10 +645,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         
     }
     
-    func sessionInterruptionEnded(_ session: ARSession) {
-        // Reset tracking and/or remove existing anchors if consistent tracking is required
-        
-    }
 //    @objc func onPan(sender: UITapGestureRecognizer) {
 //        guard let sceneView = sender.view as? ARSCNView else {return}
 //        let touchLocation = sender.location(in: sceneView)
@@ -3200,10 +3196,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 //        gameScene.lightingEnvironment.intensity = scene.lightingEnvironment.intensity
         
         // set the cloned nodes representing the active level
-     
+        playerBoardNode.scale = prePlaneNode.scale
+        playerBoardNode.position = prePlaneNode.position
+        playerBoardNode.eulerAngles = prePlaneNode.eulerAngles
         insertRoot.addChildNode(playerBoardNode)
-        //gameBoard.scale.x
-        
+        //prePlaneNode.scale.x
         // the lod system doesn't honor the scaled camera,
         // so have to fix this manually in fixLevelsOfDetail with inverse scale
         // applied to the screenSpaceRadius

@@ -13,10 +13,10 @@ class PrePlane: SCNNode {
 
     
         /// The minimum size of the board in meters
-        static let minimumScale: Float = 0.3
+        static let minimumScale: Float = 0.1
         
         /// The maximum size of the board in meters
-        static let maximumScale: Float = 11.0 // 15x27m @ 10, 1.5m x 2.7m @ 1
+        static let maximumScale: Float = 10.0 // 15x27m @ 10, 1.5m x 2.7m @ 1
 
         
         /// The color of the border
@@ -50,7 +50,7 @@ class PrePlane: SCNNode {
        /// The level's preferred size.
        /// This is used both to set the aspect ratio and to determine
        /// the default size.
-       var preferredSize: CGSize = CGSize(width: 1.5, height: 2.7) {
+       var preferredSize: CGSize = CGSize(width: 2.4, height: 1.6) {
            didSet {
                updateBorderAspectRatio()
            }

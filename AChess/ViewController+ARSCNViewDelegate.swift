@@ -41,32 +41,32 @@ extension ViewController {
 //        DispatchQueue.main.async {
 //            self.trackingStateLabel.text = "\(camera.trackingState)"
 //        }
-//
-//        switch camera.trackingState {
-//        case .normal:
-//            // Resume game if previously interrupted
+
+        switch camera.trackingState {
+        case .normal:
+            // Resume game if previously interrupted
 //            if isSessionInterrupted {
 //                isSessionInterrupted = false
 //            }
-//
-//            // Fade in the board if previously hidden
-//            if gameBoard.isHidden {
-//                gameBoard.opacity = 1.0
-//                gameBoard.isHidden = false
-//            }
-//
-//            // Fade in the level if previously hidden
-//            if renderRoot.opacity == 0.0 {
-//                renderRoot.opacity = 1.0
-//                assert(!renderRoot.isHidden)
-//            }
-//        case .limited:
-//            // Hide the game board and level if tracking is limited
-//            gameBoard.isHidden = true
-//            renderRoot.opacity = 0.0
-//        default:
-//            break
-//        }
+
+            // Fade in the board if previously hidden
+            if prePlaneNode.isHidden {
+                prePlaneNode.opacity = 1.0
+                prePlaneNode.isHidden = false
+            }
+
+            // Fade in the level if previously hidden
+            if insertRoot.opacity == 0.0 {
+                insertRoot.opacity = 1.0
+                assert(!insertRoot.isHidden)
+            }
+        case .limited:
+            // Hide the game board and level if tracking is limited
+            prePlaneNode.isHidden = true
+            insertRoot.opacity = 0.0
+        default:
+            break
+        }
     }
 //
 //    func session(_ session: ARSession, didFailWithError error: Error) {
@@ -96,11 +96,11 @@ extension ViewController {
 //        renderRoot.opacity = 0.0
 //    }
     
-//    func sessionInterruptionEnded(_ session: ARSession) {
-//        os_log(.info, "[sessionInterruptionEnded] --  %s", "\(sessionState)")
-//    }
-//
-//    func sessionShouldAttemptRelocalization(_ session: ARSession) -> Bool {
-//        return true
-//    }
+    func sessionInterruptionEnded(_ session: ARSession) {
+        os_log(.info, "[sessionInterruptionEnded] --  %s", "\(sessionState)")
+    }
+
+    func sessionShouldAttemptRelocalization(_ session: ARSession) -> Bool {
+        return true
+    }
 }

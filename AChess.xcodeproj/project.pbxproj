@@ -14,6 +14,7 @@
 		C70C152324420F530086C259 /* playerStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70C152224420F530086C259 /* playerStruct.swift */; };
 		C70E60C624B37A7D00E0540F /* ViewController+Gestures.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70E60C524B37A7D00E0540F /* ViewController+Gestures.swift */; };
 		C710DCF824B617B500E829EB /* CustomPinchGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C710DCF724B617B500E829EB /* CustomPinchGestureRecognizer.swift */; };
+		C721D24924B770E7007B0B52 /* CustomPanGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C721D24824B770E7007B0B52 /* CustomPanGestureRecognizer.swift */; };
 		C72C2FE22478D10F005AE2F7 /* settingStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72C2FE12478D10F005AE2F7 /* settingStruct.swift */; };
 		C72D0EC623DFF8F800CC0EFB /* textNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72D0EC523DFF8F800CC0EFB /* textNode.swift */; };
 		C72E92F623F195FD008F890F /* chessCollections.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72E92F523F195FD008F890F /* chessCollections.swift */; };
@@ -28,6 +29,7 @@
 		C73426AE23D9E33B003B7697 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C73426AC23D9E33B003B7697 /* LaunchScreen.storyboard */; };
 		C73426B923D9E33B003B7697 /* AChessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C73426B823D9E33B003B7697 /* AChessTests.swift */; };
 		C73426C423D9E33B003B7697 /* AChessUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C73426C323D9E33B003B7697 /* AChessUITests.swift */; };
+		C73B2D6C24B960B000763FE7 /* CustomAnchor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C73B2D6B24B960B000763FE7 /* CustomAnchor.swift */; };
 		C751227423F518D7002CC4B4 /* dummyAI.swift in Sources */ = {isa = PBXBuildFile; fileRef = C751227323F518D7002CC4B4 /* dummyAI.swift */; };
 		C757833923F26A5300B0DCE3 /* chessStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = C757833823F26A5300B0DCE3 /* chessStruct.swift */; };
 		C75E6A8D240272F3000B01BD /* ComScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = C75E6A8C240272F3000B01BD /* ComScript.swift */; };
@@ -39,11 +41,11 @@
 		C7B4D71B24837FDD008F3B1F /* codebleChessStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B4D71A24837FDD008F3B1F /* codebleChessStruct.swift */; };
 		C7B4D71D24838AB6008F3B1F /* codblePlayerStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B4D71C24838AB6008F3B1F /* codblePlayerStruct.swift */; };
 		C7BE385924B200BB00DCAA16 /* PrePlane.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7BE385824B200BB00DCAA16 /* PrePlane.swift */; };
-		C7BE385B24B2016F00DCAA16 /* PlaneAnchor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7BE385A24B2016F00DCAA16 /* PlaneAnchor.swift */; };
 		C7DB34BB23FEC88200DBE512 /* abilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DB34BA23FEC88200DBE512 /* abilities.swift */; };
 		C7DD950823DE9ACE0096CE0C /* actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DD950723DE9ACE0096CE0C /* actions.swift */; };
 		C7DD950E23DEB8F80096CE0C /* particals.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = C7DD950D23DEB8F80096CE0C /* particals.scnassets */; };
 		C7DD951323DF06590096CE0C /* baseChessNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DD951223DF06590096CE0C /* baseChessNode.swift */; };
+		C7EC4EE124B985FB005A326E /* ViewController+ARSCNViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EC4EE024B985FB005A326E /* ViewController+ARSCNViewDelegate.swift */; };
 		C7F4819D240A5DE1002EBEED /* Localization.strings in Resources */ = {isa = PBXBuildFile; fileRef = C7F4819F240A5DE1002EBEED /* Localization.strings */; };
 		C7F481A2240A5EF8002EBEED /* LocalizationTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F481A1240A5EF8002EBEED /* LocalizationTool.swift */; };
 		F08EDF3AF44CF1C7283DC2B3 /* libPods-AChess.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4210E76BC58F7D7B5B6391F0 /* libPods-AChess.a */; };
@@ -90,6 +92,7 @@
 		C70C152224420F530086C259 /* playerStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = playerStruct.swift; sourceTree = "<group>"; };
 		C70E60C524B37A7D00E0540F /* ViewController+Gestures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ViewController+Gestures.swift"; sourceTree = "<group>"; };
 		C710DCF724B617B500E829EB /* CustomPinchGestureRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomPinchGestureRecognizer.swift; sourceTree = "<group>"; };
+		C721D24824B770E7007B0B52 /* CustomPanGestureRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomPanGestureRecognizer.swift; sourceTree = "<group>"; };
 		C72C2FE12478D10F005AE2F7 /* settingStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = settingStruct.swift; sourceTree = "<group>"; };
 		C72D0EC523DFF8F800CC0EFB /* textNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = textNode.swift; sourceTree = "<group>"; };
 		C72E92F523F195FD008F890F /* chessCollections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = chessCollections.swift; sourceTree = "<group>"; };
@@ -111,6 +114,7 @@
 		C73426BF23D9E33B003B7697 /* AChessUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AChessUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C73426C323D9E33B003B7697 /* AChessUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AChessUITests.swift; sourceTree = "<group>"; };
 		C73426C523D9E33B003B7697 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C73B2D6B24B960B000763FE7 /* CustomAnchor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAnchor.swift; sourceTree = "<group>"; };
 		C751227323F518D7002CC4B4 /* dummyAI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = dummyAI.swift; sourceTree = "<group>"; };
 		C757833823F26A5300B0DCE3 /* chessStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = chessStruct.swift; sourceTree = "<group>"; };
 		C75E6A8C240272F3000B01BD /* ComScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComScript.swift; sourceTree = "<group>"; };
@@ -122,11 +126,11 @@
 		C7B4D71A24837FDD008F3B1F /* codebleChessStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = codebleChessStruct.swift; sourceTree = "<group>"; };
 		C7B4D71C24838AB6008F3B1F /* codblePlayerStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = codblePlayerStruct.swift; sourceTree = "<group>"; };
 		C7BE385824B200BB00DCAA16 /* PrePlane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrePlane.swift; sourceTree = "<group>"; };
-		C7BE385A24B2016F00DCAA16 /* PlaneAnchor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaneAnchor.swift; sourceTree = "<group>"; };
 		C7DB34BA23FEC88200DBE512 /* abilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = abilities.swift; sourceTree = "<group>"; };
 		C7DD950723DE9ACE0096CE0C /* actions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = actions.swift; sourceTree = "<group>"; };
 		C7DD950D23DEB8F80096CE0C /* particals.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = particals.scnassets; sourceTree = "<group>"; };
 		C7DD951223DF06590096CE0C /* baseChessNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = baseChessNode.swift; sourceTree = "<group>"; };
+		C7EC4EE024B985FB005A326E /* ViewController+ARSCNViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ViewController+ARSCNViewDelegate.swift"; sourceTree = "<group>"; };
 		C7F48199240A5D93002EBEED /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
 		C7F4819A240A5D94002EBEED /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		C7F4819E240A5DE1002EBEED /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localization.strings; sourceTree = "<group>"; };
@@ -246,6 +250,7 @@
 				C73426A323D9E338003B7697 /* art.scnassets */,
 				C73426A523D9E338003B7697 /* ViewController.swift */,
 				C70E60C524B37A7D00E0540F /* ViewController+Gestures.swift */,
+				C7EC4EE024B985FB005A326E /* ViewController+ARSCNViewDelegate.swift */,
 				C72ED6E8246FF0CD00BECBB4 /* MainController.swift */,
 				C72ED6EA24703DA700BECBB4 /* ConfigGameController.swift */,
 				C73426A723D9E338003B7697 /* Main.storyboard */,
@@ -280,6 +285,7 @@
 			children = (
 				C7744A1424B4C781003ADE4C /* CustomRotateGestureRecognizer.swift */,
 				C710DCF724B617B500E829EB /* CustomPinchGestureRecognizer.swift */,
+				C721D24824B770E7007B0B52 /* CustomPanGestureRecognizer.swift */,
 			);
 			path = Gestures;
 			sourceTree = "<group>";
@@ -295,6 +301,7 @@
 				C766178923FD7EF700D11EBF /* nodeColor.swift */,
 				C7DB34BA23FEC88200DBE512 /* abilities.swift */,
 				C75E6A8C240272F3000B01BD /* ComScript.swift */,
+				C73B2D6B24B960B000763FE7 /* CustomAnchor.swift */,
 			);
 			path = utils;
 			sourceTree = "<group>";
@@ -306,7 +313,6 @@
 				C72D0EC523DFF8F800CC0EFB /* textNode.swift */,
 				C7AFB4FB23EAF8B400B21E09 /* customPlanenode.swift */,
 				C7BE385824B200BB00DCAA16 /* PrePlane.swift */,
-				C7BE385A24B2016F00DCAA16 /* PlaneAnchor.swift */,
 			);
 			path = nodesClass;
 			sourceTree = "<group>";
@@ -532,11 +538,13 @@
 				C7F481A2240A5EF8002EBEED /* LocalizationTool.swift in Sources */,
 				C72C2FE22478D10F005AE2F7 /* settingStruct.swift in Sources */,
 				C710DCF824B617B500E829EB /* CustomPinchGestureRecognizer.swift in Sources */,
+				C721D24924B770E7007B0B52 /* CustomPanGestureRecognizer.swift in Sources */,
 				C72ED6EB24703DA700BECBB4 /* ConfigGameController.swift in Sources */,
 				C709C50823DD86D100944C01 /* utils.swift in Sources */,
-				C7BE385B24B2016F00DCAA16 /* PlaneAnchor.swift in Sources */,
+				C73B2D6C24B960B000763FE7 /* CustomAnchor.swift in Sources */,
 				C7DD950823DE9ACE0096CE0C /* actions.swift in Sources */,
 				C7744A1524B4C781003ADE4C /* CustomRotateGestureRecognizer.swift in Sources */,
+				C7EC4EE124B985FB005A326E /* ViewController+ARSCNViewDelegate.swift in Sources */,
 				C72EF22D2470F4890002C54A /* mulitiUserSession.swift in Sources */,
 				C7DB34BB23FEC88200DBE512 /* abilities.swift in Sources */,
 				C792198623F66978008B6950 /* protocol.swift in Sources */,
@@ -755,6 +763,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = zhsoho.AChess;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_ENABLE_BATCH_MODE = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -777,6 +786,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = zhsoho.AChess;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_ENABLE_BATCH_MODE = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
