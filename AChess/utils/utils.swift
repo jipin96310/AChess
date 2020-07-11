@@ -219,6 +219,13 @@ func encodeCodable<T:Encodable>(ori: T) -> Data? { //将支持codable协议的�
 public func mediant<T>(_ value: T, _ minValue: T, _ maxValue: T) -> T where T: Comparable {
     return min(max(value, minValue), maxValue)
 }
+func normalize(_ matrix: float4x4) -> float4x4 {
+    var normalized = matrix
+    normalized.columns.0 = simd.normalize(normalized.columns.0)
+    normalized.columns.1 = simd.normalize(normalized.columns.1)
+    normalized.columns.2 = simd.normalize(normalized.columns.2)
+    return normalized
+}
 
 
 

@@ -8,7 +8,7 @@
 
 import UIKit
 import SceneKit
-
+import ARKit
 extension ViewController: UIGestureRecognizerDelegate {
    
     @IBAction func handleRotation(_ gesture: CustomRotateGestureRecognizer) {
@@ -63,16 +63,97 @@ extension ViewController: UIGestureRecognizerDelegate {
           }
       }
     
-    @IBAction func handleTap(_ gesture: UITapGestureRecognizer) {
-        guard gesture.state == .ended else { return }
-        
-        switch sessionState {
-        case .placingPlane, .adjustingPlane:
-            if !prePlaneNode.isBorderHidden {
-                sessionState = .setupBoard
+    @objc func onTap(_ sender: UITapGestureRecognizer) {
+        guard sender.state == .ended else { return }
+        guard let sceneView = sender.view as? ARSCNView else {return}
+        let touchLocation = sender.location(in: sceneView)
+        let hitTestResult = sceneView.hitTest(touchLocation, types: [.existingPlaneUsingExtent])
+        if !hitTestResult.isEmpty {
+            if isPlayerBoardinited == false {
+                switch sessionState {
+                case .placingPlane, .adjustingPlane:
+                    if !prePlaneNode.isBorderHidden {
+                        sessionState = .setupBoard
+                    }
+                default:
+                    break
+                }
+            } else {
+                //self.addChessTest(hitTestResult: hitTestResult.first!)
+                guard let sceneView = sender.view as? ARSCNView else {return}
+                let touchLocation = sender.location(in: sceneView)
+                let hitTestResult = sceneView.hitTest(touchLocation, options: [SCNHitTestOption.boundingBoxOnly: true, SCNHitTestOption.ignoreHiddenNodes: true])
+                if !hitTestResult.isEmpty {
+                    
+                    if isNameButton(hitTestResult.first!.node, "randomButton") && !isRandoming {
+                        //点击以后randombutton下压
+                        isRandoming = true
+                        self.randomButtonTopNode.runAction(SCNAction.sequence([
+                            SCNAction.move(by: SCNVector3(0,-0.01,0), duration: 0.25),
+                            SCNAction.customAction(duration: 0, action: { _,_ in
+                                if self.playerStatues[self.curPlayerId].curCoin > 0 && !self.isFreezed {
+                                    self.playerStatues[self.curPlayerId].curCoin -= 1
+                                    self.initBoardChess(initStage: EnumsGameStage.exchangeStage.rawValue)
+                                }
+                                
+                            }),
+                            SCNAction.move(by: SCNVector3(0,0.01,0), duration: 0.25),
+                            SCNAction.customAction(duration: 0, action: { _,_ in
+                                self.isRandoming = false
+                            })
+                        ]))
+                        
+                    } else if isNameButton(hitTestResult.first!.node, "upgradeButton") {
+                        upgradeButtonTopNode.runAction(SCNAction.sequence([
+                            SCNAction.move(by: SCNVector3(0,-0.005,0), duration: 0.25),
+                            SCNAction.move(by: SCNVector3(0,0.005,0), duration: 0.25)
+                        ]))
+                        upgradePlayerLevel(curPlayerId)
+                    } else if isNameButton(hitTestResult.first!.node, "endButton") && !isWaiting {
+                        //TODO
+                        //                            endButtonTopNode.runAction(SCNAction.sequence([
+                        //                                SCNAction.move(by: SCNVector3(0,-0.005,0), duration: 0.25)
+                        //                            ]))
+                        //                            endButtonNode.geometry?.firstMaterial?.diffuse.contents = UIColor.gray //灰显图标
+                        //                            isWaiting = true
+                        //TODO
+                        //即将开始战斗 备份当前阵容
+                        self.playerStatues[0].curChesses = copyChessArr(curBoard: self.boardNode[BoardSide.allySide.rawValue])
+                        if(gameConfigStr.isMaster) {
+                            for i in 0 ..< currentSlaveId.count {
+                                if currentSlaveId[i].playerID === multipeerSession.getMyId() {
+                                    currentSlaveId[i].playerStatus = true //准备完成
+                                    break
+                                }
+                            }
+                            if checkIfAllReady() {
+                                masterArrangeBattles()
+                            }
+                        } else {
+                            if let desId = curMasterID {
+                                let readyStr = "readyBattle"
+                                guard let data = readyStr.data(using: String.Encoding.utf8)
+                                    else { fatalError("can't encode anchor") }
+                                multipeerSession.sendToPeer(data, [desId])
+                            }
+                            
+                        }
+                        
+                    } else if isNameButton(hitTestResult.first!.node, "freezeButton") {
+                        if isFreezed {
+                            freezeButtonTopNode.runAction(SCNAction.sequence([
+                                SCNAction.move(by: SCNVector3(0,0.005,0), duration: 0.25)
+                            ]))
+                        } else {
+                            freezeButtonTopNode.runAction(SCNAction.sequence([
+                                SCNAction.move(by: SCNVector3(0,-0.005,0), duration: 0.25)
+                            ]))
+                        }
+                        isFreezed = !isFreezed
+                    }
+                }
+                
             }
-        default:
-            break
         }
     }
     

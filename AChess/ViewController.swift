@@ -25,6 +25,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
           case placingPlane
           case waitingForPlane
           case localizingToPlane
+          case gameProcessing
        
 
           var localizedInstruction: String? {
@@ -42,6 +43,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 return NSLocalizedString("Synchronizing world map…", comment: "")
             case .localizingToPlane:
                 return NSLocalizedString("Point the camera towards the table.", comment: "")
+            case .gameProcessing :
+                return nil
             case .setup:
                 return nil
             }
@@ -60,6 +63,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var rootNodeDefalutColor = [UIColor.red, UIColor.green]
     var isPlayerBoardinited = false
     var isBoardInfoSent = false
+    var insertRoot = SCNNode()// Root node of the board
     var playerBoardNode = createPlayerBoard() //棋盘节点
     var panOffset = SIMD3<Float>()
     var curPlaneNode:customPlaneNode? = nil
@@ -398,6 +402,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         
         // Show statistics such as fps and timing information
         sceneView.showsStatistics = true
+        
+        
+        insertRoot.name = "_insertRoot"
+        sceneView.scene.rootNode.addChildNode(insertRoot)
+        
         
         initHandNode()
         // Create a new scene
@@ -1205,98 +1214,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     }
         return
     }
-    @objc func onTap(sender: UITapGestureRecognizer) {
-            guard let sceneView = sender.view as? ARSCNView else {return}
-            let touchLocation = sender.location(in: sceneView)
-            let hitTestResult = sceneView.hitTest(touchLocation, types: [.existingPlaneUsingExtent])
-            if !hitTestResult.isEmpty {
-                if isPlayerBoardinited == false {
-                    if gameConfigStr.isMaster {
-                        curPlaneNode?.removeFromParentNode()
-                        self.initPlayerBoardAndSend(hitTestResult: hitTestResult.first!)
-                    } else {
-                        if isBoardInfoSent { //如果数据接收到过 则从机可以自由放置
-                           self.initPlayerBoardAndSend(hitTestResult: hitTestResult.first!)
-                        }
-                    }
-                } else {
-                    //self.addChessTest(hitTestResult: hitTestResult.first!)
-                    guard let sceneView = sender.view as? ARSCNView else {return}
-                    let touchLocation = sender.location(in: sceneView)
-                    let hitTestResult = sceneView.hitTest(touchLocation, options: [SCNHitTestOption.boundingBoxOnly: true, SCNHitTestOption.ignoreHiddenNodes: true])
-                    if !hitTestResult.isEmpty {
-                        
-                        if isNameButton(hitTestResult.first!.node, "randomButton") && !isRandoming {
-                            //点击以后randombutton下压
-                            isRandoming = true
-                            self.randomButtonTopNode.runAction(SCNAction.sequence([
-                                SCNAction.move(by: SCNVector3(0,-0.01,0), duration: 0.25),
-                                SCNAction.customAction(duration: 0, action: { _,_ in
-                                        if self.playerStatues[self.curPlayerId].curCoin > 0 && !self.isFreezed {
-                                            self.playerStatues[self.curPlayerId].curCoin -= 1
-                                            self.initBoardChess(initStage: EnumsGameStage.exchangeStage.rawValue)
-                                        }
-                                    
-                                }),
-                                SCNAction.move(by: SCNVector3(0,0.01,0), duration: 0.25),
-                                SCNAction.customAction(duration: 0, action: { _,_ in
-                                    self.isRandoming = false
-                                })
-                            ]))
-                            
-                        } else if isNameButton(hitTestResult.first!.node, "upgradeButton") {
-                            upgradeButtonTopNode.runAction(SCNAction.sequence([
-                                SCNAction.move(by: SCNVector3(0,-0.005,0), duration: 0.25),
-                                SCNAction.move(by: SCNVector3(0,0.005,0), duration: 0.25)
-                            ]))
-                            upgradePlayerLevel(curPlayerId)
-                        } else if isNameButton(hitTestResult.first!.node, "endButton") && !isWaiting {
-                            //TODO
-                            //                            endButtonTopNode.runAction(SCNAction.sequence([
-                            //                                SCNAction.move(by: SCNVector3(0,-0.005,0), duration: 0.25)
-                            //                            ]))
-                            //                            endButtonNode.geometry?.firstMaterial?.diffuse.contents = UIColor.gray //灰显图标
-                            //                            isWaiting = true
-                            //TODO
-                            //即将开始战斗 备份当前阵容
-                            self.playerStatues[0].curChesses = copyChessArr(curBoard: self.boardNode[BoardSide.allySide.rawValue])
-                            if(gameConfigStr.isMaster) {
-                                for i in 0 ..< currentSlaveId.count {
-                                    if currentSlaveId[i].playerID === multipeerSession.getMyId() {
-                                        currentSlaveId[i].playerStatus = true //准备完成
-                                        break
-                                    }
-                                }
-                                if checkIfAllReady() {
-                                    masterArrangeBattles()
-                                }
-                            } else {
-                                if let desId = curMasterID {
-                                    let readyStr = "readyBattle"
-                                    guard let data = readyStr.data(using: String.Encoding.utf8)
-                                        else { fatalError("can't encode anchor") }
-                                    multipeerSession.sendToPeer(data, [desId])
-                                }
-                                
-                            }
-                            
-                        } else if isNameButton(hitTestResult.first!.node, "freezeButton") {
-                            if isFreezed {
-                                freezeButtonTopNode.runAction(SCNAction.sequence([
-                                    SCNAction.move(by: SCNVector3(0,0.005,0), duration: 0.25)
-                                ]))
-                            } else {
-                                freezeButtonTopNode.runAction(SCNAction.sequence([
-                                    SCNAction.move(by: SCNVector3(0,-0.005,0), duration: 0.25)
-                                ]))
-                            }
-                            isFreezed = !isFreezed
-                        }
-                    }
-                            
-                }
-            }
-        }
+
     func masterArrangeBattles() {
         /*主机通知从机切换游戏阶段*/
         if gameConfigStr.isMaster { //主机分配对手信息
@@ -2014,6 +1932,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     
     @IBAction func resetPlayboard(_ sender: Any) { //清除底座
         isPlayerBoardinited = false
+        sessionState = .placingPlane
+        if prePlaneNode.anchor != nil {
+            sceneView.session.remove(anchor: prePlaneNode.anchor!)
+            prePlaneNode.anchor = nil
+        }
         playerBoardNode.removeFromParentNode()
     
     }
@@ -3265,25 +3188,26 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         })
         }
     //just add the player board node
-    func initPlayerBoard(playerBoardPosition: SCNVector3) {
+    func initPlayerBoard() {
         if  isPlayerBoardinited {
             return
         } else {
             isPlayerBoardinited = true
         }
         playerBoardNode = createPlayerBoard()
-        //playerBoardNode.eulerAngles = SCNVector3(45.degreesToRadius, 0, 0)
-        //playGroundNode.geometry?.firstMaterial?.isDoubleSided = true
-        //playGroundNode.geometry?.firstMaterial?.diffuse.contents = UIColor.red
-//        let positionOFPlane = hitTestResult.worldTransform.columns.3
-//        let xP = positionOFPlane.x
-//        let yP = positionOFPlane.y
-//        let zP = positionOFPlane.z
-        playerBoardNode.position = playerBoardPosition
-        playerBoardNode.physicsBody = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(node: playerBoardNode))
-        //playGroundNode.physicsBody?.categoryBitMask = BitMaskCategoty.playGround.rawValue
-        //playGroundNode.physicsBody?.contactTestBitMask = BitMaskCategoty.baseCard.rawValue
-        self.sceneView.scene.rootNode.addChildNode(playerBoardNode)
+        
+//        gameScene.lightingEnvironment.contents = scene.lightingEnvironment.contents
+//        gameScene.lightingEnvironment.intensity = scene.lightingEnvironment.intensity
+        
+        // set the cloned nodes representing the active level
+     
+        insertRoot.addChildNode(playerBoardNode)
+        //gameBoard.scale.x
+        
+        // the lod system doesn't honor the scaled camera,
+        // so have to fix this manually in fixLevelsOfDetail with inverse scale
+        // applied to the screenSpaceRadius
+        //lodScale = normalizedScale * boardScale
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.01, execute: {
                                        self.initGameTest()
@@ -3292,43 +3216,23 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
     
     func setupBoard() {
-//        guard let gameManager = self.gameManager else {
-//                   fatalError("gameManager not initialized")
-//               }
-//
-//               os_log(.info, "Setting up level")
-//
-//               if gameBoard.anchor == nil {
-//                   let boardSize = CGSize(width: CGFloat(gameBoard.scale.x), height: CGFloat(gameBoard.scale.x * gameBoard.aspectRatio))
-//                   gameBoard.anchor = BoardAnchor(transform: normalize(gameBoard.simdTransform), size: boardSize)
-//                   sceneView.session.add(anchor: gameBoard.anchor!)
-//               }
-//               gameBoard.hideBorder()
-//
-//               os_signpost(.begin, log: .setupLevel, name: .setupLevel, signpostID: .setupLevel,
-//                           "Setting up Level")
-//               defer { os_signpost(.end, log: .setupLevel, name: .setupLevel, signpostID: .setupLevel,
-//                                   "Finished Setting Up Level") }
-//
-//               sessionState = .gameInProgress
-//
-//               GameTime.setLevelStartTime()
-//               gameManager.start()
-//               gameManager.addLevel(to: renderRoot, gameBoard: gameBoard)
-//               gameManager.restWorld()
-//
-//               if !UserDefaults.standard.disableInGameUI {
-//                   teamBCatapultImages.forEach { $0.isHidden = false }
-//                   teamACatapultImages.forEach { $0.isHidden = false }
-//               }
-//
-//               // stop ranging for beacons after placing board
-//               if UserDefaults.standard.gameRoomMode {
-//                   proximityManager.stop()
-//                   if let location = proximityManager.closestLocation {
-//                       gameManager.updateSessionLocation(location)
-//                   }
-//               }
+        if prePlaneNode.anchor == nil {
+            let boardSize = CGSize(width: CGFloat(prePlaneNode.scale.x), height: CGFloat(prePlaneNode.scale.x * prePlaneNode.aspectRatio))
+            prePlaneNode.anchor = CustomAnchor(transform: normalize(prePlaneNode.simdTransform), size: boardSize)
+            sceneView.session.add(anchor: prePlaneNode.anchor!)
+        }
+        prePlaneNode.hideBorder()
+        sessionState = .gameProcessing
+        
+        initPlayerBoard()
+        
+        //               // stop ranging for beacons after placing board
+        //               if UserDefaults.standard.gameRoomMode {
+        //                   proximityManager.stop()
+        //                   if let location = proximityManager.closestLocation {
+        //                       gameManager.updateSessionLocation(location)
+        //                   }
+        //               }
     }
     
     

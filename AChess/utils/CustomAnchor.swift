@@ -1,19 +1,19 @@
 //
-//  planeAnchor.swift
+//  PlaneAnchor.swift
 //  AChess
 //
-//  Created by zhaoheng sun on 7/5/20.
+//  Created by zhaoheng sun on 7/11/20.
 //  Copyright © 2020 zhaoheng sun. All rights reserved.
 //
 
 import ARKit
 
-class PlaneAnchor: ARAnchor {
+class CustomAnchor: ARAnchor {
     let size: CGSize
     
     init(transform: float4x4, size: CGSize) {
         self.size = size
-        super.init(name: "Board", transform: transform)
+        super.init(name: "CustomAnchor", transform: transform)
     }
     
     override class var supportsSecureCoding: Bool {
@@ -27,7 +27,7 @@ class PlaneAnchor: ARAnchor {
 
     // this is guaranteed to be called with something of the same class
     required init(anchor: ARAnchor) {
-        let other = anchor as! PlaneAnchor
+        let other = anchor as! CustomAnchor
         self.size = other.size
         super.init(anchor: other)
     }

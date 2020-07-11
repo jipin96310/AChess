@@ -40,7 +40,7 @@ class PrePlane: SCNNode {
         
         // MARK: - Properties
         /// The BoardAnchor in the scene
-        var anchor: PlaneAnchor?
+        var anchor: CustomAnchor?
         
         /// Indicates whether the border is currently hidden
         var isBorderHidden: Bool {
