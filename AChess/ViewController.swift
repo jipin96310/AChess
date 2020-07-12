@@ -2047,9 +2047,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             if let result = sceneView.hitTest(screenCenter, types: [.estimatedHorizontalPlane, .existingPlaneUsingExtent]).first {
                 // Ignore results that are too close to the camera when initially placing
                 guard result.distance > 0.5 else { return }
-                
+                sessionState = .placingPlane
                 prePlaneNode.update(with: result, camera: frame.camera)
             } else {
+                sessionState = .seekingSurface
                 if !prePlaneNode.isBorderHidden {
                     prePlaneNode.hideBorder()
                 }

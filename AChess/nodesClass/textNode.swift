@@ -28,10 +28,11 @@ class TextNode: SCNNode {
         textGeometry.font = UIFont.systemFont(ofSize: 1)
         scale = SCNVector3(0.01, 0.01, 0.01)
        
-        let blackMaterial = SCNMaterial()
-        blackMaterial.diffuse.contents = UIColor.white
-        blackMaterial.locksAmbientWithDiffuse = true
-        textGeometry.materials = [blackMaterial]
+        let whiteMaterial = SCNMaterial()
+        whiteMaterial.diffuse.contents = UIColor.white
+        whiteMaterial.locksAmbientWithDiffuse = false
+        whiteMaterial.lightingModel = .physicallyBased
+        textGeometry.materials = [whiteMaterial]
 
         geometry = textGeometry
     }
@@ -47,6 +48,7 @@ class TextNode: SCNNode {
         
                   
     }
+
     
     
     

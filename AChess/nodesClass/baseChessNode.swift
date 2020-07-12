@@ -12,7 +12,7 @@ public class baseChessNode: SCNNode {
     // MARK: - Lifecycle
     //var atk = 0
     //var def = 1
-    private let nameTextNode = TextNode(textScale: SCNVector3(0.005, 0.005, 0.005))
+    private let nameTextNode = TextNode(textScale: SCNVector3(0.006, 0.006, 0.005))
     private let descTextNode = TextNode(textScale: SCNVector3(0.1, 0.1, 0.1))
     private let atkTextNode = TextNode()
     private let defTextNode = TextNode()
@@ -127,6 +127,7 @@ public class baseChessNode: SCNNode {
         //bitmask
         curNode.categoryBitMask = BitMaskCategoty.baseChess.rawValue
         
+        
         self.addChildNode(curNode)
         atkNum = 0
         defNum = 0
@@ -156,6 +157,7 @@ public class baseChessNode: SCNNode {
         }
         if let sideNode = curNode.childNode(withName: "side", recursively: true) {
             sideNode.geometry?.firstMaterial?.diffuse.contents = chessColorRarity[chessRarity] //control chess color
+            nameTextNode.geometry?.firstMaterial?.diffuse.contents = labelColorRarity[chessRarity]
             damgeTextNode.position = SCNVector3(0, 0.5 , 0)
             damgeTextNode.eulerAngles = SCNVector3(-60.degreesToRadius, 0 , 0)
             sideNode.addChildNode(damgeTextNode)
@@ -264,6 +266,7 @@ public class baseChessNode: SCNNode {
         
         if let sideNode = self.childNode(withName: "side", recursively: true) { //control the side color/image
             sideNode.geometry?.firstMaterial?.diffuse.contents = chessColorRarity[chessRarity]!
+            nameTextNode.geometry?.firstMaterial?.diffuse.contents = labelColorRarity[chessRarity]
         }
         if let bgPicNode = self.childNode(withName: "bgpic", recursively: true) { //control the pic of bottom
             bgPicNode.geometry?.firstMaterial?.diffuse.contents = chessKindBgImage[chessKind]!

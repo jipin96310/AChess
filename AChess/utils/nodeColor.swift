@@ -18,3 +18,5 @@ public let chessKindBgImage = [
     EnumChessKind.desert.rawValue : UIImage(named: "plainBg"),
     EnumChessKind.polar.rawValue : UIImage(named: "plainBg")
 ]
+
+public let labelColorRarity = [ 1 : UIColor.white, 2 : UIColor.green, 3 : UIColor.blue, 4 : UIColor.purple, 5 : UIColor.orange]
