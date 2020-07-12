@@ -11,12 +11,13 @@ import SceneKit
 import ARKit
 import PromiseKit
 import MultipeerConnectivity
+import os.log
 
 class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SCNPhysicsContactDelegate {
 
     @IBOutlet var sceneView: ARSCNView!
    
-    @IBOutlet weak var messageLabel: UILabel!
+
     enum SessionState {
           case setup
           case seekingSurface
@@ -50,14 +51,31 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
           }
       }
-      var sessionState: SessionState = .setup {
-             didSet {
-                 guard oldValue != sessionState else { return }
-             }
-         }
+    var sessionState: SessionState = .setup {
+        didSet {
+            guard oldValue != sessionState else { return }
+            configureView()
+            configureSession()
+        }
+        
+    }
     var setting = (controlMethod : 0, particalOn : 0)//0:  0 用tap的方式操作。1用手识别操作  这个数据应该存在数据库或缓存里作为全局变量
     
-    
+    var isSessionInterrupted = false {
+        didSet {
+            if isSessionInterrupted {
+                instructionLabel.isHidden = false
+                instructionLabel.text = NSLocalizedString("Point the camera towards the table.", comment: "")
+            } else {
+                if let localizedInstruction = sessionState.localizedInstruction {
+                    instructionLabel.isHidden = false
+                    instructionLabel.text = localizedInstruction
+                } else {
+                    instructionLabel.isHidden = true
+                }
+            }
+        }
+    }
     
     //以下数据为实时记录数据 无需保存
     var rootNodeDefalutColor = [UIColor.red, UIColor.green]
@@ -386,6 +404,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action:  #selector(onLongPress))
     var tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onTap))
 
+    @IBOutlet weak var instructionLabel: UILabel!
+    
+    @IBOutlet weak var trackingStateLabel: UILabel!
     
     @IBOutlet var rotateGestureRecognizer: CustomRotateGestureRecognizer!
     
@@ -396,13 +417,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     override func viewDidLoad() {
         super.viewDidLoad()
         UIDevice.current.setValue(UIInterfaceOrientation.landscapeRight.rawValue, forKey: "orientation") //强制横屏
-        messageLabel.text = String(gameConfigStr.isMaster)
+
         // Set the view's delegate
         sceneView.delegate = self
         
         // Show statistics such as fps and timing information
         sceneView.showsStatistics = true
         
+        instructionLabel.clipsToBounds = true
+        instructionLabel.layer.cornerRadius = 8.0
         
         insertRoot.name = "_insertRoot"
         sceneView.scene.rootNode.addChildNode(insertRoot)
@@ -495,6 +518,76 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         return false
     }
     
+    /*configuration*/
+    func configureView() {
+        dispatchPrecondition(condition: .onQueue(DispatchQueue.main))
+
+        var debugOptions: SCNDebugOptions = []
+        
+  
+        
+        sceneView.debugOptions = debugOptions
+        
+
+
+        // smooth the edges by rendering at higher resolution
+        // defaults to none on iOS, use on faster GPUs
+        // 0, 2, 4 on iOS, 8, 16x on macOS
+        
+        sceneView.antialiasingMode = UserDefaults.standard.antialiasingMode ? .multisampling4X : .none
+        
+        os_log(.info, "antialiasing set to: %s", UserDefaults.standard.antialiasingMode ? "4x" : "none")
+        
+        if let localizedInstruction = sessionState.localizedInstruction {
+            instructionLabel.isHidden = false
+            instructionLabel.text = localizedInstruction
+        } else {
+            instructionLabel.isHidden = true
+        }
+
+     
+    }
+
+    func configureSession() {
+        let configuration = ARWorldTrackingConfiguration()
+       
+        let options: ARSession.RunOptions
+        switch sessionState {
+        case .setup:
+            // in setup
+            os_log(.info, "AR session paused")
+            sceneView.session.pause()
+            return
+        case .seekingSurface, .waitingForPlane:
+            // both server and client, go ahead and start tracking the world
+            configuration.planeDetection = [.horizontal]
+            options = [.resetTracking, .removeExistingAnchors]
+            
+            // Only reset session if not already running
+            if sceneView.isPlaying {
+                return
+            }
+        case .placingPlane, .adjustingPlane:
+            // we've found at least one surface, but should keep looking.
+            // so no change to the running session
+            return
+        case .localizingToPlane:
+            return
+            
+        case .setupBoard:
+            // more init
+            return
+        case .gameProcessing:
+            // The game is in progress, no change to the running session
+            return
+        }
+        
+        // Turning light estimation off to test PBR on SceneKit file
+        configuration.isLightEstimationEnabled = false
+        
+        os_log(.info, "configured AR session")
+        sceneView.session.run(configuration, options: options)
+    }
     
     // MARK: - Multiuser shared session
 
@@ -640,10 +733,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         // Present an error message to the user
     }
     
-    func sessionWasInterrupted(_ session: ARSession) {
-        // Inform the user that the session has been interrupted, for example, by presenting an overlay
-        
-    }
+
     
 //    @objc func onPan(sender: UITapGestureRecognizer) {
 //        guard let sceneView = sender.view as? ARSCNView else {return}
@@ -3221,8 +3311,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         //                   }
         //               }
     }
-    
-    
+   
     
     func initHandNode() {
         let newNode = SCNNode(geometry: SCNCylinder(radius: 0.05, height: 0.005))
