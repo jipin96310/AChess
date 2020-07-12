@@ -3191,21 +3191,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             isPlayerBoardinited = true
         }
         playerBoardNode = createPlayerBoard()
-        
-//        gameScene.lightingEnvironment.contents = scene.lightingEnvironment.contents
-//        gameScene.lightingEnvironment.intensity = scene.lightingEnvironment.intensity
-        
-        // set the cloned nodes representing the active level
         playerBoardNode.scale = prePlaneNode.scale
         playerBoardNode.position = prePlaneNode.position
         playerBoardNode.eulerAngles = prePlaneNode.eulerAngles
         insertRoot.addChildNode(playerBoardNode)
-        //prePlaneNode.scale.x
-        // the lod system doesn't honor the scaled camera,
-        // so have to fix this manually in fixLevelsOfDetail with inverse scale
-        // applied to the screenSpaceRadius
-        //lodScale = normalizedScale * boardScale
-        
+        //
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.01, execute: {
                                        self.initGameTest()
         })

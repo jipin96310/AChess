@@ -267,8 +267,19 @@
                                     <outletCollection property="gestureRecognizers" destination="E4R-h2-2Gc" appends="YES" id="Hk1-DG-x3h"/>
                                 </connections>
                             </arscnView>
+                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label213213" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CYv-rh-nz3">
+                                <rect key="frame" x="288" y="319" width="320" height="44"/>
+                                <color key="backgroundColor" red="0.10980392160000001" green="0.10980392160000001" blue="0.10980392160000001" alpha="0.71999999999999997" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="320" id="Qkn-q2-4ZM"/>
+                                    <constraint firstAttribute="height" constant="44" id="oOr-h1-N3u"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8X4-Fj-M7u">
-                                <rect key="frame" x="0.0" y="44" width="41.666666666666664" height="21"/>
+                                <rect key="frame" x="0.0" y="392" width="41.666666666666664" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -288,9 +299,11 @@
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="bottom" secondItem="U0K-SW-4ec" secondAttribute="bottom" id="DMt-qD-4Zf"/>
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="centerX" secondItem="U0K-SW-4ec" secondAttribute="centerX" id="Wyd-zn-UJg"/>
                             <constraint firstItem="Gor-lg-Lbj" firstAttribute="top" secondItem="fQZ-KI-GVf" secondAttribute="top" constant="20" id="Zh4-iZ-Hlq"/>
-                            <constraint firstItem="8X4-Fj-M7u" firstAttribute="top" secondItem="fQZ-KI-GVf" secondAttribute="top" id="k8I-3Z-AK5"/>
+                            <constraint firstItem="fQZ-KI-GVf" firstAttribute="centerX" secondItem="CYv-rh-nz3" secondAttribute="centerX" id="eca-Cp-OaX"/>
+                            <constraint firstItem="8X4-Fj-M7u" firstAttribute="bottom" secondItem="fQZ-KI-GVf" secondAttribute="bottom" constant="20" id="k8I-3Z-AK5"/>
                             <constraint firstAttribute="trailing" secondItem="Gor-lg-Lbj" secondAttribute="trailing" constant="20" id="ptS-ZJ-Nws"/>
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="top" secondItem="U0K-SW-4ec" secondAttribute="top" id="rJc-2c-zQA"/>
+                            <constraint firstItem="fQZ-KI-GVf" firstAttribute="bottom" secondItem="CYv-rh-nz3" secondAttribute="bottom" constant="30" id="s7K-DX-rCq"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="fQZ-KI-GVf"/>
                     </view>
