@@ -143,3 +143,12 @@
 "Inheritance" = "Inheritance";
 "waste" = "You Are Lost!";
 "win" = "You Win！";
+
+//TIP
+"seekingSurfaveTip" = "Find a flat surface to place the game board.";
+"placingPlaneTip" = "Scale, rotate or move the board.";
+"adjustingPlaneTip" = "Make adjustments and tap to continue.";
+"waitingForPlane" = "Synchronizing world map…";
+"localizingToPlane" = "Point the camera towards the table.";
+
+

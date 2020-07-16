@@ -88,20 +88,19 @@ extension ViewController: UIGestureRecognizerDelegate {
                     if isNameButton(hitTestResult.first!.node, "randomButton") && !isRandoming {
                         //点击以后randombutton下压
                         isRandoming = true
-                        self.randomButtonTopNode.runAction(SCNAction.sequence([
-                            SCNAction.move(by: SCNVector3(0,-0.01,0), duration: 0.25),
-                            SCNAction.customAction(duration: 0, action: { _,_ in
-                                if self.playerStatues[self.curPlayerId].curCoin > 0 && !self.isFreezed {
-                                    self.playerStatues[self.curPlayerId].curCoin -= 1
-                                    self.initBoardChess(initStage: EnumsGameStage.exchangeStage.rawValue)
-                                }
-                                
-                            }),
-                            SCNAction.move(by: SCNVector3(0,0.01,0), duration: 0.25),
-                            SCNAction.customAction(duration: 0, action: { _,_ in
-                                self.isRandoming = false
-                            })
-                        ]))
+                        DispatchQueue.global().async {
+                            self.randomButtonTopNode.runAction(SCNAction.sequence([
+                                SCNAction.move(by: SCNVector3(0,-0.01,0), duration: 0.25),
+                                SCNAction.move(by: SCNVector3(0,0.01,0), duration: 0.25),
+                                SCNAction.customAction(duration: 0, action: { _,_ in
+                                    self.isRandoming = false
+                                })
+                            ]))  
+                        }
+                        if self.playerStatues[self.curPlayerId].curCoin > 0 && !self.isFreezed {
+                            self.playerStatues[self.curPlayerId].curCoin -= 1
+                            self.initBoardChess(initStage: EnumsGameStage.exchangeStage.rawValue)
+                        }
                         
                     } else if isNameButton(hitTestResult.first!.node, "upgradeButton") {
                         upgradeButtonTopNode.runAction(SCNAction.sequence([

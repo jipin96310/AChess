@@ -127,50 +127,52 @@ public class baseChessNode: SCNNode {
         //bitmask
         curNode.categoryBitMask = BitMaskCategoty.baseChess.rawValue
         
-        
         self.addChildNode(curNode)
+        
         atkNum = 0
         defNum = 0
+
         if let nameLabelNode = curNode.childNode(withName: "nameLabel", recursively: true) {
-            nameTextNode.position = SCNVector3(-0.006, -0.03 , -0.08)
-            nameLabelNode.addChildNode(nameTextNode)
+            self.nameTextNode.position = SCNVector3(-0.006, -0.03 , -0.08)
+            nameLabelNode.addChildNode(self.nameTextNode)
         }
         if let descLabelNode = curNode.childNode(withName: "descLabel", recursively: true) {
-            descTextNode.position = SCNVector3(-0.5, -0.55 , 1)
-            descLabelNode.addChildNode(descTextNode)
+            self.descTextNode.position = SCNVector3(-0.5, -0.55 , 1)
+            descLabelNode.addChildNode(self.descTextNode)
         }
         if let atkLabelNode = curNode.childNode(withName: "atkLabel", recursively: true) {
-            atkTextNode.position = SCNVector3(-0.005, -0.01 , 0.1)
-            atkLabelNode.addChildNode(atkTextNode)
+            self.atkTextNode.position = SCNVector3(-0.005, -0.01 , 0.1)
+            atkLabelNode.addChildNode(self.atkTextNode)
         }
         if let defLabelNode = curNode.childNode(withName: "defLabel", recursively: true) {
-            defTextNode.position = SCNVector3(-0.005, -0.01 , 0.1)
-            defLabelNode.addChildNode(defTextNode)
+            self.defTextNode.position = SCNVector3(-0.005, -0.01 , 0.1)
+            defLabelNode.addChildNode(self.defTextNode)
         }
+
+
         if let priceLabelNode = curNode.childNode(withName: "priceLabel", recursively: true) {
-            priceTextNode.position = SCNVector3(-0.005, -0.01 , 0.1)
+            self.priceTextNode.position = SCNVector3(-0.005, -0.01 , 0.1)
             // init price by chess level ,should after priceLabelNode created
-            initChessPrice()
-            
-            priceTextNode.string = String(chessPrice)
-            priceLabelNode.addChildNode(priceTextNode)
+            self.initChessPrice()
+            self.priceTextNode.string = String(self.chessPrice)
+            priceLabelNode.addChildNode(self.priceTextNode)
         }
         if let sideNode = curNode.childNode(withName: "side", recursively: true) {
-            sideNode.geometry?.firstMaterial?.diffuse.contents = chessColorRarity[chessRarity] //control chess color
-            nameTextNode.geometry?.firstMaterial?.diffuse.contents = labelColorRarity[chessRarity]
-            damgeTextNode.position = SCNVector3(0, 0.5 , 0)
-            damgeTextNode.eulerAngles = SCNVector3(-60.degreesToRadius, 0 , 0)
-            sideNode.addChildNode(damgeTextNode)
+            sideNode.geometry?.firstMaterial?.diffuse.contents = chessColorRarity[self.chessRarity] //control chess color
+            self.nameTextNode.geometry?.firstMaterial?.diffuse.contents = labelColorRarity[self.chessRarity]
+            self.damgeTextNode.position = SCNVector3(0, 0.5 , 0)
+            self.damgeTextNode.eulerAngles = SCNVector3(-60.degreesToRadius, 0 , 0)
+            sideNode.addChildNode(self.damgeTextNode)
             //
-            abilitiesTriggerTextNode.position = SCNVector3(0, 0.5, 0.1)
-            abilitiesTriggerTextNode.eulerAngles = SCNVector3(-60.degreesToRadius, 0 , 0)
-            sideNode.addChildNode(abilitiesTriggerTextNode)
-            
+            self.abilitiesTriggerTextNode.position = SCNVector3(0, 0.5, 0.1)
+            self.abilitiesTriggerTextNode.eulerAngles = SCNVector3(-60.degreesToRadius, 0 , 0)
+            sideNode.addChildNode(self.abilitiesTriggerTextNode)
+
         }
-        
         //最后计算棋子的描述
-        chessDesc = formatChessDesc()
-        descTextNode.string = chessDesc
+        self.chessDesc = self.formatChessDesc()
+        self.descTextNode.string = self.chessDesc
+        
        }
     
 //    public override func runAction(_ action: SCNAction) {
@@ -234,6 +236,10 @@ public class baseChessNode: SCNNode {
     
     convenience init(statusNum: Int, chessInfo: chessStruct) {
         self.init()
+        loadWithStruct(statusNum: statusNum, chessInfo: chessInfo)
+        
+    }
+    func loadWithStruct(statusNum: Int, chessInfo: chessStruct) {
         chessStatus = statusNum
         chessName = chessInfo.name!
         nameTextNode.string = chessName.localized
@@ -252,7 +258,7 @@ public class baseChessNode: SCNNode {
         temporaryBuff = chessInfo.temporaryBuff
         rattleFunc = chessInfo.rattleFunc
         inheritFunc = chessInfo.inheritFunc
-        //price
+        
         initChessPrice()
         priceTextNode.string = String(chessPrice)
         
@@ -282,7 +288,7 @@ public class baseChessNode: SCNNode {
         
         setBait() //诱饵
         
-       if let priceLabelNode = self.childNode(withName: "priceLabel", recursively: true) {
+        if let priceLabelNode = self.childNode(withName: "priceLabel", recursively: true) {
             if chessStatus == EnumsChessStage.forSale.rawValue {
                 priceLabelNode.isHidden = false
             } else {
@@ -300,6 +306,7 @@ public class baseChessNode: SCNNode {
         chessDesc = formatChessDesc()
         descTextNode.string = chessDesc
     }
+    
     func changeStarLabel() {
         if let curStarLabel = self.childNode(withName: "starLabel", recursively: true) {
             if chessLevel == 1 {

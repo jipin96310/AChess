@@ -143,3 +143,10 @@
 "waste" = "您已被淘汰！";
 "win" = "您获得了胜利！";
 
+//TIP
+"seekingSurfaveTip" = "寻找一个平面放置游戏棋盘.";
+"placingPlaneTip" = "调整棋盘的大小、位置或旋转棋盘.";
+"adjustingPlaneTip" = "调整并轻点以继续.";
+"waitingForPlane" = "同步世界地图中…";
+"localizingToPlane" = "请将摄像头指向桌面以定位.";
+

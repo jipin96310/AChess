@@ -33,17 +33,17 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             //              guard !UserDefaults.standard.disableInGameUI else { return nil }
             switch self {
             case .seekingSurface:
-                return NSLocalizedString("Find a flat surface to place the game.", comment: "")
+                return "seekingSurfaveTip".localized
             case .placingPlane:
-                return NSLocalizedString("Scale, rotate or move the board.", comment: "")
+                return "placingPlaneTip".localized
             case .adjustingPlane:
-                return NSLocalizedString("Make adjustments and tap to continue.", comment: "")
+                return "adjustingPlaneTip".localized
             case .setupBoard:
                 return nil
             case .waitingForPlane:
-                return NSLocalizedString("Synchronizing world map…", comment: "")
+                return "waitingForPlane".localized
             case .localizingToPlane:
-                return NSLocalizedString("Point the camera towards the table.", comment: "")
+                return "localizingToPlane".localized
             case .gameProcessing :
                 return nil
             case .setup:
@@ -65,7 +65,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         didSet {
             if isSessionInterrupted {
                 instructionLabel.isHidden = false
-                instructionLabel.text = NSLocalizedString("Point the camera towards the table.", comment: "")
+                instructionLabel.text = "localizingToPlane".localized
             } else {
                 if let localizedInstruction = sessionState.localizedInstruction {
                     instructionLabel.isHidden = false
@@ -134,15 +134,22 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var currentSlaveId: [playerStruct] = []//如果是主机会获取到所有的从机id  index 0 是主机id
     
     var backUpNode : [[baseChessNode]] = [[],[]] //用于备份棋子
+    var preLoadNode: [[baseChessNode]] = [[],[]] {
+        didSet(oldVal) {
+            DispatchQueue.global().async {
+                for i in 0 ..< self.preLoadNode.count {
+                    if self.preLoadNode[i].count < GlobalCommonNumber.chessNumber {
+                        self.preLoadNode[i].append(baseChessNode())
+                    }
+                }
+            }
+        }
+    }
     var boardNode :[[baseChessNode]] = [[],[]] //chesses
         {
             didSet(oldBoard) {
                 if (curStage == EnumsGameStage.exchangeStage.rawValue) {
-                    //
-//                    DispatchQueue.main.async {
-//                        self.playerStatues[0].curChesses = copyChessArr(curBoard: self.boardNode[BoardSide.allySide.rawValue])
-//                    }
-                    //
+
                     var chessTimesDic:[[String : [Int]]] = [[:],[:],[:]] //棋子map 刷新问题
                     var chessKindMap:[String : Int] = [:]
                     var newCombineChess: [baseChessNode] = []
@@ -214,7 +221,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         if !oldBoard[boardIndex].contains(boardNode[boardIndex][innerIndex]) {
                             let curNode = self.boardNode[boardIndex][innerIndex]
                             curNode.position.y = 0.01
-                            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.1 * Double((innerIndex + 1))) {
+                            DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + 0.1 * Double((innerIndex + 1))) {
                                     self.playerBoardNode.addChildNode(curNode)
                             }
                         }
@@ -439,6 +446,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         //sceneView.scene = scene
         
         multipeerSession.changeHandler(newHandler: receivedData)
+        
+        //preload some nodes, etc chess node
+         initPreLoadChess()
         
     }
     
@@ -1553,7 +1563,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             let curAddChess = curAddChesses[index]
             if curAddChess.chessStatus != EnumsChessStage.owned.rawValue { //第一次购买的棋子才生效 战斗产生的衍生物是enemyside也会生效
                 var hasSummonAbility:[String : Int] = [:]
-                
+
                 boardNode[curBoardSide].forEach{ (curChess) in
                     if (curChess.abilities.contains(EnumAbilities.summonChessAddBuff.rawValue)) { //召唤一个棋子以后加buff 无论当前阶段
                         if hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue] != nil {
@@ -1562,14 +1572,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue] = curChess.chessLevel
                         }
                     }
-                    
+
                     if (curChess.abilities.contains(EnumAbilities.afterSummonChessAddShell.rawValue)) && curStage == EnumsGameStage.battleStage.rawValue { //召唤一个棋子以后加shell 只有战斗回合触发
                         if curAddChess.chessKind == EnumChessKind.plain.rawValue {
                             curChess.AddTempBuff(tempBuff: [EnumAbilities.shell.rawValue])
                         }
                     }
-                    
-                    
+
+
                     if curBoardSide == BoardSide.allySide.rawValue { //只有在友军才触发
                         if (curChess.abilities.contains(EnumAbilities.summonChessAddMountainBuff.rawValue)) {
                             if hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue] != nil {
@@ -1578,7 +1588,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                 hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue] = curChess.chessLevel
                             }
                         }
-                        
+
                         if (curChess.abilities.contains(EnumAbilities.summonChessAddSelfBuff.rawValue)) {
                             if case let curKindArr as [String] = curChess.rattleFunc[EnumKeyName.baseKind.rawValue] {
                                 if curKindArr.contains(curAddChess.chessKind) {
@@ -1590,8 +1600,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         }
                     }
                 }
-                
-                
+
+
                 if hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue] != nil && hasSummonAbility[EnumAbilities.summonChessAddBuff.rawValue]! > 0 { //召唤生物 给其加buff  暂时狮子专属 就给平原生物加
                     if curAddChess.chessKind == EnumChessKind.plain.rawValue {
                         if !curAddChess.temporaryBuff.contains(EnumAbilities.summonChessAddBuff.rawValue) {
@@ -1600,16 +1610,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         }
                     }
                 }
-                
+
                 if curBoardSide == BoardSide.allySide.rawValue && curStage == EnumsGameStage.exchangeStage.rawValue {
                     curAddChess.chessStatus = EnumsChessStage.owned.rawValue //确保友方必定被拥有
-                    
+
                     if hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue] != nil && hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue]! > 0 {
                         boardNode[BoardSide.allySide.rawValue].forEach{(curChess) in
                             if (curChess.chessKind == EnumChessKind.mountain.rawValue) {
                                 curChess.AddBuff(AtkNumber: hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue], DefNumber: hasSummonAbility[EnumAbilities.summonChessAddMountainBuff.rawValue])
                             }
-                            
+
                         }
                     }
 
@@ -1630,9 +1640,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         }
                     }
                 }
-                
+
             }
-            
+
         }
         
        
@@ -2057,6 +2067,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
         }
     }
+    func initPreLoadChess() {
+        for i in 0 ..< preLoadNode.count {
+            for _ in 0 ..< GlobalCommonNumber.chessNumber {
+                preLoadNode[i].append(baseChessNode())
+            }
+        }
+    }
     func initBoardRootNode() { //初始化底座node。是必须的 游戏开始必须调用
         if let allyBoardTemp = playerBoardNode.childNode(withName: "allyBoard", recursively: true) {
             allyBoardNode = allyBoardTemp
@@ -2285,28 +2302,42 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         return curChessInfo
     }
     func initBoardChess(initStage: Int) {
-//        boardNode[0].forEach{(boardNode) in
-//            boardNode.removeFromParentNode()
-//        }
-        boardNode[0] = []
         let curPlayerLevel = playerStatues[curPlayerId].curLevel
-        
         switch initStage {
         case EnumsGameStage.exchangeStage.rawValue:
-            let curSaleNumber = 3//playerStatues[curPlayerId].curLevel + 2
+            boardNode[BoardSide.enemySide.rawValue].forEach{(boardNode) in
+                boardNode.removeFromParentNode()
+                boardNode.position.y = 0
+            }
+            
+            let curSaleNumber = 6//playerStatues[curPlayerId].curLevel + 2
             let curStartIndex = (GlobalNumberSettings.chessNumber.rawValue - curSaleNumber) / 2
             var tempArr:[baseChessNode] = []
             for index in 0 ..< curSaleNumber  {
-                let curNode = boardRootNode[0][index + curStartIndex]        
+                let curNode = boardRootNode[BoardSide.enemySide.rawValue][index + curStartIndex]
                 let randomStruct =  getRandomChessStructFromPool(curPlayerLevel)
                 //let tempChess = initChessWithPos(pos: curNode.position, sta: EnumsChessStage.forSale.rawValue, info: randomStruct)
-                let tempChess = baseChessNode(statusNum: EnumsChessStage.forSale.rawValue, chessInfo: randomStruct)
-                tempChess.position = curNode.position
-                tempArr.append(tempChess)
+                let tempChess:baseChessNode
+                if index < boardNode[BoardSide.enemySide.rawValue].count {
+                    tempChess = boardNode[BoardSide.enemySide.rawValue][index]
+                    tempChess.loadWithStruct(statusNum: EnumsChessStage.forSale.rawValue, chessInfo: randomStruct)
+                    playerBoardNode.addChildNode(tempChess)
+                } else {
+                    if let preChess = preLoadNode[BoardSide.enemySide.rawValue].first {
+                        tempArr.append(preChess)
+                        preLoadNode[BoardSide.enemySide.rawValue].remove(at: 0)
+                    }
+                }
+                
             }
-            appendNewNodeToBoard(curBoardSide: BoardSide.enemySide.rawValue, curAddChesses: tempArr, curInsertIndex: nil)
+            if tempArr.count > 0 {
+               appendNewNodeToBoard(curBoardSide: BoardSide.enemySide.rawValue, curAddChesses: tempArr, curInsertIndex: nil)
+            } else {
+                updateWholeBoardPosition()
+            }
             return
         case EnumsGameStage.battleStage.rawValue:
+            boardNode[0] = []
             var enemies:[baseChessNode] = []
             playerStatues[1].curChesses.forEach{(curChess) in
                 enemies.append(curChess.copyable())
@@ -3145,6 +3176,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         recoverChess(side: BoardSide.allySide.rawValue)
         initDisplay()
         initButtons()
+       
 //        for index in 1 ..< 7 {
 //            if let curNode = playerBoardNode.childNode(withName: "e" + String(index), recursively: true) {
 //                let tempChess = initChessWithPos(pos: curNode.position)
