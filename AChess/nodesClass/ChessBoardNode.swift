@@ -16,27 +16,11 @@ private let boardStrings = "levels"
 
 class ChessBoardNode {
     
-    struct Definition: Codable {
-        let key: String
-        let identifier: String
-        var name: String {
-            return NSLocalizedString(self.key,
-                                     tableName: boardStrings,
-                                     bundle: Bundle.main,
-                                     value: self.key,
-                                     comment: "Please make sure all strings from levels.strings are translated")
-        }
-    }
 
-    private let definition: Definition
-    var key: String { return definition.key }
-    var  name: String { return definition.name }
-    var identifier: String { return definition.identifier }
+  
     let totalUpdateTime:Double = 1 //刷新时间
-    
-    
     var curStage: Int
-    var curDragPoint: baseChessNode?
+    var curDragPoint: baseChessNode? = nil
     var updatePromise:Resolver<Double>? = nil
     
     var boardRootNode :[[SCNNode]] = [[],[]] //chess holder
@@ -356,8 +340,8 @@ class ChessBoardNode {
     
 
     
-    private init(definition: Definition) {
-        self.definition = definition
+    private init(stage: Int) {
+        self.curStage = stage
         self.targetSize = defaultSize
     }
     
