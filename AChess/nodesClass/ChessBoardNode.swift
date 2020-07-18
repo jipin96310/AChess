@@ -14,12 +14,12 @@ private let defaultSize = CGSize(width: 2.4, height: 1.6)
 private let defaultBoardName = "playerBoard"
 private let boardStrings = "levels"
 
-class ChessBoardNode {
+class ChessBoardNode: SCNNode {
     
 
   
     let totalUpdateTime:Double = 1 //刷新时间
-    var curStage: Int
+    var curStage: Int = EnumsGameStage.exchangeStage.rawValue
     var curDragPoint: baseChessNode? = nil
     var updatePromise:Resolver<Double>? = nil
     
@@ -270,7 +270,7 @@ class ChessBoardNode {
             }
     
     // Size of the level in meters
-    let targetSize: CGSize
+    var targetSize: CGSize = defaultSize
     
     private(set) var placed = false
     
@@ -310,22 +310,23 @@ class ChessBoardNode {
             // will clone the tree done from this node
             boardNodeTemplate = scene.rootNode.childNode(withName: "playerBoard", recursively: true)
 
+
         } catch {
             fatalError("Could not load level \(sceneUrl): \(error.localizedDescription)")
         }
     }
     
     // an instance of the active level
-    var activeLevel: SCNNode? {
-        guard let boardNode = boardNodeTemplate else { return nil }
-        
-        if let boardNodeClone = boardNodeClone {
-            return boardNodeClone
-        }
-        
-        boardNodeClone = boardNode.clone()
-        return boardNodeClone
-    }
+//    var activeLevel: SCNNode? {
+//        guard let boardNode = boardNodeTemplate else { return nil }
+//
+//        if let boardNodeClone = boardNodeClone {
+//            return boardNodeClone
+//        }
+//
+//        boardNodeClone = boardNode.clone()
+//        return boardNodeClone
+//    }
 
     // Scale factor to assign to the level to make it appear 1 unit wide.
     var normalizedScale: Float {
@@ -338,11 +339,19 @@ class ChessBoardNode {
     }
     
     
+    
+    
+    
+    
+    override init() {
+        //
+        super.init()
+    }
 
     
-    private init(stage: Int) {
-        self.curStage = stage
-        self.targetSize = defaultSize
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
 
@@ -371,15 +380,14 @@ class ChessBoardNode {
     }
     
     func placeBoard(on node: SCNNode, gameScene: SCNScene, boardScale: Float) {
-        guard let activeLevel = activeLevel else { return }
         guard let scene = scene else { return }
-        
+        guard let boardNode = boardNodeTemplate else { return }
         // set the environment onto the SCNView
         gameScene.lightingEnvironment.contents = scene.lightingEnvironment.contents
         gameScene.lightingEnvironment.intensity = scene.lightingEnvironment.intensity
         
         // set the cloned nodes representing the active level
-        node.addChildNode(activeLevel)
+        node.addChildNode(boardNode)
         
         placed = true
         

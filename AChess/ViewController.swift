@@ -83,7 +83,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var isBoardInfoSent = false
     var insertRoot = SCNNode()// Root node of the board
     var playerBoardNode = createPlayerBoard() //棋盘节点
-    var enemyPlayerBoardNode: SCNNode? //敌人棋盘节点
+    var enemyPlayerBoardNode: ChessBoardNode? //敌人棋盘节点
     var panOffset = SIMD3<Float>()
     var curPlaneNode:customPlaneNode? = nil
     let priceTagNode = TextNode(textScale: SCNVector3(0.3, 0.5, 0))
@@ -452,7 +452,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         DispatchQueue.global().async {
             //preload some nodes, etc chess node
             self.initPreLoadChess()
-            self.enemyPlayerBoardNode = createPlayerBoard()
+            self.enemyPlayerBoardNode = ChessBoardNode()
+            self.enemyPlayerBoardNode?.load()
+            //self.enemyPlayerBoardNode = createPlayerBoard()
         }
         
     }
@@ -3137,40 +3139,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         recoverChess(side: BoardSide.allySide.rawValue)
         initDisplay()
         initButtons()
-       
-//        for index in 1 ..< 7 {
-//            if let curNode = playerBoardNode.childNode(withName: "e" + String(index), recursively: true) {
-//                let tempChess = initChessWithPos(pos: curNode.position)
-//                tempChess.name = "chessE" + String(index)
-//                tempChess.position.y += 0.01
-//
-//                playerBoardNode.addChildNode(tempChess)
-//
-//                boardNode[0].append(tempChess)
-//            }
-//        }
-//        for index in 1 ..< 7 {
-//            if let curNode = playerBoardNode.childNode(withName: "a" + String(index), recursively: true) {
-//                let tempChess = initChessWithPos(pos: curNode.position)
-//                tempChess.name = "chessA" + String(index)
-//                tempChess.position.y += 0.01
-//
-//                playerBoardNode.addChildNode(tempChess)
-//
-//                boardNode[1].append(tempChess)
-//            }
-//        }
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: {
-//           //let attackResult = attack(self.boardNode[0][0], self.boardNode[1][1])
-//            self.beginRounds()
-//
-////            let startPos = self.boardNode[0][0].position
-////            let attackSequence = SCNAction.sequence([attackAction(startPos, self.boardNode[1][1].position),backToAction(startPos)])
-////            self.boardNode[0][0].runAction(attackSequence)
-//
-//        })
-           
        }
+    func initGameStandard() {
+        
+    }
     func PlayerBoardTextShow(TextContent: String) -> Double{
            let t1 = 0.1
            if let boardTextTemp = playerBoardNode.childNode(withName: "boardTextNode", recursively: true) {
@@ -3274,14 +3246,17 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         } else {
             isPlayerBoardinited = true
         }
-        playerBoardNode = createPlayerBoard()
-        playerBoardNode.scale = prePlaneNode.scale
-        playerBoardNode.position = prePlaneNode.position
-        playerBoardNode.eulerAngles = prePlaneNode.eulerAngles
-        insertRoot.addChildNode(playerBoardNode)
+//        playerBoardNode = createPlayerBoard()
+//        playerBoardNode.scale = prePlaneNode.scale
+//        playerBoardNode.position = prePlaneNode.position
+//        playerBoardNode.eulerAngles = prePlaneNode.eulerAngles
+//        insertRoot.addChildNode(playerBoardNode)
         //
+        enemyPlayerBoardNode?.placeBoard(on: insertRoot, gameScene: sceneView.scene, boardScale: prePlaneNode.scale.x)
+        //insertRoot.addChildNode(enemyPlayerBoardNode!)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.01, execute: {
-                                       self.initGameTest()
+                    //self.initGameTest()
+                    self.initGameStandard()
         })
        
     }

@@ -238,7 +238,7 @@ func recyclePromise(taskArr: [() -> (Promise<Double>)], curIndex: Int) -> Promis
         let curTask = taskArr[curIndex]
         curTask().done({ _ in
             if(curIndex + 1 < taskArr.count) {
-                self.recyclePromise(taskArr: taskArr, curIndex: curIndex + 1).done({ _ in
+                recyclePromise(taskArr: taskArr, curIndex: curIndex + 1).done({ _ in
                     res.fulfill(timeDelay)
                 })
             } else {
