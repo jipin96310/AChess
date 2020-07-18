@@ -45,9 +45,13 @@
 		C7DD950823DE9ACE0096CE0C /* actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DD950723DE9ACE0096CE0C /* actions.swift */; };
 		C7DD950E23DEB8F80096CE0C /* particals.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = C7DD950D23DEB8F80096CE0C /* particals.scnassets */; };
 		C7DD951323DF06590096CE0C /* baseChessNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DD951223DF06590096CE0C /* baseChessNode.swift */; };
+		C7E6E13424BAC55F00C930E0 /* GameLight.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7E6E13324BAC55F00C930E0 /* GameLight.swift */; };
+		C7E6E13624BAC61100C930E0 /* GameObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7E6E13524BAC61100C930E0 /* GameObject.swift */; };
+		C7E6E13924BB13FE00C930E0 /* UserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7E6E13824BB13FE00C930E0 /* UserDefaults.swift */; };
 		C7EC4EE124B985FB005A326E /* ViewController+ARSCNViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EC4EE024B985FB005A326E /* ViewController+ARSCNViewDelegate.swift */; };
 		C7F4819D240A5DE1002EBEED /* Localization.strings in Resources */ = {isa = PBXBuildFile; fileRef = C7F4819F240A5DE1002EBEED /* Localization.strings */; };
 		C7F481A2240A5EF8002EBEED /* LocalizationTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F481A1240A5EF8002EBEED /* LocalizationTool.swift */; };
+		C7F988B524C2E29D0007702A /* ChessBoardNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F988B424C2E29D0007702A /* ChessBoardNode.swift */; };
 		F08EDF3AF44CF1C7283DC2B3 /* libPods-AChess.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4210E76BC58F7D7B5B6391F0 /* libPods-AChess.a */; };
 /* End PBXBuildFile section */
 
@@ -130,12 +134,16 @@
 		C7DD950723DE9ACE0096CE0C /* actions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = actions.swift; sourceTree = "<group>"; };
 		C7DD950D23DEB8F80096CE0C /* particals.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = particals.scnassets; sourceTree = "<group>"; };
 		C7DD951223DF06590096CE0C /* baseChessNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = baseChessNode.swift; sourceTree = "<group>"; };
+		C7E6E13324BAC55F00C930E0 /* GameLight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameLight.swift; sourceTree = "<group>"; };
+		C7E6E13524BAC61100C930E0 /* GameObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameObject.swift; sourceTree = "<group>"; };
+		C7E6E13824BB13FE00C930E0 /* UserDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaults.swift; sourceTree = "<group>"; };
 		C7EC4EE024B985FB005A326E /* ViewController+ARSCNViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ViewController+ARSCNViewDelegate.swift"; sourceTree = "<group>"; };
 		C7F48199240A5D93002EBEED /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
 		C7F4819A240A5D94002EBEED /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		C7F4819E240A5DE1002EBEED /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localization.strings; sourceTree = "<group>"; };
 		C7F481A0240A5DE3002EBEED /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localization.strings"; sourceTree = "<group>"; };
 		C7F481A1240A5EF8002EBEED /* LocalizationTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationTool.swift; sourceTree = "<group>"; };
+		C7F988B424C2E29D0007702A /* ChessBoardNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessBoardNode.swift; sourceTree = "<group>"; };
 		C8190D39A07A58C13C9987AD /* libPods-AChessTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-AChessTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C958387DE5F93F17C6EA051C /* Pods-AChess.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AChess.debug.xcconfig"; path = "Target Support Files/Pods-AChess/Pods-AChess.debug.xcconfig"; sourceTree = "<group>"; };
 		FE236FCB68789C2173E820BE /* Pods-AChess.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AChess.release.xcconfig"; path = "Target Support Files/Pods-AChess/Pods-AChess.release.xcconfig"; sourceTree = "<group>"; };
@@ -203,6 +211,7 @@
 				C7B4D71C24838AB6008F3B1F /* codblePlayerStruct.swift */,
 				C7B4D71A24837FDD008F3B1F /* codebleChessStruct.swift */,
 				C72C2FE12478D10F005AE2F7 /* settingStruct.swift */,
+				C7E6E13824BB13FE00C930E0 /* UserDefaults.swift */,
 			);
 			path = Datas;
 			sourceTree = "<group>";
@@ -302,6 +311,8 @@
 				C7DB34BA23FEC88200DBE512 /* abilities.swift */,
 				C75E6A8C240272F3000B01BD /* ComScript.swift */,
 				C73B2D6B24B960B000763FE7 /* CustomAnchor.swift */,
+				C7E6E13324BAC55F00C930E0 /* GameLight.swift */,
+				C7E6E13524BAC61100C930E0 /* GameObject.swift */,
 			);
 			path = utils;
 			sourceTree = "<group>";
@@ -313,6 +324,7 @@
 				C72D0EC523DFF8F800CC0EFB /* textNode.swift */,
 				C7AFB4FB23EAF8B400B21E09 /* customPlanenode.swift */,
 				C7BE385824B200BB00DCAA16 /* PrePlane.swift */,
+				C7F988B424C2E29D0007702A /* ChessBoardNode.swift */,
 			);
 			path = nodesClass;
 			sourceTree = "<group>";
@@ -545,6 +557,7 @@
 				C7DD950823DE9ACE0096CE0C /* actions.swift in Sources */,
 				C7744A1524B4C781003ADE4C /* CustomRotateGestureRecognizer.swift in Sources */,
 				C7EC4EE124B985FB005A326E /* ViewController+ARSCNViewDelegate.swift in Sources */,
+				C7E6E13624BAC61100C930E0 /* GameObject.swift in Sources */,
 				C72EF22D2470F4890002C54A /* mulitiUserSession.swift in Sources */,
 				C7DB34BB23FEC88200DBE512 /* abilities.swift in Sources */,
 				C792198623F66978008B6950 /* protocol.swift in Sources */,
@@ -555,6 +568,7 @@
 				C7DD951323DF06590096CE0C /* baseChessNode.swift in Sources */,
 				C72D0EC623DFF8F800CC0EFB /* textNode.swift in Sources */,
 				C757833923F26A5300B0DCE3 /* chessStruct.swift in Sources */,
+				C7E6E13924BB13FE00C930E0 /* UserDefaults.swift in Sources */,
 				C72E92F623F195FD008F890F /* chessCollections.swift in Sources */,
 				C771AFF523E80CC5007C99F0 /* extensions.swift in Sources */,
 				C73426A623D9E338003B7697 /* ViewController.swift in Sources */,
@@ -562,9 +576,11 @@
 				C751227423F518D7002CC4B4 /* dummyAI.swift in Sources */,
 				C70C152324420F530086C259 /* playerStruct.swift in Sources */,
 				C7BE385924B200BB00DCAA16 /* PrePlane.swift in Sources */,
+				C7E6E13424BAC55F00C930E0 /* GameLight.swift in Sources */,
 				C75E6A8D240272F3000B01BD /* ComScript.swift in Sources */,
 				C7B4D71D24838AB6008F3B1F /* codblePlayerStruct.swift in Sources */,
 				C73426A223D9E338003B7697 /* AppDelegate.swift in Sources */,
+				C7F988B524C2E29D0007702A /* ChessBoardNode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

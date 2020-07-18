@@ -32,10 +32,27 @@ class ChessBoardNode {
     var key: String { return definition.key }
     var  name: String { return definition.name }
     var identifier: String { return definition.identifier }
+    let totalUpdateTime:Double = 1 //刷新时间
+    
+    
     var curStage: Int
     var curDragPoint: baseChessNode?
     var updatePromise:Resolver<Double>? = nil
     
+    var boardRootNode :[[SCNNode]] = [[],[]] //chess holder
+       var storageNode : [baseChessNode] = [] {
+           didSet(oldBoard) {
+//
+//                   for innerIndex in 0 ..< storageNode.count {
+//                       if !oldBoard.contains(storageNode[innerIndex]) {
+//                           storageNode[innerIndex].position.y = 0.01
+//                           playerBoardNode.addChildNode(storageNode[innerIndex])
+//                       }
+//                   }
+//                   updateStorageBoardPosition()  //dont delete
+           }
+       }
+       var storageRootNode : [SCNNode] = []
     var boardChessess:[[baseChessNode]] = [[],[]]
     {
                 didSet(oldBoard) {
@@ -180,7 +197,7 @@ class ChessBoardNode {
                                                         return Promise<Double>(resolver: {(resolver) in
                                                             let damTime = self.dealDamageAction(startVector: erasedChess.position, endVector: curChess.position)
                                                             delay(damTime, task: {
-                                                                    isAlive = curChess.getDamage(damageNumber: curRattleDamage * curStar, chessBoard: &self.boardNode[oppoBoardSide])
+                                                                    isAlive = curChess.getDamage(damageNumber: curRattleDamage * curStar, chessBoard: &self.boardChessess[oppoBoardSide])
                                                                     resolver.fulfill(self.totalUpdateTime)
                                                             })
                                                         })
@@ -348,7 +365,7 @@ class ChessBoardNode {
     
     func reset() {
         placed = false
-        levelNodeClone = nil
+        boardNodeClone = nil
     }
     
     func abilityTextTrigger(textContent: String, textPos: SCNVector3,textType: String) {
@@ -507,5 +524,65 @@ class ChessBoardNode {
            
           return totalTime
        }
+    func initBoardRootNode() { //初始化底座node。是必须的 游戏开始必须调用
+        guard let boardNode = boardNodeTemplate else { return}
+//        if let allyBoardTemp = boardNode.childNode(withName: "allyBoard", recursively: true) {
+//            allyBoardNode = allyBoardTemp
+//        }
+        
+        for index in 1 ... GlobalNumberSettings.chessNumber.rawValue {
+            if let curNode = boardNode.childNode(withName: "e" + String(index), recursively: true) {
+                //
+                let body = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(node: curNode, options: [SCNPhysicsShape.Option.scale: SCNVector3(0.01, 0.01, 0.01)]))
+                curNode.physicsBody = body
+                curNode.physicsBody?.categoryBitMask = BitMaskCategoty.baseChessHolder.rawValue
+                curNode.physicsBody?.contactTestBitMask = BitMaskCategoty.hand.rawValue
+                //
+                boardRootNode[0].append(curNode)
+            }
+        }
+        
+        for index in 1 ... GlobalNumberSettings.chessNumber.rawValue {
+            if let curNode = boardNode.childNode(withName: "a" + String(index), recursively: true) {
+                //
+                let body = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(node: curNode, options: [SCNPhysicsShape.Option.scale: SCNVector3(0.01, 0.01, 0.01)]))
+                curNode.physicsBody = body
+                curNode.physicsBody?.categoryBitMask = BitMaskCategoty.baseChessHolder.rawValue
+                curNode.physicsBody?.contactTestBitMask = BitMaskCategoty.hand.rawValue
+                //
+                boardRootNode[1].append(curNode)
+            }
+        }
+        for index in 1 ..< GlobalCommonNumber.storageNumber {
+            if let curNode = boardNode.childNode(withName: "s" + String(index), recursively: true) {
+                storageRootNode.append(curNode)
+            }
+        }
+    }
+    //dealDamage practicle system
+    
+    public func dealDamageAction(startVector: SCNVector3, endVector: SCNVector3) -> Double{
+        guard let boardNode = boardNodeTemplate else { return 0.00}
+        let newTrackPoint = SCNNode(geometry: SCNSphere(radius: 0.003))
+        newTrackPoint.geometry?.firstMaterial?.diffuse.contents = UIColor.red
+        if let explosion = SCNParticleSystem(named: "particals.scnassets/attackCol.scnp", inDirectory: nil) {
+            //explosion.emissionDuration = CGFloat(1)
+            explosion.emitterShape = SCNSphere(radius: 0.003)
+            
+            newTrackPoint.addParticleSystem(explosion)
+           
+        }
+        newTrackPoint.position = startVector
+        newTrackPoint.position.y = 0.1
+        boardNode.addChildNode(newTrackPoint)
+        let trackActionSequence = [
+            SCNAction.move(to: endVector, duration: 1),
+            SCNAction.customAction(duration: 0, action: { _,_ in
+                newTrackPoint.removeFromParentNode()
+            })
+        ]
+        newTrackPoint.runAction(SCNAction.sequence(trackActionSequence))
+        return 1
+    }
     
 }

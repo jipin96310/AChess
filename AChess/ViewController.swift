@@ -95,7 +95,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var upgradeButtonNode: SCNNode = SCNNode()
     var freezeButtonNode: SCNNode = SCNNode()
     var endButtonNode: SCNNode = SCNNode()
-    var allyBoardNode : SCNNode = SCNNode()
+    //var allyBoardNode : SCNNode = SCNNode()
     var prePlaneNode = PrePlane()
     var screenCenter: CGPoint {
           let bounds = sceneView.bounds
@@ -349,6 +349,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         }
                     }
                 }
+                
                 recyclePromise(taskArr: inheritPromiseArr, curIndex: 0).done{ _ in
                     //创建队列组
                     let group = DispatchGroup()
@@ -2059,9 +2060,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         }
     }
     func initBoardRootNode() { //初始化底座node。是必须的 游戏开始必须调用
-        if let allyBoardTemp = playerBoardNode.childNode(withName: "allyBoard", recursively: true) {
-            allyBoardNode = allyBoardTemp
-        }
         
         for index in 1 ... GlobalNumberSettings.chessNumber.rawValue {
             if let curNode = playerBoardNode.childNode(withName: "e" + String(index), recursively: true) {
