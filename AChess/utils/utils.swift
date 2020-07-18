@@ -9,6 +9,7 @@
 import Foundation
 import ARKit
 import MultipeerConnectivity
+import PromiseKit
 // import scn files as scnnode
 public func createCard() -> SCNNode{
     let scene = SCNScene(named: "art.scnassets/baseCard.scn")!
@@ -21,7 +22,10 @@ public func createChess() -> SCNNode{
     let baseCardNode = scene.rootNode.childNode(withName: "baseChess", recursively: false)
     return baseCardNode!
 }
-
+func generateUpgradeChess( _ subChessNodes : [baseChessNode]) -> baseChessNode{//用于合成高等级棋子 保留3个棋子的所有特效  待完善 todo
+      //之后可以增加一些判断是否超过2级
+      return baseChessNode(statusNum: EnumsChessStage.owned.rawValue , chessInfo: chessStruct(name: subChessNodes[0].chessName, desc: subChessNodes[0].chessDesc, atkNum: subChessNodes[0].atkNum! * 2, defNum: subChessNodes[0].defNum! * 2, chessRarity: subChessNodes[0].chessRarity, chessLevel: subChessNodes[0].chessLevel + 1,chessKind: subChessNodes[0].chessKind, abilities: subChessNodes[0].abilities, temporaryBuff:[], rattleFunc: subChessNodes[0].rattleFunc, inheritFunc: subChessNodes[0].inheritFunc))
+}
 
 public func createPlayerBoard() -> SCNNode{
     let scene = SCNScene(named: "art.scnassets/playerBoard.scn")!
@@ -225,6 +229,28 @@ func normalize(_ matrix: float4x4) -> float4x4 {
     normalized.columns.1 = simd.normalize(normalized.columns.1)
     normalized.columns.2 = simd.normalize(normalized.columns.2)
     return normalized
+}
+//recyle run promise
+func recyclePromise(taskArr: [() -> (Promise<Double>)], curIndex: Int) -> Promise<Double>{
+   return Promise<Double>(resolver: { (res) in
+    let timeDelay:Double = 1
+    if(curIndex < taskArr.count) {
+        let curTask = taskArr[curIndex]
+        curTask().done({ _ in
+            if(curIndex + 1 < taskArr.count) {
+                self.recyclePromise(taskArr: taskArr, curIndex: curIndex + 1).done({ _ in
+                    res.fulfill(timeDelay)
+                })
+            } else {
+                res.fulfill(timeDelay)
+            }
+        }).catch({ err in
+            print("recyclePromise", err)
+        })
+    } else {
+         res.fulfill(timeDelay)
+    }
+  })
 }
 
 

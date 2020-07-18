@@ -38,8 +38,17 @@ extension ViewController {
     
     func session(_ session: ARSession, cameraDidChangeTrackingState camera: ARCamera) {
         os_log(.info, "camera tracking state changed to %s", "\(camera.trackingState)")
-        DispatchQueue.main.async {
-            self.trackingStateLabel.text = "\(camera.trackingState)"
+        switch camera.trackingState {
+        case .normal:
+            DispatchQueue.main.async {
+                self.trackingStateLabel.text = "Normal".localized
+            }
+        case .limited:
+            DispatchQueue.main.async {
+                self.trackingStateLabel.text = "Limited".localized
+            }
+        default:
+            break
         }
     }
 //

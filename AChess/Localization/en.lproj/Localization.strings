@@ -135,7 +135,7 @@
 "PlainLevel1" = "Wide Flat Land"; // 全体平原获得硬壳
 "PlainLevel2" = "Barren"; //全体获得硬壳
 
-
+//描述文字
 "Self" = "Self";
 "Chess" = "Chess";
 "Or" = "or";
@@ -143,6 +143,9 @@
 "Inheritance" = "Inheritance";
 "waste" = "You Are Lost!";
 "win" = "You Win！";
+"Noraml" = "Normal";
+"Limited" = "Limited";
+
 
 //TIP
 "seekingSurfaveTip" = "Find a flat surface to place the game board.";

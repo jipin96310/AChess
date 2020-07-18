@@ -134,7 +134,7 @@
 "PlainLevel1" = "一马平川";
 "PlainLevel2" = "寸草不生";
 
-
+//描述文字
 "Self" = "自身";
 "Chess" = "棋子";
 "Or" = "或";
@@ -142,6 +142,8 @@
 "Inheritance" = "传承";
 "waste" = "您已被淘汰！";
 "win" = "您获得了胜利！";
+"Noraml" = "正常";
+"Limited" = "有限";
 
 //TIP
 "seekingSurfaveTip" = "寻找一个平面放置游戏棋盘.";

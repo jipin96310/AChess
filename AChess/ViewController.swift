@@ -83,6 +83,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var isBoardInfoSent = false
     var insertRoot = SCNNode()// Root node of the board
     var playerBoardNode = createPlayerBoard() //棋盘节点
+    var enemyPlayerBoardNode: SCNNode? //敌人棋盘节点
     var panOffset = SIMD3<Float>()
     var curPlaneNode:customPlaneNode? = nil
     let priceTagNode = TextNode(textScale: SCNVector3(0.3, 0.5, 0))
@@ -447,8 +448,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         
         multipeerSession.changeHandler(newHandler: receivedData)
         
-        //preload some nodes, etc chess node
-         initPreLoadChess()
+        DispatchQueue.global().async {
+            //preload some nodes, etc chess node
+            self.initPreLoadChess()
+            self.enemyPlayerBoardNode = createPlayerBoard()
+        }
         
     }
     
@@ -532,14 +536,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     func configureView() {
         dispatchPrecondition(condition: .onQueue(DispatchQueue.main))
 
-        var debugOptions: SCNDebugOptions = []
-        
-  
-        
+        let debugOptions: SCNDebugOptions = []
         sceneView.debugOptions = debugOptions
-        
-
-
         // smooth the edges by rendering at higher resolution
         // defaults to none on iOS, use on faster GPUs
         // 0, 2, 4 on iOS, 8, 16x on macOS
@@ -760,11 +758,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             if !hitTestResult.isEmpty {
                 let firstResult = hitTestResult.first!
                 if let rootNode = findChessRootNode(firstResult.node) {
-                    
+                    if (rootNode.chessRarity > playerStatues[curPlayerId].curLevel) { //防止其他玩家偷取高等级棋子
+                        return
+                    }
                     curDragPoint = rootNode
-                    
-                    
-                    rootNode.removeFromParentNode() //it is actually a chessNode not a root node
+                    rootNode.removeFromParentNode()
                     
                     if let rootNodePos = findChessPos(rootNode) {
                         curDragPos = [rootNodePos[0]] //当前只存棋盘不存index
@@ -776,13 +774,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     }
                     
                     self.sceneView.scene.rootNode.addChildNode(curDragPoint!)
-                    //updateWholeBoardPosition()
-                    //curDragPoint?.geometry?.firstMaterial?.diffuse = UIColor.red
                 }
-                
-                //                                   let positionOfPress = hitTestResult.first!.worldTransform.columns.3
-                //                                   let curPressLocation = SCNVector3(positionOfPress.x, positionOfPress.y, positionOfPress.z)
-                //                                   self.checkCollisionWithChess(curPressLocation)
             }
         }
         else if sender.state == .changed
@@ -1031,8 +1023,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                             
                                             //updateWholeBoardPosition()
                                         } else if curDragPoint!.abilities.contains(EnumAbilities.instantRandomAddBuff.rawValue) { //战吼添加随机buff
-                                            
-                                            
                                             if case let curRattleAtt as Int = curDragPoint?.rattleFunc[EnumKeyName.baseAttack.rawValue] {
                                                 if case let curRattleDef as Int = curDragPoint?.rattleFunc[EnumKeyName.baseDef.rawValue] {
                                                     if case let curRattleNum as Int = curDragPoint?.rattleFunc[EnumKeyName.summonNum.rawValue] {
@@ -1121,31 +1111,19 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             }
                             //updateWholeBoardPosition()
                         } else if curDragPoint?.chessStatus == EnumsChessStage.owned.rawValue { //已购买放回原位
-                           if curDragPos[0] < 2 {
-                                appendNewNodeToBoard(curBoardSide: curDragPos[0], curAddChesses: [curDragPoint!], curInsertIndex: nil)
-                            } else {
-                                if curDragPoint != nil { //storage暂时较少用到 不封装放置方法
-                                    appendNewNodeToStorage(curChess: curDragPoint!)
-                                }
-                            }
-                            //updateWholeBoardPosition()
+                           backToPreviousPos()
                             
                         }
                         
                     } else { //无需判断长度 因为之前的地方肯定有位置给它
-                        var pointBoardIndex = 0
-                        if curDragPos[0] < 2 {
-                            appendNewNodeToBoard(curBoardSide: curDragPos[0], curAddChesses: [curDragPoint!], curInsertIndex: nil)
-                        } else {
-                            if curDragPoint != nil { //storage暂时较少用到 不封装放置方法
-                                appendNewNodeToStorage(curChess: curDragPoint!)
-                            }
-                        }
+                       backToPreviousPos()
                     }
                     
                 }
              
                 
+            } else {
+                backToPreviousPos()
             }
             //
             if let saleStage = playerBoardNode.childNode(withName: EnumNodeName.saleStage.rawValue, recursively: true) {
@@ -1154,6 +1132,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
            
            
             //curDragPoint = nil
+        }
+    }
+    func backToPreviousPos() {
+        if curDragPos[0] < 2 {
+            appendNewNodeToBoard(curBoardSide: curDragPos[0], curAddChesses: [curDragPoint!], curInsertIndex: nil)
+        } else {
+            if curDragPoint != nil { //storage暂时较少用到 不封装放置方法
+                appendNewNodeToStorage(curChess: curDragPoint!)
+            }
         }
     }
     @objc func onChooseOptionTap(sender: UITapGestureRecognizer) { //用于战吼等选择option的操作的tap
@@ -1724,10 +1711,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             enemyBoard.geometry?.firstMaterial?.diffuse.contents = UIColor.black
         }
     }
-    func generateUpgradeChess( _ subChessNodes : [baseChessNode]) -> baseChessNode{//用于合成高等级棋子 保留3个棋子的所有特效  待完善 todo
-        //之后可以增加一些判断是否超过2级
-        return baseChessNode(statusNum: EnumsChessStage.owned.rawValue , chessInfo: chessStruct(name: subChessNodes[0].chessName, desc: subChessNodes[0].chessDesc, atkNum: subChessNodes[0].atkNum! * 2, defNum: subChessNodes[0].defNum! * 2, chessRarity: subChessNodes[0].chessRarity, chessLevel: subChessNodes[0].chessLevel + 1,chessKind: subChessNodes[0].chessKind, abilities: subChessNodes[0].abilities, temporaryBuff:[], rattleFunc: subChessNodes[0].rattleFunc, inheritFunc: subChessNodes[0].inheritFunc))
-    }
+  
     func updateStorageBoardPosition() -> Double{
         let totalTime = 0.5
         for index in 0 ..< storageNode.count {
@@ -1761,7 +1745,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
         }
         
-        recoverRootNodeColor()
+       // recoverRootNodeColor()
        return totalTime
     }
     func updateChessBoardPosition( _ attackResult: [Double] ) -> Double { //attack动作进行中调用的更新棋子位置的方法
@@ -2383,28 +2367,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
  
     
-    //recyle run promise
-    func recyclePromise(taskArr: [() -> (Promise<Double>)], curIndex: Int) -> Promise<Double>{
-       return Promise<Double>(resolver: { (res) in
-        let timeDelay:Double = 1
-        if(curIndex < taskArr.count) {
-            let curTask = taskArr[curIndex]
-            curTask().done({ _ in
-                if(curIndex + 1 < taskArr.count) {
-                    self.recyclePromise(taskArr: taskArr, curIndex: curIndex + 1).done({ _ in
-                        res.fulfill(timeDelay)
-                    })
-                } else {
-                    res.fulfill(timeDelay)
-                }
-            }).catch({ err in
-                print("recyclePromise", err)
-            })
-        } else {
-             res.fulfill(timeDelay)
-        }
-      })
-    }
+
     
     
     
