@@ -24,17 +24,30 @@ class ChessBoardNode: SCNNode {
     var curDragPoint: baseChessNode? = nil
     var updatePromise:Resolver<Double>? = nil
     
+    var showStrageBoard = true {
+        didSet {
+            guard let storageNodeTemp = stroageNodeTemplate else {
+                return
+            }
+            if showStrageBoard {
+                storageNodeTemp.isHidden = false
+            } else {
+                storageNodeTemp.isHidden = true
+            }
+        }
+    }
+    
     var boardRootNode :[[SCNNode]] = [[],[]] //chess holder
        var storageNode : [baseChessNode] = [] {
            didSet(oldBoard) {
-//
-//                   for innerIndex in 0 ..< storageNode.count {
-//                       if !oldBoard.contains(storageNode[innerIndex]) {
-//                           storageNode[innerIndex].position.y = 0.01
-//                           playerBoardNode.addChildNode(storageNode[innerIndex])
-//                       }
-//                   }
-//                   updateStorageBoardPosition()  //dont delete
+    //
+    //                   for innerIndex in 0 ..< storageNode.count {
+    //                       if !oldBoard.contains(storageNode[innerIndex]) {
+    //                           storageNode[innerIndex].position.y = 0.01
+    //                           playerBoardNode.addChildNode(storageNode[innerIndex])
+    //                       }
+    //                   }
+    //                   updateStorageBoardPosition()  //dont delete
            }
        }
        var storageRootNode : [SCNNode] = []
@@ -278,6 +291,7 @@ class ChessBoardNode: SCNNode {
     private var scene: SCNScene?
     private var boardNodeTemplate: SCNNode?
     private var boardNodeClone: SCNNode?
+    private var stroageNodeTemplate: SCNNode?
     private var lock = NSLock()
     
     private(set) var lodScale: Float = 1.0
@@ -305,10 +319,14 @@ class ChessBoardNode: SCNNode {
             // this may not be the root, but lookup the identifier
             // will clone the tree done from this node
             boardNodeTemplate = scene.rootNode.childNode(withName: "playerBoard", recursively: true)
+            
             scene.rootNode.rootID = boardRootName
             // walk down the scenegraph and update the childrens
             scene.rootNode.fixMaterials()
-
+            //
+            initSubNodes()
+            
+            
         } catch {
             fatalError("Could not load level \(sceneUrl): \(error.localizedDescription)")
         }
@@ -507,6 +525,14 @@ class ChessBoardNode: SCNNode {
            
           return totalTime
        }
+    
+    func initSubNodes() {
+        guard let boardNode = boardNodeTemplate else { return}
+           if let storageNodeTemp = boardNode.childNode(withName: "storageNode", recursively: true) {
+               stroageNodeTemplate = storageNodeTemp
+           }
+       }
+    
     func initBoardRootNode() { //初始化底座node。是必须的 游戏开始必须调用
         guard let boardNode = boardNodeTemplate else { return}
 //        if let allyBoardTemp = boardNode.childNode(withName: "allyBoard", recursively: true) {

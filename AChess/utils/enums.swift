@@ -226,5 +226,10 @@ enum EnumMessageCommand: String {
     case winTheGame = "WinTheGame"
 }
 
+enum EnumBoardString: String {
+    case enemyBoard = "enemyBoard"
+    case allyBoard = "allyBoard"
+}
+
 
 

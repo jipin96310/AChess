@@ -82,7 +82,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var isPlayerBoardinited = false
     var isBoardInfoSent = false
     var insertRoot = SCNNode()// Root node of the board
-    var playerBoardNode = createPlayerBoard() //棋盘节点
+    var playerBoardNode = ChessBoardNode(name: EnumBoardString.allyBoard.rawValue) //棋盘节点
     var enemyPlayerBoardNode: ChessBoardNode? //敌人棋盘节点
     var panOffset = SIMD3<Float>()
     var curPlaneNode:customPlaneNode? = nil
@@ -438,7 +438,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         
         insertRoot.name = "_insertRoot"
         sceneView.scene.rootNode.addChildNode(insertRoot)
-        
+        sceneView.scene.rootNode.addChildNode(playerBoardNode)
         
         initHandNode()
         // Create a new scene
@@ -452,8 +452,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         DispatchQueue.global().async {
             //preload some nodes, etc chess node
             self.initPreLoadChess()
-            self.enemyPlayerBoardNode = ChessBoardNode(name: "enemyboard")
+            self.enemyPlayerBoardNode = ChessBoardNode(name: EnumBoardString.enemyBoard.rawValue)
             self.enemyPlayerBoardNode?.load()
+            self.enemyPlayerBoardNode?.showStrageBoard = false
+            self.playerBoardNode.load()
             //self.enemyPlayerBoardNode = createPlayerBoard()
         }
         
@@ -2064,6 +2066,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     func initBoardRootNode() { //初始化底座node。是必须的 游戏开始必须调用
         
         for index in 1 ... GlobalNumberSettings.chessNumber.rawValue {
+            print("player", playerBoardNode)
             if let curNode = playerBoardNode.childNode(withName: "e" + String(index), recursively: true) {
                 //
                 let body = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(node: curNode, options: [SCNPhysicsShape.Option.scale: SCNVector3(0.01, 0.01, 0.01)]))
@@ -2073,6 +2076,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 //
                 boardRootNode[0].append(curNode)
             }
+            
         }
         
         for index in 1 ... GlobalNumberSettings.chessNumber.rawValue {
@@ -3212,7 +3216,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             isPlayerBoardinited = true
         }
         
-        playerBoardNode = createPlayerBoard()
+        playerBoardNode = ChessBoardNode(name: EnumBoardString.allyBoard.rawValue)
         //playerBoardNode.eulerAngles = SCNVector3(45.degreesToRadius, 0, 0)
         //playGroundNode.geometry?.firstMaterial?.isDoubleSided = true
         //playGroundNode.geometry?.firstMaterial?.diffuse.contents = UIColor.red
@@ -3251,13 +3255,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 //        playerBoardNode.position = prePlaneNode.position
 //        playerBoardNode.eulerAngles = prePlaneNode.eulerAngles
 //        insertRoot.addChildNode(playerBoardNode)
+        playerBoardNode.position = prePlaneNode.position
+        playerBoardNode.placeBoard(on: playerBoardNode, gameScene: sceneView.scene, boardScale: prePlaneNode.scale.x)
         //
-        insertRoot.position = prePlaneNode.position
-        enemyPlayerBoardNode?.placeBoard(on: insertRoot, gameScene: sceneView.scene, boardScale: prePlaneNode.scale.x)
-        //insertRoot.addChildNode(enemyPlayerBoardNode!)
+        //insertRoot.position = prePlaneNode.position
+        //enemyPlayerBoardNode?.placeBoard(on: insertRoot, gameScene: sceneView.scene, boardScale: prePlaneNode.scale.x)
+     
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.01, execute: {
-                    //self.initGameTest()
-                    self.initGameStandard()
+                    self.initGameTest()
+                    //self.initGameStandard()
         })
        
     }
