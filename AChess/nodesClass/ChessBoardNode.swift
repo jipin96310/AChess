@@ -17,8 +17,9 @@ private let boardStrings = "levels"
 class ChessBoardNode: SCNNode {
     
 
-  
+ 
     let totalUpdateTime:Double = 1 //刷新时间
+    var boardRootName = "DefaultBoard"
     var curStage: Int = EnumsGameStage.exchangeStage.rawValue
     var curDragPoint: baseChessNode? = nil
     var updatePromise:Resolver<Double>? = nil
@@ -300,33 +301,20 @@ class ChessBoardNode: SCNNode {
             // we don't want any animations or things falling over while ARSceneView
             // is driving SceneKit and the view.
             scene.isPaused = true
-            
-            // walk down the scenegraph and update the children
-            //boardPathscene.rootNode.fixMaterials()
-            
             self.scene = scene
-            
             // this may not be the root, but lookup the identifier
             // will clone the tree done from this node
             boardNodeTemplate = scene.rootNode.childNode(withName: "playerBoard", recursively: true)
-
+            scene.rootNode.rootID = boardRootName
+            // walk down the scenegraph and update the childrens
+            scene.rootNode.fixMaterials()
 
         } catch {
             fatalError("Could not load level \(sceneUrl): \(error.localizedDescription)")
         }
     }
     
-    // an instance of the active level
-//    var activeLevel: SCNNode? {
-//        guard let boardNode = boardNodeTemplate else { return nil }
-//
-//        if let boardNodeClone = boardNodeClone {
-//            return boardNodeClone
-//        }
-//
-//        boardNodeClone = boardNode.clone()
-//        return boardNodeClone
-//    }
+
 
     // Scale factor to assign to the level to make it appear 1 unit wide.
     var normalizedScale: Float {
@@ -354,7 +342,10 @@ class ChessBoardNode: SCNNode {
         fatalError("init(coder:) has not been implemented")
     }
     
-
+    convenience init(name: String) {
+        self.init()
+        self.boardRootName = name
+    }
     
     func reset() {
         placed = false

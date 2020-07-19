@@ -452,7 +452,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         DispatchQueue.global().async {
             //preload some nodes, etc chess node
             self.initPreLoadChess()
-            self.enemyPlayerBoardNode = ChessBoardNode()
+            self.enemyPlayerBoardNode = ChessBoardNode(name: "enemyboard")
             self.enemyPlayerBoardNode?.load()
             //self.enemyPlayerBoardNode = createPlayerBoard()
         }
@@ -3252,6 +3252,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 //        playerBoardNode.eulerAngles = prePlaneNode.eulerAngles
 //        insertRoot.addChildNode(playerBoardNode)
         //
+        insertRoot.position = prePlaneNode.position
         enemyPlayerBoardNode?.placeBoard(on: insertRoot, gameScene: sceneView.scene, boardScale: prePlaneNode.scale.x)
         //insertRoot.addChildNode(enemyPlayerBoardNode!)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.01, execute: {

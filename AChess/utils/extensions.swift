@@ -37,6 +37,67 @@ extension String {
     }
 }
 extension SCNNode {
+    func fixMaterials() {
+        // walk down the scenegraph and update all children
+        fixNormalMaps()
+    
+        // establish paint colors
+//        copyGeometryForPaintColors()
+//        setPaintColors()
+    }
+    
+    private func fixNormalMap(_ geometry: SCNGeometry) {
+        for material in geometry.materials {
+            let prop = material.normal
+            // astc needs gggr and .ag to compress to L+A,
+            //   but will compress rg01 to RGB single plane (less quality)
+            // bc/eac/explicit/no compression use rg01 and .rg
+            //   rg01 is easier to see and edit in texture editors
+            
+            // set the normal to RED | GREEN (rg01 compression)
+            // uses single plane on ASTC, dual on BC5/EAC_RG11/Explicit
+            prop.textureComponents = [.red, .green]
+            
+            // set the normal to ALPHA | GREEN (gggr compression)
+            // uses dual plane for ASTC, BC3nm
+            // prop.textureComponents = [.alpha, .green]
+        }
+    }
+    private struct AssociatedKey {
+        static var rootID: String? = nil
+    }
+    
+      public var rootID: String {
+          get {
+              return objc_getAssociatedObject(self, &AssociatedKey.rootID) as? String ?? ""
+          }
+          
+          set {
+              objc_setAssociatedObject(self, &AssociatedKey.rootID, newValue, .OBJC_ASSOCIATION_COPY_NONATOMIC)
+          }
+      }
+    // fix the normal map reconstruction on scn files for compressed textures
+    
+    func fixNormalMaps() {
+        if let curRoot = parent?.rootID {
+            rootID = curRoot
+        }
+        if let geometry = geometry {
+            fixNormalMap(geometry)
+            // these will often just have the same material applied
+            if let lods = geometry.levelsOfDetail {
+                for lod in lods {
+                    if let geometry = lod.geometry {
+                        fixNormalMap(geometry)
+                    }
+                }
+            }
+        }
+        
+        for child in childNodes {
+            child.fixNormalMaps()
+        }
+    }
     var simdBoundingBox: (min: SIMD3<Float>, max: SIMD3<Float>) {
           get {
               return (SIMD3<Float>(boundingBox.min), SIMD3<Float>(boundingBox.max))
@@ -76,8 +137,8 @@ extension SCNNode {
         return findNodeWithGeometryHelper(node: self)
     }
     
-
-
+ 
+    
     var typeIdentifier: String? {
         if let name = name, !name.hasPrefix("_") {
             return name.split(separator: "_").first.map { String($0) }

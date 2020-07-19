@@ -84,6 +84,7 @@ extension ViewController: UIGestureRecognizerDelegate {
                 let touchLocation = sender.location(in: sceneView)
                 let hitTestResult = sceneView.hitTest(touchLocation, options: [SCNHitTestOption.boundingBoxOnly: true, SCNHitTestOption.ignoreHiddenNodes: true])
                 if !hitTestResult.isEmpty {
+                    print("hitNode", hitTestResult.first!.node.rootID)
                     
                     if isNameButton(hitTestResult.first!.node, "randomButton") && !isRandoming {
                         //点击以后randombutton下压
