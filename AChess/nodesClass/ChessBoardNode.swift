@@ -8,6 +8,7 @@
 import PromiseKit
 import Foundation
 import SceneKit
+import ARKit
 
 private let boardPath = "art.scnassets/playerBoard"
 private let defaultSize = CGSize(width: 2.4, height: 1.6)
@@ -388,7 +389,7 @@ class ChessBoardNode: SCNNode {
         ]))
     }
     
-    func placeBoard(on node: SCNNode, gameScene: SCNScene, boardScale: Float) {
+    func placeBoard(on node: SCNNode, gameScene: SCNScene, boardScale: Float, multiSession: multiUserSession) {
         guard let scene = scene else { return }
         guard let boardNode = boardNodeTemplate else { return }
         // set the environment onto the SCNView
@@ -404,6 +405,14 @@ class ChessBoardNode: SCNNode {
         // so have to fix this manually in fixLevelsOfDetail with inverse scale
         // applied to the screenSpaceRadius
         lodScale = normalizedScale * boardScale
+        
+        //multipeer
+        let anchor = ARAnchor(name: "playerBoard", transform: node.simdTransform)
+        // Send the anchor info to peers, so they can place the same content.
+        guard let data = try? NSKeyedArchiver.archivedData(withRootObject: anchor, requiringSecureCoding: true)
+            else { fatalError("can't encode anchor") }
+        multiSession.sendToAllPeers(data)
+        
     }
     /*添加棋子到棋盘*/
        func appendNewNodeToBoard(curBoardSide:Int, curAddChesses: [baseChessNode], curInsertIndex: Int?) {

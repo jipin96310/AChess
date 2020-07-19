@@ -3256,7 +3256,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 //        playerBoardNode.eulerAngles = prePlaneNode.eulerAngles
 //        insertRoot.addChildNode(playerBoardNode)
         playerBoardNode.position = prePlaneNode.position
-        playerBoardNode.placeBoard(on: playerBoardNode, gameScene: sceneView.scene, boardScale: prePlaneNode.scale.x)
+        
+        playerBoardNode.placeBoard(on: playerBoardNode, gameScene: sceneView.scene, boardScale: prePlaneNode.scale.x, multiSession: self.multipeerSession)
         //
         //insertRoot.position = prePlaneNode.position
         //enemyPlayerBoardNode?.placeBoard(on: insertRoot, gameScene: sceneView.scene, boardScale: prePlaneNode.scale.x)
