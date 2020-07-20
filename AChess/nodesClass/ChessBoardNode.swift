@@ -9,6 +9,7 @@ import PromiseKit
 import Foundation
 import SceneKit
 import ARKit
+import MultipeerConnectivity
 
 private let boardPath = "art.scnassets/playerBoard"
 private let defaultSize = CGSize(width: 2.4, height: 1.6)
@@ -24,6 +25,7 @@ class ChessBoardNode: SCNNode {
     var curStage: Int = EnumsGameStage.exchangeStage.rawValue
     var curDragPoint: baseChessNode? = nil
     var updatePromise:Resolver<Double>? = nil
+    var playerID:MCPeerID? = nil
     
     var showStrageBoard = true {
         didSet {
@@ -295,6 +297,8 @@ class ChessBoardNode: SCNNode {
     private var stroageNodeTemplate: SCNNode?
     private var lock = NSLock()
     
+    
+    
     private(set) var lodScale: Float = 1.0
     
     func load() {
@@ -389,7 +393,7 @@ class ChessBoardNode: SCNNode {
         ]))
     }
     
-    func placeBoard(on node: SCNNode, gameScene: SCNScene, boardScale: Float, multiSession: multiUserSession) {
+    func placeBoard(on node: SCNNode, gameScene: SCNScene, plane: PrePlane, multiSession: multiUserSession?) {
         guard let scene = scene else { return }
         guard let boardNode = boardNodeTemplate else { return }
         // set the environment onto the SCNView
@@ -404,14 +408,16 @@ class ChessBoardNode: SCNNode {
         // the lod system doesn't honor the scaled camera,
         // so have to fix this manually in fixLevelsOfDetail with inverse scale
         // applied to the screenSpaceRadius
-        lodScale = normalizedScale * boardScale
+        lodScale = normalizedScale * plane.scale.x
         
         //multipeer
-        let anchor = ARAnchor(name: "playerBoard", transform: node.simdTransform)
-        // Send the anchor info to peers, so they can place the same content.
-        guard let data = try? NSKeyedArchiver.archivedData(withRootObject: anchor, requiringSecureCoding: true)
-            else { fatalError("can't encode anchor") }
-        multiSession.sendToAllPeers(data)
+        if let curSession = multiSession {
+            guard let curAnchor = plane.anchor else {return}
+            // Send the anchor info to peers, so they can place the same content.
+            guard let data = try? NSKeyedArchiver.archivedData(withRootObject: curAnchor, requiringSecureCoding: true)
+                else { fatalError("can't encode anchor") }
+            curSession.sendToAllPeers(data)
+        }
         
     }
     /*添加棋子到棋盘*/

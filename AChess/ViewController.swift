@@ -626,10 +626,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 anchor.setValue("customPlane", forKey: "name")
                 sceneView.session.add(anchor: anchor)
             }
-            else if let anchor = try? NSKeyedUnarchiver.unarchivedObject(ofClass: ARAnchor.self, from: data) { //棋盘anchor
+            else if let anchor = try? NSKeyedUnarchiver.unarchivedObject(ofClass: CustomAnchor.self, from: data) { //棋盘anchor
                 isBoardInfoSent = true
                 // Add anchor to the session, ARSCNView delegate adds visible content.
                 anchor.setValue("playerBoard", forKey: "name")
+                anchor.setValue(peer, forKey: "anchorID")
                 sceneView.session.add(anchor: anchor)
             } else  if let enemyPlayerStruct = try? decoder.decode(codblePlayerStruct.self, from: data){
                 
@@ -3257,7 +3258,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 //        insertRoot.addChildNode(playerBoardNode)
         playerBoardNode.position = prePlaneNode.position
         
-        playerBoardNode.placeBoard(on: playerBoardNode, gameScene: sceneView.scene, boardScale: prePlaneNode.scale.x, multiSession: self.multipeerSession)
+        playerBoardNode.placeBoard(on: playerBoardNode, gameScene: sceneView.scene, plane: prePlaneNode, multiSession: self.multipeerSession)
         //
         //insertRoot.position = prePlaneNode.position
         //enemyPlayerBoardNode?.placeBoard(on: insertRoot, gameScene: sceneView.scene, boardScale: prePlaneNode.scale.x)
