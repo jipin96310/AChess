@@ -7,9 +7,11 @@
 //
 
 import ARKit
+import MultipeerConnectivity.MCPeerID
 
 class CustomAnchor: ARAnchor {
     let size: CGSize
+    var anchorID: MCPeerID? = nil
     
     init(transform: float4x4, size: CGSize) {
         self.size = size

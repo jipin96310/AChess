@@ -14,7 +14,7 @@ import MultipeerConnectivity
 private let boardPath = "art.scnassets/playerBoard"
 private let defaultSize = CGSize(width: 2.4, height: 1.6)
 private let defaultBoardName = "playerBoard"
-private let boardStrings = "levels"
+private let boardStrings = "board"
 
 class ChessBoardNode: SCNNode {
     

@@ -83,7 +83,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var isBoardInfoSent = false
     var insertRoot = SCNNode()// Root node of the board
     var playerBoardNode = ChessBoardNode(name: EnumBoardString.allyBoard.rawValue) //棋盘节点
-    var enemyPlayerBoardNode: ChessBoardNode? //敌人棋盘节点
+    var enemyPlayerBoardNodes: [ChessBoardNode] = [] //敌人棋盘节点
     var panOffset = SIMD3<Float>()
     var curPlaneNode:customPlaneNode? = nil
     let priceTagNode = TextNode(textScale: SCNVector3(0.3, 0.5, 0))
@@ -452,11 +452,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         DispatchQueue.global().async {
             //preload some nodes, etc chess node
             self.initPreLoadChess()
-            self.enemyPlayerBoardNode = ChessBoardNode(name: EnumBoardString.enemyBoard.rawValue)
-            self.enemyPlayerBoardNode?.load()
-            self.enemyPlayerBoardNode?.showStrageBoard = false
             self.playerBoardNode.load()
-            //self.enemyPlayerBoardNode = createPlayerBoard()
+            
+            for i in 0 ..< (self.gameConfigStr.playerNumber - 1) {
+                let tempEnemyNode = ChessBoardNode(name: EnumBoardString.enemyBoard.rawValue)
+                tempEnemyNode.load()
+                tempEnemyNode.showStrageBoard = false
+                self.enemyPlayerBoardNodes.append(tempEnemyNode)
+            }
         }
         
     }
@@ -630,11 +633,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 isBoardInfoSent = true
                 // Add anchor to the session, ARSCNView delegate adds visible content.
                 anchor.setValue("playerBoard", forKey: "name")
-                anchor.setValue(peer, forKey: "anchorID")
+                anchor.anchorID = peer
+                //anchor.setValue(peer, forKey: "anchorID")
                 sceneView.session.add(anchor: anchor)
             } else  if let enemyPlayerStruct = try? decoder.decode(codblePlayerStruct.self, from: data){
                 
-          
                     if let decodeID = try? NSKeyedUnarchiver.unarchivedObject(ofClass: MCPeerID.self, from: enemyPlayerStruct.encodePlayerID!) {
                         if gameConfigStr.isMaster { //主机每次收到数据都默认更新一下玩家数据信息
                             var alivePlayer:[MCPeerID] = []
@@ -2109,6 +2112,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         }
         if curStage == EnumsGameStage.exchangeStage.rawValue {  //交易转战斗
             disableButtons() //禁止buttons点击和手势事件
+            toggleEnemies(isHidden: false) //隐藏敌人
             let delayTime = PlayerBoardTextAppear(TextContent: "BattleStage".localized, KeepAppear: false) //弹出切换回合提示
             delay(delayTime) {
                 var totalTime = 0.00
@@ -2238,7 +2242,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 }
                 
                 self.initDisplay()
-                
+                self.toggleEnemies(isHidden: true) //展示敌人
                 if !self.isFreezed {
                    self.initBoardChess(initStage: EnumsGameStage.exchangeStage.rawValue)
                 } else {
@@ -3084,6 +3088,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         freezeButtonNode.runAction(SCNAction.fadeOut(duration: 1))
         removeGestureRecoginzer()
         
+    }
+    func toggleEnemies(isHidden: Bool){
+        enemyPlayerBoardNodes.forEach{ board in
+            board.isHidden = isHidden
+        }
     }
     func recoverGestureRecoginzer() {
         longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action:  #selector(onLongPress))

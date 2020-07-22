@@ -22,9 +22,20 @@ extension ViewController {
 
             // We already created a node for the board anchor
             return prePlaneNode
-        } else {
-            // Ignore all other anchors
-            return nil
+        } else { //非本机anchor
+//                playerBoardNode.placeBoard(on: playerBoardNode, gameScene: sceneView.scene, plane: prePlaneNode, multiSession: self.multipeerSession)
+            guard let planeAnchor = anchor as? CustomAnchor else {return nil}
+            guard let planeAnchorID = planeAnchor.anchorID else {return nil}
+            var EmptyNode:ChessBoardNode? = nil
+            for i in 0 ..< enemyPlayerBoardNodes.count {
+                if enemyPlayerBoardNodes[i].playerID == nil {
+                    enemyPlayerBoardNodes[i].playerID = planeAnchor.anchorID
+                    EmptyNode = enemyPlayerBoardNodes[i]
+                    EmptyNode?.placeBoard(on: EmptyNode!, gameScene: sceneView.scene, plane: prePlaneNode, multiSession: self.multipeerSession)
+                    break;
+                }
+            }  
+            return EmptyNode
         }
     }
     
