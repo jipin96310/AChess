@@ -150,7 +150,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         {
             didSet(oldBoard) {
                 if (curStage == EnumsGameStage.exchangeStage.rawValue) {
-
+                    
                     var chessTimesDic:[[String : [Int]]] = [[:],[:],[:]] //棋子map 刷新问题
                     var chessKindMap:[String : Int] = [:]
                     var newCombineChess: [baseChessNode] = []
@@ -211,12 +211,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         }
                     }
                      /*棋子合成end*/
-  
+                    if gameConfigStr.isShareBoard { //如果分享棋盘则发送当前信息给其他人
+                        let encodedData = encodeCodablePlayerStruct(playerID: multipeerSession.getMyId(), player: playerStatues[0])
+                        multipeerSession.sendToAllPeers(encodedData)
+                    }
                 }
-                
-                
-                
-                
+               
                 for boardIndex in 0 ..< boardNode.count {
                     for innerIndex in 0 ..< boardNode[boardIndex].count {
                         if !oldBoard[boardIndex].contains(boardNode[boardIndex][innerIndex]) {
@@ -674,6 +674,17 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             enemyPlayerStruct.curChesses!.forEach{(encodeChess) in
                                 tempEnemybaseChess.append(baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, codeChessInfo: encodeChess))
                             }
+                            if gameConfigStr.isShareBoard { //如果分享棋盘则更新敌人棋盘
+                                enemyPlayerBoardNodes.forEach{board in
+                                    if board.playerID == decodeID {
+                                        enemyPlayerStruct.curChesses!.forEach{(encodeChess) in
+                                             board.boardChessess[BoardSide.allySide.rawValue].append(baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, codeChessInfo: encodeChess)) //TODO 需要一次性加入
+                                        }
+                                    }
+                                }
+                            }
+
+                            /*电脑玩家直接开战*/
                             if enemyPlayerStruct.isComputer {
                                 feedEnemies()
                             } else {
