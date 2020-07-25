@@ -212,7 +212,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     }
                      /*棋子合成end*/
                     if gameConfigStr.isShareBoard { //如果分享棋盘则发送当前信息给其他人
-                        let encodedData = encodeCodablePlayerStruct(playerID: multipeerSession.getMyId(), player: playerStatues[0])
+                        let encodedData = encodeBoardChesses(boardChess: boardNode)
                         multipeerSession.sendToAllPeers(encodedData)
                     }
                 }
@@ -636,6 +636,23 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 anchor.anchorID = peer
                 //anchor.setValue(peer, forKey: "anchorID")
                 sceneView.session.add(anchor: anchor)
+            } else if let enemyPlayerBoard = try? decoder.decode(boardChessesStruct.self, from: data) {
+                if gameConfigStr.isShareBoard { //如果分享棋盘则更新敌人棋盘
+                    enemyPlayerBoardNodes.forEach{board in
+                        if board.playerID == peer {
+                           var tempAllyArr:[baseChessNode] = []
+                            enemyPlayerBoard.boardChesses[BoardSide.allySide.rawValue].forEach{(encodeChess) in
+                                tempAllyArr.append(baseChessNode(statusNum: EnumsChessStage.owned.rawValue, codeChessInfo: encodeChess))
+                            }
+                            var tempEnemyArr:[baseChessNode] = []
+                            enemyPlayerBoard.boardChesses[BoardSide.enemySide.rawValue].forEach{(encodeChess) in
+                                tempEnemyArr.append(baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, codeChessInfo: encodeChess))
+                            }
+                            board.setBoard(side: BoardSide.allySide.rawValue, chessess: tempAllyArr)
+                            board.setBoard(side: BoardSide.enemySide.rawValue, chessess: tempEnemyArr)
+                        }
+                    }
+                }
             } else  if let enemyPlayerStruct = try? decoder.decode(codblePlayerStruct.self, from: data){
                 
                     if let decodeID = try? NSKeyedUnarchiver.unarchivedObject(ofClass: MCPeerID.self, from: enemyPlayerStruct.encodePlayerID!) {
@@ -673,15 +690,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             var tempEnemybaseChess:[baseChessNode] = []
                             enemyPlayerStruct.curChesses!.forEach{(encodeChess) in
                                 tempEnemybaseChess.append(baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, codeChessInfo: encodeChess))
-                            }
-                            if gameConfigStr.isShareBoard { //如果分享棋盘则更新敌人棋盘
-                                enemyPlayerBoardNodes.forEach{board in
-                                    if board.playerID == decodeID {
-                                        enemyPlayerStruct.curChesses!.forEach{(encodeChess) in
-                                             board.boardChessess[BoardSide.allySide.rawValue].append(baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, codeChessInfo: encodeChess)) //TODO 需要一次性加入
-                                        }
-                                    }
-                                }
                             }
 
                             /*电脑玩家直接开战*/
@@ -3230,40 +3238,40 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
     
     //master ohone init the playerboard and send to peers
-    func initPlayerBoardAndSend(hitTestResult: ARHitTestResult) {
-        if  isPlayerBoardinited {
-            return
-        } else {
-            isPlayerBoardinited = true
-        }
-        
-        playerBoardNode = ChessBoardNode(name: EnumBoardString.allyBoard.rawValue)
-        //playerBoardNode.eulerAngles = SCNVector3(45.degreesToRadius, 0, 0)
-        //playGroundNode.geometry?.firstMaterial?.isDoubleSided = true
-        //playGroundNode.geometry?.firstMaterial?.diffuse.contents = UIColor.red
-        let hitTransform = hitTestResult.worldTransform
-        let positionOFPlane = hitTransform.columns.3
-        let xP = positionOFPlane.x
-        let yP = positionOFPlane.y
-        let zP = positionOFPlane.z
-        playerBoardNode.position = SCNVector3(xP,yP,zP)
-        playerBoardNode.physicsBody = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(node: playerBoardNode))
-        //playGroundNode.physicsBody?.categoryBitMask = BitMaskCategoty.playGround.rawValue
-        //playGroundNode.physicsBody?.contactTestBitMask = BitMaskCategoty.baseCard.rawValue
-        self.sceneView.scene.rootNode.addChildNode(playerBoardNode)
-        
-        if (gameConfigStr.isMaster && !isBoardInfoSent) { //如果是主机发送
-            isBoardInfoSent = true
-            let anchor = ARAnchor(name: "playerBoard", transform: hitTransform)
-            // Send the anchor info to peers, so they can place the same content.
-            guard let data = try? NSKeyedArchiver.archivedData(withRootObject: anchor, requiringSecureCoding: true)
-                else { fatalError("can't encode anchor") }
-            self.multipeerSession.sendToAllPeers(data)
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01, execute: {
-            self.initGameTest()
-        })
-        }
+//    func initPlayerBoardAndSend(hitTestResult: ARHitTestResult) {
+//        if  isPlayerBoardinited {
+//            return
+//        } else {
+//            isPlayerBoardinited = true
+//        }
+//
+//        playerBoardNode = ChessBoardNode(name: EnumBoardString.allyBoard.rawValue)
+//        //playerBoardNode.eulerAngles = SCNVector3(45.degreesToRadius, 0, 0)
+//        //playGroundNode.geometry?.firstMaterial?.isDoubleSided = true
+//        //playGroundNode.geometry?.firstMaterial?.diffuse.contents = UIColor.red
+//        let hitTransform = hitTestResult.worldTransform
+//        let positionOFPlane = hitTransform.columns.3
+//        let xP = positionOFPlane.x
+//        let yP = positionOFPlane.y
+//        let zP = positionOFPlane.z
+//        playerBoardNode.position = SCNVector3(xP,yP,zP)
+//        playerBoardNode.physicsBody = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(node: playerBoardNode))
+//        //playGroundNode.physicsBody?.categoryBitMask = BitMaskCategoty.playGround.rawValue
+//        //playGroundNode.physicsBody?.contactTestBitMask = BitMaskCategoty.baseCard.rawValue
+//        self.sceneView.scene.rootNode.addChildNode(playerBoardNode)
+//
+//        if (gameConfigStr.isMaster && !isBoardInfoSent) { //如果是主机发送
+//            isBoardInfoSent = true
+//            let anchor = ARAnchor(name: "playerBoard", transform: hitTransform)
+//            // Send the anchor info to peers, so they can place the same content.
+//            guard let data = try? NSKeyedArchiver.archivedData(withRootObject: anchor, requiringSecureCoding: true)
+//                else { fatalError("can't encode anchor") }
+//            self.multipeerSession.sendToAllPeers(data)
+//        }
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01, execute: {
+//            self.initGameTest()
+//        })
+//        }
     //just add the player board node
     func initPlayerBoard() {
         if  isPlayerBoardinited {

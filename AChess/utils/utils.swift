@@ -173,6 +173,22 @@ func encodeCodablePlayerStruct(playerID: MCPeerID, player: playerStruct) -> Data
     else { fatalError("can't encode player struct!") }
     return encodedData
 }
+func encodeBoardChesses(boardChess:[[baseChessNode]]) -> Data{
+    var tempBoard:[[codableChessStruct]] = []
+    boardChess.forEach{chesses in
+        var codeChesses:[codableChessStruct] = []
+        chesses.forEach { curC in
+            if let enCurC = curC.exportCodeableStruct() {
+                codeChesses.append(enCurC)
+            }
+        }
+        tempBoard.append(codeChesses)
+    }
+    let encoder = JSONEncoder()
+    guard let encodedData = try? encoder.encode(boardChessesStruct(boardChesses: tempBoard))
+    else { fatalError("can't encode player struct!") }
+    return encodedData
+}
 
 func findIndexOfFirstAttack(curBoard: [baseChessNode]) -> Int {
     for i in 0 ..< curBoard.count {

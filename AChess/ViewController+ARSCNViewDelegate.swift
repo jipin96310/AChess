@@ -31,7 +31,7 @@ extension ViewController {
                 if enemyPlayerBoardNodes[i].playerID == nil {
                     enemyPlayerBoardNodes[i].playerID = planeAnchor.anchorID
                     EmptyNode = enemyPlayerBoardNodes[i]
-                    EmptyNode?.placeBoard(on: EmptyNode!, gameScene: sceneView.scene, plane: prePlaneNode, multiSession: self.multipeerSession)
+                    EmptyNode?.placeBoard(on: EmptyNode!, gameScene: sceneView.scene, plane: prePlaneNode, multiSession: nil)
                     break;
                 }
             }  

@@ -53,12 +53,12 @@ class ChessBoardNode: SCNNode {
     //                   updateStorageBoardPosition()  //dont delete
            }
        }
-       var storageRootNode : [SCNNode] = []
+    var storageRootNode : [SCNNode] = []
     var boardChessess:[[baseChessNode]] = [[],[]]
-//    {
-//                didSet(oldBoard) {
-//                    guard let curBoardNode = boardNodeTemplate else { return }
-//
+    {
+                didSet(oldBoard) {
+                    guard let curBoardNode = boardNodeTemplate else { return }
+
 //                    if (curStage == EnumsGameStage.exchangeStage.rawValue) {
 //
 //                        var chessTimesDic:[[String : [Int]]] = [[:],[:],[:]] //棋子map 刷新问题
@@ -122,28 +122,28 @@ class ChessBoardNode: SCNNode {
 //                         /*棋子合成end*/
 //
 //                    }
-//
-//
-//
-//
-//                    for boardIndex in 0 ..< boardChessess.count {
-//                        for innerIndex in 0 ..< boardChessess[boardIndex].count {
-//                            if !oldBoard[boardIndex].contains(boardChessess[boardIndex][innerIndex]) {
-//                                let curNode = self.boardChessess[boardIndex][innerIndex]
-//                                curNode.position.y = 0.01
-//                                DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + 0.1 * Double((innerIndex + 1))) {
-//                                        curBoardNode.addChildNode(curNode)
-//                                }
-//                            }
-//                        }
-//                    }
-//                    //以下为战斗回合
-//                    var inheritPromiseArr:[() -> (Promise<Double>)] = []
-//                    var isAlive = true //是否有延展性消灭
-//                    var needDeleteChesses:[baseChessNode] = [] //需要删除的棋子
-//                    for boardIndex in 0 ..< oldBoard.count {
-//                        for innerIndex in 0 ..< oldBoard[boardIndex].count {
-//                            if !boardChessess[boardIndex].contains(oldBoard[boardIndex][innerIndex]) {
+
+
+
+
+                    for boardIndex in 0 ..< boardChessess.count {
+                        for innerIndex in 0 ..< boardChessess[boardIndex].count {
+                            if !oldBoard[boardIndex].contains(boardChessess[boardIndex][innerIndex]) {
+                                let curNode = self.boardChessess[boardIndex][innerIndex]
+                                curNode.position.y = 0.01
+                                DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + 0.1 * Double((innerIndex + 1))) {
+                                        curBoardNode.addChildNode(curNode)
+                                }
+                            }
+                        }
+                    }
+                    //以下为战斗回合
+                    var inheritPromiseArr:[() -> (Promise<Double>)] = []
+                    var isAlive = true //是否有延展性消灭
+                    var needDeleteChesses:[baseChessNode] = [] //需要删除的棋子
+                    for boardIndex in 0 ..< oldBoard.count {
+                        for innerIndex in 0 ..< oldBoard[boardIndex].count {
+                            if !boardChessess[boardIndex].contains(oldBoard[boardIndex][innerIndex]) {
 //                                if (curStage == EnumsGameStage.battleStage.rawValue) { //亡语生效
 //                                    var isMaxLevel = false
 //                                    /*AllInheritMax*/
@@ -252,13 +252,20 @@ class ChessBoardNode: SCNNode {
 //                                        //self.updateWholeBoardPosition()
 //                                    }
 //                                }
-//                                if oldBoard[boardIndex][innerIndex] !== curDragPoint{
-//                                    needDeleteChesses.append(oldBoard[boardIndex][innerIndex])
-//                                }
-//                            }
-//                        }
-//                    }
-//
+                                if oldBoard[boardIndex][innerIndex] !== curDragPoint{
+                                    needDeleteChesses.append(oldBoard[boardIndex][innerIndex])
+                                }
+                            }
+                        }
+                    }
+                    let group = DispatchGroup()
+                    let queue = DispatchQueue.global()
+                    for i in 0 ..< needDeleteChesses.count {
+                        queue.async(group: group, execute: {
+                            needDeleteChesses[i].removeFromParentNode()
+                        })
+                    }
+
 //                    recyclePromise(taskArr: inheritPromiseArr, curIndex: 0).done{ _ in
 //                        //创建队列组
 //                        let group = DispatchGroup()
@@ -283,8 +290,8 @@ class ChessBoardNode: SCNNode {
 //                            }
 //                        }
 //                    }
-//            }
-//            }
+            }
+            }
     
     // Size of the level in meters
     var targetSize: CGSize = defaultSize
@@ -607,6 +614,10 @@ class ChessBoardNode: SCNNode {
         ]
         newTrackPoint.runAction(SCNAction.sequence(trackActionSequence))
         return 1
+    }
+    
+    public func setBoard(side: Int, chessess: [baseChessNode]) {
+        boardChessess[side] = chessess
     }
     
 }
