@@ -493,22 +493,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             playerStatues[0].playerID = curPlayerId
         }
         
-        //tap gesture added
-        longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action:  #selector(onLongPress))
+        
         tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onTap))
         tapGestureRecognizer.cancelsTouchesInView = false
         self.sceneView.addGestureRecognizer(tapGestureRecognizer)
-        if setting.controlMethod == 0 {
-            initReferenceNode()
-            //control with long press
-            longPressGestureRecognizer.cancelsTouchesInView = false
-            self.sceneView.addGestureRecognizer(longPressGestureRecognizer)
-            
-            // MARK: pan gesture is unnecessary. it is included in longpress recognizer
-//            let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(onPan))
-//            panGestureRecognizer.maximumNumberOfTouches = 1
-//            self.sceneView.addGestureRecognizer(panGestureRecognizer)
-        }
+
         //only for test
         self.sceneView.debugOptions = [] //ARSCNDebugOptions.showPhysicsShapes
         // We want to receive the frames from the video
@@ -648,8 +637,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             enemyPlayerBoard.boardChesses[BoardSide.enemySide.rawValue].forEach{(encodeChess) in
                                 tempEnemyArr.append(baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, codeChessInfo: encodeChess))
                             }
-                            board.setBoard(side: BoardSide.allySide.rawValue, chessess: tempAllyArr)
-                            board.setBoard(side: BoardSide.enemySide.rawValue, chessess: tempEnemyArr)
+                            board.setBoard(chessess: [tempEnemyArr, tempAllyArr])
                         }
                     }
                 }
@@ -2322,11 +2310,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 boardNode.position.y = 0
             }
             
-            let curSaleNumber = 6//playerStatues[curPlayerId].curLevel + 2
-            let curStartIndex = (GlobalNumberSettings.chessNumber.rawValue - curSaleNumber) / 2
+            let curSaleNumber = playerStatues[curPlayerId].curLevel + 2
+            //let curStartIndex = (GlobalNumberSettings.chessNumber.rawValue - curSaleNumber) / 2
             var tempArr:[baseChessNode] = []
             for index in 0 ..< curSaleNumber  {
-                let curNode = boardRootNode[BoardSide.enemySide.rawValue][index + curStartIndex]
+                //let curNode = boardRootNode[BoardSide.enemySide.rawValue][index + curStartIndex]
                 let randomStruct =  getRandomChessStructFromPool(curPlayerLevel)
                 //let tempChess = initChessWithPos(pos: curNode.position, sta: EnumsChessStage.forSale.rawValue, info: randomStruct)
                 let tempChess:baseChessNode
@@ -2336,6 +2324,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     playerBoardNode.addChildNode(tempChess)
                 } else {
                     if let preChess = preLoadNode[BoardSide.enemySide.rawValue].first {
+                        preChess.loadWithStruct(statusNum: EnumsChessStage.forSale.rawValue, chessInfo: randomStruct)
                         tempArr.append(preChess)
                         preLoadNode[BoardSide.enemySide.rawValue].remove(at: 0)
                     }
@@ -3172,8 +3161,23 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         recoverChess(side: BoardSide.allySide.rawValue)
         initDisplay()
         initButtons()
+        initGestures()
        }
-    func initGameStandard() {
+    func initGestures() {
+        //tap gesture added
+        longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action:  #selector(onLongPress))
+       
+        if setting.controlMethod == 0 {
+            initReferenceNode()
+            //control with long press
+            longPressGestureRecognizer.cancelsTouchesInView = false
+            self.sceneView.addGestureRecognizer(longPressGestureRecognizer)
+            
+            // MARK: pan gesture is unnecessary. it is included in longpress recognizer
+            //            let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(onPan))
+            //            panGestureRecognizer.maximumNumberOfTouches = 1
+            //            self.sceneView.addGestureRecognizer(panGestureRecognizer)
+        }
         
     }
     func PlayerBoardTextShow(TextContent: String) -> Double{
@@ -3286,7 +3290,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 //        insertRoot.addChildNode(playerBoardNode)
         playerBoardNode.position = prePlaneNode.position
         
-        playerBoardNode.placeBoard(on: playerBoardNode, gameScene: sceneView.scene, plane: prePlaneNode, multiSession: self.multipeerSession)
+        playerBoardNode.placeBoard(on: playerBoardNode, plane: prePlaneNode, multiSession: self.multipeerSession)
         //
         //insertRoot.position = prePlaneNode.position
         //enemyPlayerBoardNode?.placeBoard(on: insertRoot, gameScene: sceneView.scene, boardScale: prePlaneNode.scale.x)

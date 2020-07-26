@@ -54,6 +54,7 @@ class multiUserSession: NSObject {
     
     func sendToAllPeers(_ data: Data) {
         do {
+            print("connectpeers", session.connectedPeers)
             try session.send(data, toPeers: session.connectedPeers, with: .reliable)
         } catch {
             print("error sending data to peers: \(error.localizedDescription)")

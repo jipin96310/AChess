@@ -131,9 +131,9 @@ class ChessBoardNode: SCNNode {
                             if !oldBoard[boardIndex].contains(boardChessess[boardIndex][innerIndex]) {
                                 let curNode = self.boardChessess[boardIndex][innerIndex]
                                 curNode.position.y = 0.01
-                                DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + 0.1 * Double((innerIndex + 1))) {
+                                //DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.1 * Double((innerIndex + 1))) {
                                         curBoardNode.addChildNode(curNode)
-                                }
+                                //}
                             }
                         }
                     }
@@ -258,13 +258,18 @@ class ChessBoardNode: SCNNode {
                             }
                         }
                     }
-                    let group = DispatchGroup()
-                    let queue = DispatchQueue.global()
+                    //let group = DispatchGroup()
+                    //let queue = DispatchQueue.global()
                     for i in 0 ..< needDeleteChesses.count {
-                        queue.async(group: group, execute: {
+                        //queue.async(group: group, execute: {
                             needDeleteChesses[i].removeFromParentNode()
-                        })
+                       // })
                     }
+//                    DispatchQueue.main.async {
+//                        let updateTime = self.updateWholeBoardPosition()
+//
+//                    }
+                    self.updateWholeBoardPosition()
 
 //                    recyclePromise(taskArr: inheritPromiseArr, curIndex: 0).done{ _ in
 //                        //创建队列组
@@ -313,34 +318,37 @@ class ChessBoardNode: SCNNode {
         lock.lock(); defer { lock.unlock() }
         
         // only load once - can be called from preload on another thread, or regular load
-        if scene != nil {
+        if boardNodeTemplate != nil {
             return
         }
         
-        guard let sceneUrl = Bundle.main.url(forResource: boardPath, withExtension: "scn") else {
-            fatalError("Level \(boardPath) not found")
-        }
+//        guard let sceneUrl = Bundle.main.url(forResource: boardPath, withExtension: "scn") else {
+//            fatalError("Level \(boardPath) not found")
+//        }
         do {
-            let scene = try SCNScene(url: sceneUrl, options: nil)
+            //let scene = try SCNScene(url: sceneUrl, options: nil)
             
             // start with animations and physics paused until the board is placed
             // we don't want any animations or things falling over while ARSceneView
             // is driving SceneKit and the view.
-            scene.isPaused = true
-            self.scene = scene
+            //scene.isPaused = true
+            //self.scene = scene
             // this may not be the root, but lookup the identifier
             // will clone the tree done from this node
-            boardNodeTemplate = scene.rootNode.childNode(withName: "playerBoard", recursively: true)
+            //let board = createPlayerBoard()
+            boardNodeTemplate = createPlayerBoard()
             
-            scene.rootNode.rootID = boardRootName
+            boardNodeTemplate!.rootID = boardRootName
             // walk down the scenegraph and update the childrens
-            scene.rootNode.fixMaterials()
+            boardNodeTemplate!.fixMaterials()
             //
             initSubNodes()
+            initBoardRootNode()
+            initPreLoadChess()
             
             
         } catch {
-            fatalError("Could not load level \(sceneUrl): \(error.localizedDescription)")
+            fatalError("Could not load board: \(error.localizedDescription)")
         }
     }
     
@@ -400,12 +408,12 @@ class ChessBoardNode: SCNNode {
         ]))
     }
     
-    func placeBoard(on node: SCNNode, gameScene: SCNScene, plane: PrePlane, multiSession: multiUserSession?) {
-        guard let scene = scene else { return }
+    func placeBoard(on node: SCNNode, plane: PrePlane, multiSession: multiUserSession?) {
+        //guard let scene = scene else { return }
         guard let boardNode = boardNodeTemplate else { return }
         // set the environment onto the SCNView
-        gameScene.lightingEnvironment.contents = scene.lightingEnvironment.contents
-        gameScene.lightingEnvironment.intensity = scene.lightingEnvironment.intensity
+        //gameScene.lightingEnvironment.contents = scene.lightingEnvironment.contents
+       // gameScene.lightingEnvironment.intensity = scene.lightingEnvironment.intensity
         
         // set the cloned nodes representing the active level
         node.addChildNode(boardNode)
@@ -616,8 +624,51 @@ class ChessBoardNode: SCNNode {
         return 1
     }
     
-    public func setBoard(side: Int, chessess: [baseChessNode]) {
-        boardChessess[side] = chessess
+    public func setBoard(chessess: [[baseChessNode]]) {
+        if chessess.count != 2 { return }
+        if boardChessess[0].count < GlobalCommonNumber.chessNumber || boardChessess[1].count < GlobalCommonNumber.chessNumber {
+            return
+        }
+        if boardChessess[0].count == chessess[0].count && boardChessess[1].count == chessess[1].count { //数量一样 必定是多余通讯
+            return
+        }
+        if chessess[0].count > GlobalCommonNumber.chessNumber || chessess[1].count > GlobalCommonNumber.chessNumber {
+            return
+        }
+        for i in 0 ..< boardChessess.count {
+            for j in 0 ..< boardChessess[i].count {
+                if j <= chessess[i].count - 1 { //load chess with struct
+                    let statusNum = i == 0 ? EnumsChessStage.enemySide.rawValue : EnumsChessStage.owned.rawValue
+                    boardChessess[i][j].loadWithStruct(statusNum: statusNum, chessInfo: chessess[i][j].exportStruct())
+                    boardChessess[i][j].isHidden = false
+                } else { // hide chess
+                    boardChessess[i][j].isHidden = true
+                }
+            }
+        }
+        
+        
+        
+        //let tempBoard = [copyChessArr(curBoard: chessess[0]), copyChessArr(curBoard: chessess[1])]
+//        boardChessess[0].removeAll()
+//        tempBoard[0].forEach { (chess) in
+//            boardChessess[0].append(chess)
+//        }
+//
+//        boardChessess[1].removeAll()
+//        tempBoard[1].forEach { (chess) in
+//            boardChessess[1].append(chess)
+//        }
+        
     }
+    func initPreLoadChess() {
+           for i in 0 ..< boardChessess.count {
+               for _ in 0 ..< GlobalCommonNumber.chessNumber {
+                let newNode = baseChessNode()
+                newNode.isHidden = true
+                boardChessess[i].append(newNode)
+               }
+           }
+       }
     
 }

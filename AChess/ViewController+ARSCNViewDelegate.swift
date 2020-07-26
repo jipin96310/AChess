@@ -27,14 +27,18 @@ extension ViewController {
             guard let planeAnchor = anchor as? CustomAnchor else {return nil}
             guard let planeAnchorID = planeAnchor.anchorID else {return nil}
             var EmptyNode:ChessBoardNode? = nil
-            for i in 0 ..< enemyPlayerBoardNodes.count {
-                if enemyPlayerBoardNodes[i].playerID == nil {
-                    enemyPlayerBoardNodes[i].playerID = planeAnchor.anchorID
-                    EmptyNode = enemyPlayerBoardNodes[i]
-                    EmptyNode?.placeBoard(on: EmptyNode!, gameScene: sceneView.scene, plane: prePlaneNode, multiSession: nil)
+            
+            
+            for i in 0 ..< self.enemyPlayerBoardNodes.count {
+                if self.enemyPlayerBoardNodes[i].playerID == nil {
+                    self.enemyPlayerBoardNodes[i].playerID = planeAnchor.anchorID
+                    EmptyNode = self.enemyPlayerBoardNodes[i]
+                    EmptyNode?.placeBoard(on: EmptyNode!, plane: self.prePlaneNode, multiSession: nil)
                     break;
                 }
-            }  
+            }
+            
+            
             return EmptyNode
         }
     }

@@ -183,6 +183,7 @@ public class baseChessNode: SCNNode {
     
     
     func exportCodeableStruct() -> codableChessStruct? {
+        print("exportchessname", chessName)
         for i in 0 ..< chessCollectionsLevel[chessRarity - 1].count {
             if chessCollectionsLevel[chessRarity - 1][i].name == chessName {
                 return codableChessStruct(chessRarityIndex: i, atkNum: atkNum!, defNum: defNum!, chessRarity: chessRarity, chessLevel: chessLevel, chessKind: chessKind, abilities: abilities, temporaryBuff: temporaryBuff)
@@ -194,6 +195,10 @@ public class baseChessNode: SCNNode {
             }
         }
         return nil
+    }
+    func exportStruct() -> chessStruct {
+       
+        return chessStruct(name: chessName, desc: "", atkNum: atkNum ?? 1, defNum: defNum ?? 1, chessRarity: chessRarity, chessLevel: chessLevel, chessKind: chessKind, abilities: abilities, temporaryBuff: temporaryBuff, rattleFunc: rattleFunc, inheritFunc: inheritFunc)
     }
     
     
