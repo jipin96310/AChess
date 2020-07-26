@@ -31,9 +31,11 @@ extension ViewController {
             
             for i in 0 ..< self.enemyPlayerBoardNodes.count {
                 if self.enemyPlayerBoardNodes[i].playerID == nil {
-                    self.enemyPlayerBoardNodes[i].playerID = planeAnchor.anchorID
+                    self.enemyPlayerBoardNodes[i].playerID = planeAnchorID
                     EmptyNode = self.enemyPlayerBoardNodes[i]
-                    EmptyNode?.placeBoard(on: EmptyNode!, plane: self.prePlaneNode, multiSession: nil)
+                    if (!EmptyNode!.placed) {
+                       EmptyNode?.placeBoard(on: EmptyNode!, plane: self.prePlaneNode, multiSession: nil)
+                    }
                     break;
                 }
             }

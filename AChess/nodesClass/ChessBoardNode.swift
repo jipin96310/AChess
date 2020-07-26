@@ -132,139 +132,139 @@ class ChessBoardNode: SCNNode {
                                 let curNode = self.boardChessess[boardIndex][innerIndex]
                                 curNode.position.y = 0.01
                                 //DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.1 * Double((innerIndex + 1))) {
-                                        curBoardNode.addChildNode(curNode)
+                                curBoardNode.addChildNode(curNode)
                                 //}
                             }
                         }
                     }
                     //以下为战斗回合
-                    var inheritPromiseArr:[() -> (Promise<Double>)] = []
-                    var isAlive = true //是否有延展性消灭
-                    var needDeleteChesses:[baseChessNode] = [] //需要删除的棋子
-                    for boardIndex in 0 ..< oldBoard.count {
-                        for innerIndex in 0 ..< oldBoard[boardIndex].count {
-                            if !boardChessess[boardIndex].contains(oldBoard[boardIndex][innerIndex]) {
-//                                if (curStage == EnumsGameStage.battleStage.rawValue) { //亡语生效
-//                                    var isMaxLevel = false
-//                                    /*AllInheritMax*/
-//                                    for subIndex in 0 ..< boardChessess[boardIndex].count {
-//                                        if boardChessess[boardIndex][subIndex].abilities.contains(EnumAbilities.allInheritMax.rawValue) {
-//                                            isMaxLevel = true
-//                                            break
-//                                        }
-//                                    }
-//                                    /*End*/
-//                                    let erasedChess = oldBoard[boardIndex][innerIndex]
-//                                    let oppoBoardSide = boardIndex == BoardSide.allySide.rawValue ? BoardSide.enemySide.rawValue : BoardSide.allySide.rawValue
-//                                    let curStar = isMaxLevel ? GlobalCommonNumber.maxStars : erasedChess.chessLevel
-//                                    self.boardChessess[boardIndex].forEach{ (curBuffChess) in
-//                                        if curBuffChess.abilities.contains(EnumAbilities.afterEliminatedAddBuff.rawValue) {
-//                                            if case let curAfterKind as [String] = curBuffChess.rattleFunc[EnumKeyName.baseKind.rawValue] {
-//                                                if curAfterKind.contains(erasedChess.chessKind) {
-//                                                    let curEndAtt = curBuffChess.rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
-//                                                    let curEndDef = curBuffChess.rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
-//                                                    curBuffChess.AddBuff(AtkNumber: (curEndAtt as! Int) * curStar, DefNumber: (curEndDef as! Int) * curStar)
-//                                                }
-//                                            }
-//                                        } else if curBuffChess.abilities.contains(EnumAbilities.afterEliminatedAddAbilities.rawValue) {
-//                                            if case let curAfterKind as [String] = curBuffChess.rattleFunc[EnumKeyName.baseKind.rawValue] {
-//                                                if curAfterKind.contains(erasedChess.chessKind) {
-//                                                    if case let curAfterAbility as [String] = curBuffChess.rattleFunc[EnumKeyName.abilityKind.rawValue] {
-//                                                        curBuffChess.AddTempBuff(tempBuff: curAfterAbility)
-//                                                    }
-//                                                }
-//                                            }
-//                                        }
-//                                    }
-//                                    if erasedChess.abilities.contains(EnumAbilities.inheritAddBuff.rawValue) { //有传承加buff结算一下
-//                                        let addNum = erasedChess.inheritFunc[EnumKeyName.summonNum.rawValue] ?? 1
-//                                        let curRandomArr = randomDiffNumsFromArrs(outputNums: addNum as! Int, inputArr: self.boardChessess[boardIndex])
-//                                        curRandomArr.forEach{ (attChess) in
-//                                            //需要给attchess加buff
-//                                            attChess.AddBuff(AtkNumber: curStar * (erasedChess.inheritFunc[EnumKeyName.baseAttack.rawValue] as! Int), DefNumber: curStar * (erasedChess.inheritFunc[EnumKeyName.baseDef.rawValue] as! Int))
-//                                        }
-//                                    }
-//
-//
-//                                    if erasedChess.abilities.contains(EnumAbilities.inheritDamage.rawValue) {
-//                                        if case let curRattleDamage as Int = erasedChess.inheritFunc[EnumKeyName.baseDamage.rawValue] {
-//                                            if case let curRattleNum as Int = erasedChess.inheritFunc[EnumKeyName.summonNum.rawValue] {
-//                                                let damageChess = randomDiffNumsFromArrs(outputNums: curRattleNum, inputArr: self.boardChessess[oppoBoardSide])
-//                                                abilityTextTrigger(textContent: EnumAbilityType.inherit.rawValue.localized, textPos: erasedChess.position, textType: EnumAbilityType.inherit.rawValue)
-//    //                                            erasedChess.abilityTrigger(abilityEnum: EnumAbilities.inheritDamage.rawValue.localized)
-//                                                for vIndex in 0 ..< damageChess.count {
-//                                                    let curChess = damageChess[vIndex] as! baseChessNode
-//                                                    inheritPromiseArr.append({() in
-//                                                        return Promise<Double>(resolver: {(resolver) in
-//                                                            let damTime = self.dealDamageAction(startVector: erasedChess.position, endVector: curChess.position)
-//                                                            delay(damTime, task: {
-//                                                                    isAlive = curChess.getDamage(damageNumber: curRattleDamage * curStar, chessBoard: &self.boardChessess[oppoBoardSide])
-//                                                                    resolver.fulfill(self.totalUpdateTime)
-//                                                            })
-//                                                        })
-//                                                    })
-//
-//                                                }
-//                                            }
-//                                        }
-//                                    }
-//                                    if erasedChess.abilities.contains(EnumAbilities.inheritSummonSth.rawValue) {
-//                                        if case var curHeritChess as [chessStruct] = erasedChess.inheritFunc[EnumKeyName.summonChess.rawValue] {
-//                                            erasedChess.abilityTrigger(abilityEnum: EnumAbilities.inheritSummonSth.rawValue.localized)
-//                                            if erasedChess.chessName == EnumChessName.mouse.rawValue && curHeritChess.count > 0 { //老鼠特殊处理
-//                                                let randomNum = Int.randomIntNumber(lower: 1, upper: 5)
-//                                                let newSummonArr = Array(repeating: curHeritChess[0], count: randomNum)
-//                                                curHeritChess = newSummonArr
-//                                            }
-//
-//                                            var newChesses:[baseChessNode] = []
-//                                            curHeritChess.forEach{ curC in
-//                                                newChesses.append(baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: curC))
-//                                            }
-//                                            //for index in 0 ..< curHeritChess.count { //appendnewnode里会计算数量 多余的棋子会被砍掉
-//                                           // inheritPromiseArr.append({() in
-//                                                //return Promise<Double>(resolver: {(resolver) in
-//                                                    if innerIndex <= self.boardChessess[boardIndex].count {
-//                                                        self.appendNewNodeToBoard(curBoardSide: boardIndex, curAddChesses: newChesses, curInsertIndex: innerIndex)
-//                                                    } else {
-//                                                        self.appendNewNodeToBoard(curBoardSide: boardIndex, curAddChesses: newChesses, curInsertIndex: innerIndex)
-//                                                    }
-//                                               // })
-//                                            //})
-//
-//                                        } else if case let curRattleRarity as Int = erasedChess.inheritFunc[EnumKeyName.baseRarity.rawValue] {
-//                                            erasedChess.abilityTrigger(abilityEnum: EnumAbilities.inheritAddBuff.rawValue.localized)
-//                                            if case let curRattleNum as Int = erasedChess.inheritFunc[EnumKeyName.summonNum.rawValue] {
-//                                                let randomChessStruct = randomDiffNumsFromArrs(outputNums: curRattleNum, inputArr: chessCollectionsLevel[curRattleRarity - 1])
-//
-//                                                for index in 0 ..< randomChessStruct.count { //appendnewnode里会计算数量 多余的棋子会被砍掉
-//
-//                                                    if innerIndex <= self.boardChessess[innerIndex].count {
-//                                                        self.appendNewNodeToBoard(curBoardSide: boardIndex, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: randomChessStruct[index])], curInsertIndex: innerIndex + index)
-//                                                    } else {
-//                                                        self.appendNewNodeToBoard(curBoardSide: boardIndex, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: randomChessStruct[index])], curInsertIndex: innerIndex + index)
-//                                                    }
-//
-//                                                }
-//
-//                                            }
-//                                        }
-//                                        //self.updateWholeBoardPosition()
-//                                    }
+//                    var inheritPromiseArr:[() -> (Promise<Double>)] = []
+//                    var isAlive = true //是否有延展性消灭
+//                    var needDeleteChesses:[baseChessNode] = [] //需要删除的棋子
+//                    for boardIndex in 0 ..< oldBoard.count {
+//                        for innerIndex in 0 ..< oldBoard[boardIndex].count {
+//                            if !boardChessess[boardIndex].contains(oldBoard[boardIndex][innerIndex]) {
+////                                if (curStage == EnumsGameStage.battleStage.rawValue) { //亡语生效
+////                                    var isMaxLevel = false
+////                                    /*AllInheritMax*/
+////                                    for subIndex in 0 ..< boardChessess[boardIndex].count {
+////                                        if boardChessess[boardIndex][subIndex].abilities.contains(EnumAbilities.allInheritMax.rawValue) {
+////                                            isMaxLevel = true
+////                                            break
+////                                        }
+////                                    }
+////                                    /*End*/
+////                                    let erasedChess = oldBoard[boardIndex][innerIndex]
+////                                    let oppoBoardSide = boardIndex == BoardSide.allySide.rawValue ? BoardSide.enemySide.rawValue : BoardSide.allySide.rawValue
+////                                    let curStar = isMaxLevel ? GlobalCommonNumber.maxStars : erasedChess.chessLevel
+////                                    self.boardChessess[boardIndex].forEach{ (curBuffChess) in
+////                                        if curBuffChess.abilities.contains(EnumAbilities.afterEliminatedAddBuff.rawValue) {
+////                                            if case let curAfterKind as [String] = curBuffChess.rattleFunc[EnumKeyName.baseKind.rawValue] {
+////                                                if curAfterKind.contains(erasedChess.chessKind) {
+////                                                    let curEndAtt = curBuffChess.rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
+////                                                    let curEndDef = curBuffChess.rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
+////                                                    curBuffChess.AddBuff(AtkNumber: (curEndAtt as! Int) * curStar, DefNumber: (curEndDef as! Int) * curStar)
+////                                                }
+////                                            }
+////                                        } else if curBuffChess.abilities.contains(EnumAbilities.afterEliminatedAddAbilities.rawValue) {
+////                                            if case let curAfterKind as [String] = curBuffChess.rattleFunc[EnumKeyName.baseKind.rawValue] {
+////                                                if curAfterKind.contains(erasedChess.chessKind) {
+////                                                    if case let curAfterAbility as [String] = curBuffChess.rattleFunc[EnumKeyName.abilityKind.rawValue] {
+////                                                        curBuffChess.AddTempBuff(tempBuff: curAfterAbility)
+////                                                    }
+////                                                }
+////                                            }
+////                                        }
+////                                    }
+////                                    if erasedChess.abilities.contains(EnumAbilities.inheritAddBuff.rawValue) { //有传承加buff结算一下
+////                                        let addNum = erasedChess.inheritFunc[EnumKeyName.summonNum.rawValue] ?? 1
+////                                        let curRandomArr = randomDiffNumsFromArrs(outputNums: addNum as! Int, inputArr: self.boardChessess[boardIndex])
+////                                        curRandomArr.forEach{ (attChess) in
+////                                            //需要给attchess加buff
+////                                            attChess.AddBuff(AtkNumber: curStar * (erasedChess.inheritFunc[EnumKeyName.baseAttack.rawValue] as! Int), DefNumber: curStar * (erasedChess.inheritFunc[EnumKeyName.baseDef.rawValue] as! Int))
+////                                        }
+////                                    }
+////
+////
+////                                    if erasedChess.abilities.contains(EnumAbilities.inheritDamage.rawValue) {
+////                                        if case let curRattleDamage as Int = erasedChess.inheritFunc[EnumKeyName.baseDamage.rawValue] {
+////                                            if case let curRattleNum as Int = erasedChess.inheritFunc[EnumKeyName.summonNum.rawValue] {
+////                                                let damageChess = randomDiffNumsFromArrs(outputNums: curRattleNum, inputArr: self.boardChessess[oppoBoardSide])
+////                                                abilityTextTrigger(textContent: EnumAbilityType.inherit.rawValue.localized, textPos: erasedChess.position, textType: EnumAbilityType.inherit.rawValue)
+////    //                                            erasedChess.abilityTrigger(abilityEnum: EnumAbilities.inheritDamage.rawValue.localized)
+////                                                for vIndex in 0 ..< damageChess.count {
+////                                                    let curChess = damageChess[vIndex] as! baseChessNode
+////                                                    inheritPromiseArr.append({() in
+////                                                        return Promise<Double>(resolver: {(resolver) in
+////                                                            let damTime = self.dealDamageAction(startVector: erasedChess.position, endVector: curChess.position)
+////                                                            delay(damTime, task: {
+////                                                                    isAlive = curChess.getDamage(damageNumber: curRattleDamage * curStar, chessBoard: &self.boardChessess[oppoBoardSide])
+////                                                                    resolver.fulfill(self.totalUpdateTime)
+////                                                            })
+////                                                        })
+////                                                    })
+////
+////                                                }
+////                                            }
+////                                        }
+////                                    }
+////                                    if erasedChess.abilities.contains(EnumAbilities.inheritSummonSth.rawValue) {
+////                                        if case var curHeritChess as [chessStruct] = erasedChess.inheritFunc[EnumKeyName.summonChess.rawValue] {
+////                                            erasedChess.abilityTrigger(abilityEnum: EnumAbilities.inheritSummonSth.rawValue.localized)
+////                                            if erasedChess.chessName == EnumChessName.mouse.rawValue && curHeritChess.count > 0 { //老鼠特殊处理
+////                                                let randomNum = Int.randomIntNumber(lower: 1, upper: 5)
+////                                                let newSummonArr = Array(repeating: curHeritChess[0], count: randomNum)
+////                                                curHeritChess = newSummonArr
+////                                            }
+////
+////                                            var newChesses:[baseChessNode] = []
+////                                            curHeritChess.forEach{ curC in
+////                                                newChesses.append(baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: curC))
+////                                            }
+////                                            //for index in 0 ..< curHeritChess.count { //appendnewnode里会计算数量 多余的棋子会被砍掉
+////                                           // inheritPromiseArr.append({() in
+////                                                //return Promise<Double>(resolver: {(resolver) in
+////                                                    if innerIndex <= self.boardChessess[boardIndex].count {
+////                                                        self.appendNewNodeToBoard(curBoardSide: boardIndex, curAddChesses: newChesses, curInsertIndex: innerIndex)
+////                                                    } else {
+////                                                        self.appendNewNodeToBoard(curBoardSide: boardIndex, curAddChesses: newChesses, curInsertIndex: innerIndex)
+////                                                    }
+////                                               // })
+////                                            //})
+////
+////                                        } else if case let curRattleRarity as Int = erasedChess.inheritFunc[EnumKeyName.baseRarity.rawValue] {
+////                                            erasedChess.abilityTrigger(abilityEnum: EnumAbilities.inheritAddBuff.rawValue.localized)
+////                                            if case let curRattleNum as Int = erasedChess.inheritFunc[EnumKeyName.summonNum.rawValue] {
+////                                                let randomChessStruct = randomDiffNumsFromArrs(outputNums: curRattleNum, inputArr: chessCollectionsLevel[curRattleRarity - 1])
+////
+////                                                for index in 0 ..< randomChessStruct.count { //appendnewnode里会计算数量 多余的棋子会被砍掉
+////
+////                                                    if innerIndex <= self.boardChessess[innerIndex].count {
+////                                                        self.appendNewNodeToBoard(curBoardSide: boardIndex, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: randomChessStruct[index])], curInsertIndex: innerIndex + index)
+////                                                    } else {
+////                                                        self.appendNewNodeToBoard(curBoardSide: boardIndex, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: randomChessStruct[index])], curInsertIndex: innerIndex + index)
+////                                                    }
+////
+////                                                }
+////
+////                                            }
+////                                        }
+////                                        //self.updateWholeBoardPosition()
+////                                    }
+////                                }
+//                                if oldBoard[boardIndex][innerIndex] !== curDragPoint{
+//                                    needDeleteChesses.append(oldBoard[boardIndex][innerIndex])
 //                                }
-                                if oldBoard[boardIndex][innerIndex] !== curDragPoint{
-                                    needDeleteChesses.append(oldBoard[boardIndex][innerIndex])
-                                }
-                            }
-                        }
-                    }
+//                            }
+//                        }
+//                    }
                     //let group = DispatchGroup()
                     //let queue = DispatchQueue.global()
-                    for i in 0 ..< needDeleteChesses.count {
-                        //queue.async(group: group, execute: {
-                            needDeleteChesses[i].removeFromParentNode()
-                       // })
-                    }
+//                    for i in 0 ..< needDeleteChesses.count {
+//                        //queue.async(group: group, execute: {
+//                            needDeleteChesses[i].removeFromParentNode()
+//                       // })
+//                    }
 //                    DispatchQueue.main.async {
 //                        let updateTime = self.updateWholeBoardPosition()
 //
@@ -538,23 +538,30 @@ class ChessBoardNode: SCNNode {
            
        }
     
-    func updateWholeBoardPosition() -> Double { //update all chesses' position
-           let totalTime = 0.50
-         
-           // chess positions adjust actions
-           for index in 0 ..< boardChessess.count {
-               let curBoardSide = boardChessess[index]
-               let startIndex = (GlobalNumberSettings.chessNumber.rawValue - curBoardSide.count) / 2
-               for innerIndex in 0 ..< curBoardSide.count {
-                   let curRootNode = boardRootNode[index][innerIndex + startIndex]
-                   let curChessNode = boardChessess[index][innerIndex]
-                   let updateAction = SCNAction.move(to: SCNVector3(curRootNode.position.x, curRootNode.position.y + 0.01 , curRootNode.position.z), duration: totalTime)
-                   curChessNode.runAction(updateAction)
-               }
-           }
-           
-          return totalTime
-       }
+    func updateWholeBoardPosition() { //update all chesses' position
+        let totalTime = 0.50
+        
+        // chess positions adjust actions
+        for index in 0 ..< boardChessess.count {
+            var curBoardSide = boardChessess[index]
+            for i in 0 ..< curBoardSide.count{
+                if  curBoardSide[i].isHidden == true {
+                    curBoardSide = Array(curBoardSide[0 ..< i])
+                    break
+                }
+            }
+            
+            
+            let startIndex = (GlobalNumberSettings.chessNumber.rawValue - curBoardSide.count) / 2
+            for innerIndex in 0 ..< curBoardSide.count {
+                let curRootNode = boardRootNode[index][innerIndex + startIndex]
+                let curChessNode = boardChessess[index][innerIndex]
+                let updateAction = SCNAction.move(to: SCNVector3(curRootNode.position.x, curRootNode.position.y + 0.01 , curRootNode.position.z), duration: totalTime)
+                curChessNode.runAction(updateAction)
+            }
+        }
+
+    }
     
     func initSubNodes() {
         guard let boardNode = boardNodeTemplate else { return}
@@ -647,18 +654,7 @@ class ChessBoardNode: SCNNode {
             }
         }
         
-        
-        
-        //let tempBoard = [copyChessArr(curBoard: chessess[0]), copyChessArr(curBoard: chessess[1])]
-//        boardChessess[0].removeAll()
-//        tempBoard[0].forEach { (chess) in
-//            boardChessess[0].append(chess)
-//        }
-//
-//        boardChessess[1].removeAll()
-//        tempBoard[1].forEach { (chess) in
-//            boardChessess[1].append(chess)
-//        }
+       updateWholeBoardPosition()
         
     }
     func initPreLoadChess() {

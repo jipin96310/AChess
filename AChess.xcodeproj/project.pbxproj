@@ -40,6 +40,7 @@
 		C7AFB4FC23EAF8B400B21E09 /* customPlanenode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7AFB4FB23EAF8B400B21E09 /* customPlanenode.swift */; };
 		C7B4D71B24837FDD008F3B1F /* codebleChessStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B4D71A24837FDD008F3B1F /* codebleChessStruct.swift */; };
 		C7B4D71D24838AB6008F3B1F /* codblePlayerStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B4D71C24838AB6008F3B1F /* codblePlayerStruct.swift */; };
+		C7B99F7524CC420100D62B55 /* boardChessesStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B99F7424CC420100D62B55 /* boardChessesStruct.swift */; };
 		C7BE385924B200BB00DCAA16 /* PrePlane.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7BE385824B200BB00DCAA16 /* PrePlane.swift */; };
 		C7DB34BB23FEC88200DBE512 /* abilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DB34BA23FEC88200DBE512 /* abilities.swift */; };
 		C7DD950823DE9ACE0096CE0C /* actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DD950723DE9ACE0096CE0C /* actions.swift */; };
@@ -129,6 +130,7 @@
 		C7AFB4FB23EAF8B400B21E09 /* customPlanenode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = customPlanenode.swift; sourceTree = "<group>"; };
 		C7B4D71A24837FDD008F3B1F /* codebleChessStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = codebleChessStruct.swift; sourceTree = "<group>"; };
 		C7B4D71C24838AB6008F3B1F /* codblePlayerStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = codblePlayerStruct.swift; sourceTree = "<group>"; };
+		C7B99F7424CC420100D62B55 /* boardChessesStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = boardChessesStruct.swift; sourceTree = "<group>"; };
 		C7BE385824B200BB00DCAA16 /* PrePlane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrePlane.swift; sourceTree = "<group>"; };
 		C7DB34BA23FEC88200DBE512 /* abilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = abilities.swift; sourceTree = "<group>"; };
 		C7DD950723DE9ACE0096CE0C /* actions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = actions.swift; sourceTree = "<group>"; };
@@ -212,6 +214,7 @@
 				C7B4D71A24837FDD008F3B1F /* codebleChessStruct.swift */,
 				C72C2FE12478D10F005AE2F7 /* settingStruct.swift */,
 				C7E6E13824BB13FE00C930E0 /* UserDefaults.swift */,
+				C7B99F7424CC420100D62B55 /* boardChessesStruct.swift */,
 			);
 			path = Datas;
 			sourceTree = "<group>";
@@ -572,6 +575,7 @@
 				C72E92F623F195FD008F890F /* chessCollections.swift in Sources */,
 				C771AFF523E80CC5007C99F0 /* extensions.swift in Sources */,
 				C73426A623D9E338003B7697 /* ViewController.swift in Sources */,
+				C7B99F7524CC420100D62B55 /* boardChessesStruct.swift in Sources */,
 				C766178A23FD7EF700D11EBF /* nodeColor.swift in Sources */,
 				C751227423F518D7002CC4B4 /* dummyAI.swift in Sources */,
 				C70C152324420F530086C259 /* playerStruct.swift in Sources */,
