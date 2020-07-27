@@ -449,116 +449,144 @@ public class baseChessNode: SCNNode {
     func formatChessDesc() -> String{ //当前只需要abilities里面的 后期有必要可以加上战吼之类的 TODO!!
         var tempDescStr = ""
         abilities.forEach{(curAbi) in
-            if curAbi == EnumAbilities.acute.rawValue {
-                tempDescStr += curAbi.localized.replacingOccurrences(of: "<percent>", with: String(chessLevel * 20))
-            } else if curAbi == EnumAbilities.liveInGroup.rawValue {
-                tempDescStr += curAbi.localized.replacingOccurrences(of: "<percent>", with: String(chessLevel * 20))
-            } else if curAbi == EnumAbilities.instantAddBuff.rawValue {
-                
-                let curBaseAtt = rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
-                let curBaseDef = rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
-                let curInstantKind = rattleFunc[EnumKeyName.baseKind.rawValue] ?? []
-                let tempStr = (curInstantKind as! [String]).joined(separator: " ")
-                
-                
-                tempDescStr += curAbi.localized.replacingOccurrences(of: "<att>", with: String(curBaseAtt as! Int * chessLevel)).replacingOccurrences(of: "def", with: String(curBaseDef as! Int * chessLevel)).replacingOccurrences(of: "[kind]", with: tempStr)
-                
-                
-                
-               tempDescStr += curAbi.localized.replacingOccurrences(of: "<kind>", with: String(chessLevel * 1))
-            } else if curAbi == EnumAbilities.beforeAttackAoe.rawValue {
-               tempDescStr += curAbi.localized.replacingOccurrences(of: "<kind>", with: String(chessLevel * 1))
-            } else if curAbi == EnumAbilities.endRoundAddBuff.rawValue {
-                let curEndAtt = rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
-                let curEndDef = rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
-                let curEndKindMap  = rattleFunc[EnumKeyName.baseKind.rawValue] ?? [:]
-                var tempKindString = ""
-                for (key, val) in curEndKindMap as! [String : Int] {
-                    tempKindString += (key + ",")
-                }
-                tempKindString += "Chess".localized
-                if case let isSelf as Bool = rattleFunc[EnumKeyName.isSelf.rawValue]{
-                    if isSelf {
-                        tempKindString = "Self".localized
-                    }
-                }
-                
-                tempDescStr += curAbi.localized.replacingOccurrences(of: "<att>", with: String(curEndAtt as! Int * chessLevel)).replacingOccurrences(of: "def", with: String(curEndDef as! Int * chessLevel)).replacingOccurrences(of: "[kind]", with: tempKindString)
-            } else if curAbi == EnumAbilities.instantSummonSth.rawValue {
-                if case let curRattleChess as [chessStruct] = rattleFunc[EnumKeyName.summonChess.rawValue] {
-                    var curSummonName:String = ""
-                    curRattleChess.forEach{ (curSummon) in
-                        curSummonName += ((curSummon.name ?? "") + " ")
-                    }
-                    tempDescStr += curAbi.localized.replacingOccurrences(of: "[chesses]",with: curSummonName)
-                }
-            } else if curAbi == EnumAbilities.inheritDamage.rawValue {
-                if case let curRattleDamage as Int = inheritFunc[EnumKeyName.baseDamage.rawValue] {
-                    if case let curRattleNum as Int = inheritFunc[EnumKeyName.summonNum.rawValue] {
-                        tempDescStr += curAbi.localized.replacingOccurrences(of: "<dam>", with: String(curRattleDamage * chessLevel)).replacingOccurrences(of: "<num>", with: String(curRattleNum))
-                    }
-                }
-                
-            } else if curAbi == EnumAbilities.instantRandomAddBuff.rawValue {
-                if case let curRattleAtt as Int = rattleFunc[EnumKeyName.baseAttack.rawValue] {
-                    if case let curRattleDef as Int = rattleFunc[EnumKeyName.baseDef.rawValue] {
-                        if case let curRattleNum as Int = rattleFunc[EnumKeyName.summonNum.rawValue] {
-                            if case let curRattleKind as String = rattleFunc[EnumKeyName.baseKind.rawValue] {
-                                tempDescStr += curAbi.localized.replacingOccurrences(of: "<att>", with: String(curRattleAtt)).replacingOccurrences(of: "<def>", with: String(curRattleDef)).replacingOccurrences(of: "<num>", with: String(curRattleNum)).replacingOccurrences(of: "[kind]", with: curRattleKind)
-                            }
-                        }
-                    }
-                }
-            } else if curAbi == EnumAbilities.afterEliminatedAddBuff.rawValue {
-                if case let curAfterKind as [String] = rattleFunc[EnumKeyName.baseKind.rawValue] {
-                    
-                    let curEndAtt = rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
-                    let curEndDef = rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
-                    
-                    var curAfterKindStr = " "
-                    curAfterKind.forEach { kindStr in
-                        curAfterKindStr += kindStr.localized
-                        curAfterKindStr += " "
-                    }
-                    
-                    tempDescStr += curAbi.localized.replacingOccurrences(of: "<att>", with: String(curEndAtt as! Int)).replacingOccurrences(of: "<def>", with: String(curEndDef as! Int)).replacingOccurrences(of: "[kind]", with: curAfterKindStr)
-                    
-                }
-            }  else if curAbi == EnumAbilities.afterEliminatedAddAbilities.rawValue {
-                if case let curAfterKind as [String] = rattleFunc[EnumKeyName.baseKind.rawValue] {
-                        if case let curAfterAbility as [String] = rattleFunc[EnumKeyName.abilityKind.rawValue] {
-                           var curAfterKindStr = ""
-                            for i in 0 ..< curAfterKind.count {
-                                curAfterKindStr += (curAfterKind[i]).localized
-                                if i != curAfterKind.count - 1 {
-                                    curAfterKindStr += "Or".localized
-                                }
-                            }
-                            var curAfterAbilityStr = ""
-                            for i in 0 ..< curAfterAbility.count {
-                                curAfterAbilityStr += (curAfterAbility[i]).localized
-                                if i != curAfterAbility.count - 1 {
-                                    curAfterAbilityStr += "And".localized
-                                }
-                            }
-                            tempDescStr += curAbi.localized.replacingOccurrences(of: "[cKind]", with: curAfterKindStr).replacingOccurrences(of: "[aKind]", with: curAfterAbilityStr)
-                        }
-                }
-            } else if curAbi == EnumAbilities.afterSummonAdjecentAddBuff.rawValue {
-                let curEndAtt = rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
-                                  let curEndDef = rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
-                
-                tempDescStr += curAbi.localized.replacingOccurrences(of: "<att>", with: String(curEndAtt as! Int)).replacingOccurrences(of: "<def>", with: String(curEndDef as! Int))
-                
-            } else if curAbi == EnumAbilities.customValue.rawValue || curAbi == EnumAbilities.customSellValue.rawValue {
-                let curValue = rattleFunc[EnumKeyName.customValue.rawValue] ?? 1
-                tempDescStr += curAbi.localized.replacingOccurrences(of: "<value>", with: String(curValue as! Int))
-                
-            } else {
-                let curBasedamage = rattleFunc[EnumKeyName.baseDamage.rawValue] ?? 1
-                tempDescStr += curAbi.localized.replacingOccurrences(of: "<dam>", with: String(curBasedamage as! Int * chessLevel))
+            var abilityDesc = curAbi.localized
+            if let curBaseAtt = rattleFunc[EnumKeyName.baseAttack.rawValue] {
+                abilityDesc = abilityDesc.replacingOccurrences(of: "<att>", with: String(curBaseAtt as! Int * chessLevel))
             }
-                tempDescStr += " "
+            
+            if let curBaseDef = rattleFunc[EnumKeyName.baseDef.rawValue] {
+                abilityDesc = abilityDesc.replacingOccurrences(of: "<def>", with: String(curBaseDef as! Int * chessLevel))
+            }
+            if let curInstantKind = rattleFunc[EnumKeyName.baseKind.rawValue] {
+                abilityDesc = abilityDesc.replacingOccurrences(of: "[kind]", with: (curInstantKind as! [String]).joined(separator: " "))
+            }
+            
+            if case let curRattleChess as [chessStruct] = rattleFunc[EnumKeyName.summonChess.rawValue] {
+                var curSummonName:String = ""
+                curRattleChess.forEach{ (curSummon) in
+                    curSummonName += ((curSummon.name ?? "") + " ")
+                }
+                abilityDesc = abilityDesc.replacingOccurrences(of: "[chesses]", with: curSummonName)
+            }
+            if case let curRattleDamage as Int = inheritFunc[EnumKeyName.baseDamage.rawValue] {
+                abilityDesc = abilityDesc.replacingOccurrences(of: "<dam>", with: (String(curRattleDamage * chessLevel)))
+            }
+            if case let curRattleNum as Int = inheritFunc[EnumKeyName.summonNum.rawValue] {
+                abilityDesc = abilityDesc.replacingOccurrences(of: "<num>", with: (String(curRattleNum)))
+            }
+            
+            
+            
+//            if curAbi == EnumAbilities.acute.rawValue {
+//                tempDescStr += curAbi.localized.replacingOccurrences(of: "<percent>", with: String(chessLevel * 20))
+//            } else if curAbi == EnumAbilities.liveInGroup.rawValue {
+//                tempDescStr += curAbi.localized.replacingOccurrences(of: "<percent>", with: String(chessLevel * 20))
+//            } else if curAbi == EnumAbilities.instantAddBuff.rawValue {
+//
+//                let curBaseAtt = rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
+//                let curBaseDef = rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
+//                let curInstantKind = rattleFunc[EnumKeyName.baseKind.rawValue] ?? []
+//                let tempStr = (curInstantKind as! [String]).joined(separator: " ")
+//
+//
+//                tempDescStr += curAbi.localized.replacingOccurrences(of: "<att>", with: String(curBaseAtt as! Int * chessLevel)).replacingOccurrences(of: "def", with: String(curBaseDef as! Int * chessLevel)).replacingOccurrences(of: "[kind]", with: tempStr)
+//
+//
+//
+//               tempDescStr += curAbi.localized.replacingOccurrences(of: "<kind>", with: String(chessLevel * 1))
+//            } else if curAbi == EnumAbilities.beforeAttackAoe.rawValue {
+//               tempDescStr += curAbi.localized.replacingOccurrences(of: "<kind>", with: String(chessLevel * 1))
+//            } else if curAbi == EnumAbilities.endRoundAddBuff.rawValue {
+//                let curEndAtt = rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
+//                let curEndDef = rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
+//                let curEndKindMap  = rattleFunc[EnumKeyName.baseKind.rawValue] ?? [:]
+//                var tempKindString = ""
+//                for (key, val) in curEndKindMap as! [String : Int] {
+//                    tempKindString += (key + ",")
+//                }
+//                tempKindString += "Chess".localized
+//                if case let isSelf as Bool = rattleFunc[EnumKeyName.isSelf.rawValue]{
+//                    if isSelf {
+//                        tempKindString = "Self".localized
+//                    }
+//                }
+//
+//                tempDescStr += curAbi.localized.replacingOccurrences(of: "<att>", with: String(curEndAtt as! Int * chessLevel)).replacingOccurrences(of: "def", with: String(curEndDef as! Int * chessLevel)).replacingOccurrences(of: "[kind]", with: tempKindString)
+//            } else if curAbi == EnumAbilities.instantSummonSth.rawValue {
+//                if case let curRattleChess as [chessStruct] = rattleFunc[EnumKeyName.summonChess.rawValue] {
+//                    var curSummonName:String = ""
+//                    curRattleChess.forEach{ (curSummon) in
+//                        curSummonName += ((curSummon.name ?? "") + " ")
+//                    }
+//                    tempDescStr += curAbi.localized.replacingOccurrences(of: "[chesses]",with: curSummonName)
+//                }
+//            } else if curAbi == EnumAbilities.inheritDamage.rawValue {
+//                if case let curRattleDamage as Int = inheritFunc[EnumKeyName.baseDamage.rawValue] {
+//                    if case let curRattleNum as Int = inheritFunc[EnumKeyName.summonNum.rawValue] {
+//                        tempDescStr += curAbi.localized.replacingOccurrences(of: "<dam>", with: String(curRattleDamage * chessLevel)).replacingOccurrences(of: "<num>", with: String(curRattleNum))
+//                    }
+//                }
+//
+//            } else if curAbi == EnumAbilities.instantRandomAddBuff.rawValue {
+//                if case let curRattleAtt as Int = rattleFunc[EnumKeyName.baseAttack.rawValue] {
+//                    if case let curRattleDef as Int = rattleFunc[EnumKeyName.baseDef.rawValue] {
+//                        if case let curRattleNum as Int = rattleFunc[EnumKeyName.summonNum.rawValue] {
+//                            if case let curRattleKind as String = rattleFunc[EnumKeyName.baseKind.rawValue] {
+//                                tempDescStr += curAbi.localized.replacingOccurrences(of: "<att>", with: String(curRattleAtt)).replacingOccurrences(of: "<def>", with: String(curRattleDef)).replacingOccurrences(of: "<num>", with: String(curRattleNum)).replacingOccurrences(of: "[kind]", with: curRattleKind)
+//                            }
+//                        }
+//                    }
+//                }
+//            } else if curAbi == EnumAbilities.afterEliminatedAddBuff.rawValue {
+//                if case let curAfterKind as [String] = rattleFunc[EnumKeyName.baseKind.rawValue] {
+//
+//                    let curEndAtt = rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
+//                    let curEndDef = rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
+//
+//                    var curAfterKindStr = " "
+//                    curAfterKind.forEach { kindStr in
+//                        curAfterKindStr += kindStr.localized
+//                        curAfterKindStr += " "
+//                    }
+//
+//                    tempDescStr += curAbi.localized.replacingOccurrences(of: "<att>", with: String(curEndAtt as! Int)).replacingOccurrences(of: "<def>", with: String(curEndDef as! Int)).replacingOccurrences(of: "[kind]", with: curAfterKindStr)
+//
+//                }
+//            }  else if curAbi == EnumAbilities.afterEliminatedAddAbilities.rawValue {
+//                if case let curAfterKind as [String] = rattleFunc[EnumKeyName.baseKind.rawValue] {
+//                        if case let curAfterAbility as [String] = rattleFunc[EnumKeyName.abilityKind.rawValue] {
+//                           var curAfterKindStr = ""
+//                            for i in 0 ..< curAfterKind.count {
+//                                curAfterKindStr += (curAfterKind[i]).localized
+//                                if i != curAfterKind.count - 1 {
+//                                    curAfterKindStr += "Or".localized
+//                                }
+//                            }
+//                            var curAfterAbilityStr = ""
+//                            for i in 0 ..< curAfterAbility.count {
+//                                curAfterAbilityStr += (curAfterAbility[i]).localized
+//                                if i != curAfterAbility.count - 1 {
+//                                    curAfterAbilityStr += "And".localized
+//                                }
+//                            }
+//                            tempDescStr += curAbi.localized.replacingOccurrences(of: "[cKind]", with: curAfterKindStr).replacingOccurrences(of: "[aKind]", with: curAfterAbilityStr)
+//                        }
+//                }
+//            } else if curAbi == EnumAbilities.afterSummonAdjecentAddBuff.rawValue {
+//                let curEndAtt = rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
+//                                  let curEndDef = rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
+//
+//                tempDescStr += curAbi.localized.replacingOccurrences(of: "<att>", with: String(curEndAtt as! Int)).replacingOccurrences(of: "<def>", with: String(curEndDef as! Int))
+//
+//            } else if curAbi == EnumAbilities.customValue.rawValue || curAbi == EnumAbilities.customSellValue.rawValue {
+//                let curValue = rattleFunc[EnumKeyName.customValue.rawValue] ?? 1
+//                tempDescStr += curAbi.localized.replacingOccurrences(of: "<value>", with: String(curValue as! Int))
+//
+//            } else {
+//                let curBasedamage = rattleFunc[EnumKeyName.baseDamage.rawValue] ?? 1
+//                tempDescStr += curAbi.localized.replacingOccurrences(of: "<dam>", with: String(curBasedamage as! Int * chessLevel))
+//            }
+//                tempDescStr += " "
         }
         return tempDescStr
     }
