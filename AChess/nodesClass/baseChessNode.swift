@@ -450,15 +450,50 @@ public class baseChessNode: SCNNode {
         var tempDescStr = ""
         abilities.forEach{(curAbi) in
             var abilityDesc = curAbi.localized
-            if let curBaseAtt = rattleFunc[EnumKeyName.baseAttack.rawValue] {
-                abilityDesc = abilityDesc.replacingOccurrences(of: "<att>", with: String(curBaseAtt as! Int * chessLevel))
+            if case let curBaseAtt as Int = rattleFunc[EnumKeyName.baseAttack.rawValue] {
+                abilityDesc = abilityDesc.replacingOccurrences(of: "<att>", with: String(curBaseAtt * chessLevel))
             }
             
-            if let curBaseDef = rattleFunc[EnumKeyName.baseDef.rawValue] {
-                abilityDesc = abilityDesc.replacingOccurrences(of: "<def>", with: String(curBaseDef as! Int * chessLevel))
+            if case let curBaseDef as Int = rattleFunc[EnumKeyName.baseDef.rawValue] {
+                abilityDesc = abilityDesc.replacingOccurrences(of: "<def>", with: String(curBaseDef * chessLevel))
             }
-            if let curInstantKind = rattleFunc[EnumKeyName.baseKind.rawValue] {
-                abilityDesc = abilityDesc.replacingOccurrences(of: "[kind]", with: (curInstantKind as! [String]).joined(separator: " "))
+            if case let curInstantKind as [String] = rattleFunc[EnumKeyName.baseKind.rawValue] { //数组形式的basekind
+                abilityDesc = abilityDesc.replacingOccurrences(of: "[kind]", with: (curInstantKind).joined(separator: " "))
+            }
+            
+           
+            if let curValue = rattleFunc[EnumKeyName.customValue.rawValue] {
+                abilityDesc = abilityDesc.replacingOccurrences(of: "<value>", with: (String(curValue as! Int)))
+            }
+            
+            if case let curRattleChess as [chessStruct] = rattleFunc[EnumKeyName.summonChess.rawValue] {
+                var curSummonName:String = ""
+                curRattleChess.forEach{ (curSummon) in
+                    curSummonName += ((curSummon.name ?? "") + " ")
+                }
+                abilityDesc = abilityDesc.replacingOccurrences(of: "[chesses]", with: curSummonName)
+            }
+            
+            if case let curAfterKind as [String] = rattleFunc[EnumKeyName.baseKind.rawValue] {
+                var curAfterKindStr = ""
+                for i in 0 ..< curAfterKind.count {
+                    curAfterKindStr += (curAfterKind[i]).localized
+                    if i != curAfterKind.count - 1 {
+                        curAfterKindStr += "Or".localized
+                    }
+                }
+                abilityDesc = abilityDesc.replacingOccurrences(of: "[cKind]", with: curAfterKindStr)
+            }
+            
+            if case let curAfterAbility as [String] = rattleFunc[EnumKeyName.abilityKind.rawValue] {
+                var curAfterAbilityStr = ""
+                for i in 0 ..< curAfterAbility.count {
+                    curAfterAbilityStr += (curAfterAbility[i]).localized
+                    if i != curAfterAbility.count - 1 {
+                        curAfterAbilityStr += "And".localized
+                    }
+                }
+                abilityDesc = abilityDesc.replacingOccurrences(of: "[aKind]", with: curAfterAbilityStr)
             }
             
             if case let curRattleChess as [chessStruct] = rattleFunc[EnumKeyName.summonChess.rawValue] {
@@ -476,6 +511,23 @@ public class baseChessNode: SCNNode {
             }
             
             
+            //部分特殊技能
+            if curAbi == EnumAbilities.summonChessAddMountainBuff.rawValue {
+                abilityDesc = abilityDesc.replacingOccurrences(of: "<att>", with: String(1 * chessLevel))
+                abilityDesc = abilityDesc.replacingOccurrences(of: "<def>", with: String(1 * chessLevel))
+            } else if curAbi == EnumAbilities.summonChessAddBuff.rawValue {
+                abilityDesc = abilityDesc.replacingOccurrences(of: "<att>", with: String(1 * chessLevel))
+                abilityDesc = abilityDesc.replacingOccurrences(of: "<def>", with: String(1 * chessLevel))
+            } else if curAbi == EnumAbilities.acute.rawValue {
+                abilityDesc = abilityDesc.replacingOccurrences(of: "<def>", with: String(20 * chessLevel) + "%")
+            } else if curAbi == EnumAbilities.liveInGroup.rawValue {
+                abilityDesc = abilityDesc.replacingOccurrences(of: "<def>", with: String(20 * chessLevel) + "%")
+            }
+            
+      
+            
+           tempDescStr += abilityDesc
+           tempDescStr += " "
             
 //            if curAbi == EnumAbilities.acute.rawValue {
 //                tempDescStr += curAbi.localized.replacingOccurrences(of: "<percent>", with: String(chessLevel * 20))

@@ -37,10 +37,10 @@
 //summon
 "SummonChessAddMountainBuff" = "Give All mountain chesses +<att>/+<def> after summon a chess with bait.";
 "SummonChessAddSelfBuff" = "Gain +<att>/+<def> after your summon a <kind> chess.";
-"SummonChessAddBuff" = "Whenever you summon a <kind> chess, it will gain +<att>/+<def>.";
+"SummonChessAddBuff" = "Whenever you summon a plain chess, it will gain +<att>/+<def>.";
 //after eliminated
 "AfterEliminatedAddBuff" = "After a [kind] chess been elminated gain +<att>/ +<def>";
-"AfterEliminatedAddAbilities" = "After a [cKind] chess been elminated, gain [aKind]";
+"AfterEliminatedAddAbilities" = "After a [kind] chess been elminated, gain [ability]";
 "AfterSummonAdjecentAddBuff" = "Give the left chess +<att>/+<def>, give the right chess bait.";
 "AfterSummonChessAddShell" = "At battle stage, this chess will gain shell after you summon a plain chess.";
 //before attack
