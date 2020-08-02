@@ -77,6 +77,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         }
     }
     
+    // Music player
+    let musicCoordinator = MusicCoordinator()
+    
     //以下数据为实时记录数据 无需保存
     var rootNodeDefalutColor = [UIColor.red, UIColor.green]
     var isPlayerBoardinited = false
@@ -461,6 +464,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 self.enemyPlayerBoardNodes.append(tempEnemyNode)
             }
         }
+        
+        
+        musicCoordinator.playMusic(name: "music_win", fadeIn: 0.0)
         
     }
     
