@@ -9,7 +9,7 @@
 import UIKit
 import SceneKit
 
-class RootViewController: UIViewController {
+class RootViewController: UIViewController, SCNSceneRendererDelegate {
     
 
     @IBOutlet weak var sceneView: SCNView!
@@ -20,40 +20,18 @@ class RootViewController: UIViewController {
     @IBOutlet weak var plainView: UIView!
     @IBOutlet weak var seaView: UIView!
     @IBOutlet weak var mountainView: UIView!
-    
-
     @IBOutlet weak var playButton: UIButton!
+    
+    private var boardNodeTemplate: ChessBoardNode?
     
     override func viewDidLoad() {
         setBoarder(images: [plainImage,mountainImage])
-        
-        //playButton.layer.zPosition = 1
         self.view.sendSubviewToBack(sceneView)
+        sceneView.delegate = self
         
-        UIView.animate(withDuration: 1, delay: 0.01, options: [.curveEaseInOut], animations: {
-            
-        }, completion: { (finished) in
-            UIView.animate(withDuration: 1, delay: 0.01, animations: {
-                self.seaImage.alpha = 1
-                self.seaImage.center.y += 100
-            })
-        })
-        UIView.animate(withDuration: 1, delay: 0.01, options: [.curveEaseInOut], animations: {
-                   
-               }, completion: { (finished) in
-                UIView.animate(withDuration: 1, delay: 0.51, animations: {
-                    self.plainImage.alpha = 1
-                    self.plainImage.center.y += 100
-                   })
-               })
-        UIView.animate(withDuration: 1, delay: 0.01, options: [.curveEaseInOut], animations: {
-                   
-               }, completion: { (finished) in
-                   UIView.animate(withDuration: 1, delay: 1.01, animations: {
-                    self.mountainImage.alpha = 1
-                    self.mountainImage.center.y += 100
-                   })
-               })
+        
+        initSceneView()
+     
     }
     
     
@@ -68,5 +46,61 @@ class RootViewController: UIViewController {
         }
         
     }
+    func animatePic() {
+        UIView.animate(withDuration: 1, delay: 0.01, options: [.curveEaseInOut], animations: {
+                 
+             }, completion: { (finished) in
+                 UIView.animate(withDuration: 1, delay: 0.01, animations: {
+                     self.seaImage.alpha = 1
+                     self.seaImage.center.y += 100
+                 })
+             })
+             UIView.animate(withDuration: 1, delay: 0.01, options: [.curveEaseInOut], animations: {
+                        
+                    }, completion: { (finished) in
+                     UIView.animate(withDuration: 1, delay: 0.51, animations: {
+                         self.plainImage.alpha = 1
+                         self.plainImage.center.y += 100
+                        })
+                    })
+             UIView.animate(withDuration: 1, delay: 0.01, options: [.curveEaseInOut], animations: {
+                        
+                    }, completion: { (finished) in
+                        UIView.animate(withDuration: 1, delay: 1.01, animations: {
+                         self.mountainImage.alpha = 1
+                         self.mountainImage.center.y += 100
+                        })
+                    })
+    }
     
+    func initSceneView() {
+        guard let sceneUrl = Bundle.main.url(forResource: "art.scnassets/emptyScene", withExtension: "scn") else {
+            fatalError("Level \("art.scnassets/playerBoard") not found")
+        }
+        do {
+            let scene = try SCNScene(url: sceneUrl, options: nil)
+            self.sceneView.scene = scene
+            sceneView.autoenablesDefaultLighting = true
+            sceneView.allowsCameraControl = true
+            //add board
+            boardNodeTemplate = ChessBoardNode()
+            sceneView.scene?.rootNode.addChildNode(boardNodeTemplate!)
+            boardNodeTemplate?.quickPlaceBoard(on: boardNodeTemplate!)
+            
+        } catch {
+            fatalError("Could not load board: \(error.localizedDescription)")
+        }
+    }
+    
+    
+    
+    @IBAction func refreshChess(_ sender: Any) {
+        guard let boardNode = boardNodeTemplate else { return }
+        let chess = baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: generateRandomChessStruct())
+        boardNode.setBoard(chessess: [[chess], []])
+    }
+    
+    @IBAction func close(segue:UIStoryboardSegue){
+        //
+    }
 }

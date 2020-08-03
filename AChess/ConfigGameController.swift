@@ -69,7 +69,10 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
     
     override func viewWillDisappear(_ animated: Bool) {
         stopTimer()
+        multipeerSession.stopBrosingForPeers()
+        multipeerSession.stopAdvertisingPeer()
     }
+    
     
     //定时操作
     @objc func updataSecond() {
