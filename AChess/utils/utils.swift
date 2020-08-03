@@ -33,6 +33,15 @@ public func createPlayerBoard() -> SCNNode{
     return playerBoarderNode!
 }
 
+
+func generateRandomChessStruct() -> chessStruct { //不可能出现所有都小于等于0的情况 出现了就直接用现有的
+       let randomLevel = Int.randomIntNumber(lower: 1, upper: 6)
+       let randomNum =  Int.randomIntNumber(lower: 0, upper: chessCollectionsLevel[randomLevel - 1].count)
+       let curChessInfo =  chessCollectionsLevel[randomLevel - 1][randomNum]
+       return curChessInfo
+   }
+
+
 public func +(left: SCNVector3, right: SCNVector3) -> SCNVector3 {
     return SCNVector3Make(left.x + right.x, left.y + right.y, left.z + right.z)
 }

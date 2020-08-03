@@ -3190,8 +3190,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
            let t1 = 0.1
            if let boardTextTemp = playerBoardNode.childNode(withName: "boardTextNode", recursively: true) {
                boardTextTemp.parent!.isHidden = false //先显示text parent
+               //textGeometry.font = UIFont.systemFont(ofSize: 1)
            //if let parentBound = playerBoardNode.childNode(withName: "middleLine", recursively: true) {
                let tempTextGeo: SCNText = boardTextTemp.geometry as! SCNText
+               tempTextGeo.font = UIFont.systemFont(ofSize: 1)
                tempTextGeo.string = TextContent
                let (min, max) = boardTextTemp.parent!.boundingBox
                let dx = min.x + 0.5 * (max.x - min.x)

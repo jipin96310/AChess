@@ -36,9 +36,13 @@ class ChessBoardNode: SCNNode {
                 storageNodeTemp.isHidden = false
             } else {
                 storageNodeTemp.isHidden = true
+                showDisPlayName()
             }
         }
     }
+    
+    var nameTextNode = TextNode(textScale: SCNVector3(0.1, 0.3, 1)) //棋盘user display name
+    var titleTextNode = TextNode(textScale: SCNVector3(0.5, 1.5, 1)) //用于显示游戏标题
     
     var boardRootNode :[[SCNNode]] = [[],[]] //chess holder
        var storageNode : [baseChessNode] = [] {
@@ -315,7 +319,10 @@ class ChessBoardNode: SCNNode {
     
     func load() {
         // have to do this
-        lock.lock(); defer { lock.unlock() }
+        lock.lock();
+        defer {
+            lock.unlock()
+        }
         
         // only load once - can be called from preload on another thread, or regular load
         if boardNodeTemplate != nil {
@@ -345,11 +352,14 @@ class ChessBoardNode: SCNNode {
             initSubNodes()
             initBoardRootNode()
             initPreLoadChess()
-            
-            
+       
+           
         } catch {
             fatalError("Could not load board: \(error.localizedDescription)")
         }
+        
+        
+        
     }
     
 
@@ -423,8 +433,7 @@ class ChessBoardNode: SCNNode {
         // the lod system doesn't honor the scaled camera,
         // so have to fix this manually in fixLevelsOfDetail with inverse scale
         // applied to the screenSpaceRadius
-        lodScale = normalizedScale * plane.scale.x
-        
+ 
         //multipeer
         if let curSession = multiSession {
             guard let curAnchor = plane.anchor else {return}
@@ -434,6 +443,16 @@ class ChessBoardNode: SCNNode {
             curSession.sendToAllPeers(data)
         }
         
+    }
+    func quickPlaceBoard(on node: SCNNode) {
+        boardNodeTemplate = createPlayerBoard()
+        node.addChildNode(boardNodeTemplate!)
+        DispatchQueue.main.async {
+            self.initSubNodes()
+            self.initBoardRootNode()
+            self.initPreLoadChess()
+            self.showTitle()
+        }
     }
     /*添加棋子到棋盘*/
        func appendNewNodeToBoard(curBoardSide:Int, curAddChesses: [baseChessNode], curInsertIndex: Int?) {
@@ -665,6 +684,63 @@ class ChessBoardNode: SCNNode {
                 boardChessess[i].append(newNode)
                }
            }
-       }
+    }
+
+    func showDisPlayName() {
+        if !showStrageBoard { //需要是enemy player board
+            guard let boardNode = boardNodeTemplate else { return}
+            if let saleStageDisplay = boardNode.childNode(withName: EnumNodeName.saleStage.rawValue, recursively: true) {
+                if let userId = playerID {
+                    saleStageDisplay.isHidden = false
+                    nameTextNode.position = SCNVector3(-0.3, -0.5, 0.1)
+                    nameTextNode.string = userId.displayName
+                    saleStageDisplay.addChildNode(nameTextNode)
+                }
+            }
+        }
+    }
+    
+    func showTitle() {
+  
+             guard let boardNode = boardNodeTemplate else { return}
+             if let saleStageDisplay = boardNode.childNode(withName: EnumNodeName.saleStage.rawValue, recursively: true) {
+                
+                     saleStageDisplay.isHidden = false
+                     titleTextNode.position = SCNVector3(-1.5, 0.1, 0.01)
+                     titleTextNode.string = "GameTitle".localized
+                     saleStageDisplay.addChildNode(titleTextNode)
+                 
+             }
+         }
+    
+    func showTextFall(arr: [String]) {
+        guard let boardNode = boardNodeTemplate else { return}
+        titleTextNode.isHidden = true //隐藏标题
+        
+        if let saleStageDisplay = boardNode.childNode(withName: EnumNodeName.saleStage.rawValue, recursively: true) {
+            for i in 0 ..< arr.count {
+                
+                let newLine = TextNode(textScale: SCNVector3(0.3, 0.9, 1)) //用于显示游戏标题
+                //newLine.setColor(color: UIColor.red)
+                newLine.setColor(color: UIColor(red: 230/255, green: 195/255, blue: 48/255, alpha: 1))
+                newLine.position = SCNVector3(-1.5, 0.1, 0.01)
+                newLine.string = arr[i]
+                DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 2, execute: {
+                    saleStageDisplay.addChildNode(newLine)
+                    newLine.runAction(SCNAction.sequence([
+                        SCNAction.move(to: SCNVector3(-1.5, 10, 0.01), duration: 10),
+                        SCNAction.fadeOut(duration: 0.1),
+                        SCNAction.customAction(duration: 0, action: { _,_  in
+                            newLine.removeFromParentNode()
+                        })
+                    ]))
+                    
+                })
+                
+            }
+            
+        }
+    }
+     
     
 }

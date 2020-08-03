@@ -63,6 +63,9 @@ class multiUserSession: NSObject {
     func stopBrosingForPeers() {
         serviceBrowser.stopBrowsingForPeers()
     }
+    func stopAdvertisingPeer() {
+        serviceAdvertiser.stopAdvertisingPeer()
+    }
     
     var connectedPeers: [MCPeerID] {
         return session.connectedPeers

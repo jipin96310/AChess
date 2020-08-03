@@ -257,4 +257,26 @@ extension CGPoint {
         return sqrt(x * x + y * y)
     }
 }
+public func clamp<T>(_ value: T, _ minValue: T, _ maxValue: T) -> T where T: Comparable {
+    return min(max(value, minValue), maxValue)
+}
+
+@objc public extension UIStackView {
+    
+    /// 设置子视图显示比例(此方法前请设置 .axis/.orientation)
+    func setSubViewMultiplier(_ multiplier: CGFloat, at index: Int) {
+        if index < subviews.count {
+            let element = subviews[index];
+            if self.axis == .horizontal {
+                element.widthAnchor.constraint(equalTo: self.widthAnchor, multiplier: multiplier).isActive = true
+
+            } else {
+                element.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: multiplier).isActive = true
+            }
+        }
+    }
+}
+
+
+
 

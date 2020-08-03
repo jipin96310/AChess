@@ -457,8 +457,14 @@ public class baseChessNode: SCNNode {
             if case let curBaseDef as Int = rattleFunc[EnumKeyName.baseDef.rawValue] {
                 abilityDesc = abilityDesc.replacingOccurrences(of: "<def>", with: String(curBaseDef * chessLevel))
             }
+            
+            //kind
             if case let curInstantKind as [String] = rattleFunc[EnumKeyName.baseKind.rawValue] { //数组形式的basekind
                 abilityDesc = abilityDesc.replacingOccurrences(of: "[kind]", with: (curInstantKind).joined(separator: " "))
+            }
+            if case let curInstantKind as [String: Int] = rattleFunc[EnumKeyName.baseKind.rawValue] { //数组形式的basekind
+                let kinds = Array(curInstantKind.keys)
+                abilityDesc = abilityDesc.replacingOccurrences(of: "[kind]", with: (kinds).joined(separator: " "))
             }
             
            
@@ -466,6 +472,7 @@ public class baseChessNode: SCNNode {
                 abilityDesc = abilityDesc.replacingOccurrences(of: "<value>", with: (String(curValue as! Int)))
             }
             
+   
             if case let curRattleChess as [chessStruct] = rattleFunc[EnumKeyName.summonChess.rawValue] {
                 var curSummonName:String = ""
                 curRattleChess.forEach{ (curSummon) in
@@ -474,6 +481,7 @@ public class baseChessNode: SCNNode {
                 abilityDesc = abilityDesc.replacingOccurrences(of: "[chesses]", with: curSummonName)
             }
             
+       
             if case let curAfterKind as [String] = rattleFunc[EnumKeyName.baseKind.rawValue] {
                 var curAfterKindStr = ""
                 for i in 0 ..< curAfterKind.count {
@@ -496,21 +504,22 @@ public class baseChessNode: SCNNode {
                 abilityDesc = abilityDesc.replacingOccurrences(of: "[aKind]", with: curAfterAbilityStr)
             }
             
-            if case let curRattleChess as [chessStruct] = rattleFunc[EnumKeyName.summonChess.rawValue] {
-                var curSummonName:String = ""
-                curRattleChess.forEach{ (curSummon) in
-                    curSummonName += ((curSummon.name ?? "") + " ")
-                }
-                abilityDesc = abilityDesc.replacingOccurrences(of: "[chesses]", with: curSummonName)
+         
+            
+            //damage appear
+            if case let curInheritDamage as Int = inheritFunc[EnumKeyName.baseDamage.rawValue] {
+                abilityDesc = abilityDesc.replacingOccurrences(of: "<dam>", with: (String(curInheritDamage * chessLevel)))
             }
-            if case let curRattleDamage as Int = inheritFunc[EnumKeyName.baseDamage.rawValue] {
+            if case let curRattleDamage as Int = rattleFunc[EnumKeyName.baseDamage.rawValue] {
                 abilityDesc = abilityDesc.replacingOccurrences(of: "<dam>", with: (String(curRattleDamage * chessLevel)))
             }
+            
+            
+            
             if case let curRattleNum as Int = inheritFunc[EnumKeyName.summonNum.rawValue] {
                 abilityDesc = abilityDesc.replacingOccurrences(of: "<num>", with: (String(curRattleNum)))
             }
-            
-            
+   
             //部分特殊技能
             if curAbi == EnumAbilities.summonChessAddMountainBuff.rawValue {
                 abilityDesc = abilityDesc.replacingOccurrences(of: "<att>", with: String(1 * chessLevel))

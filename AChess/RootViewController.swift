@@ -103,4 +103,24 @@ class RootViewController: UIViewController, SCNSceneRendererDelegate {
     @IBAction func close(segue:UIStoryboardSegue){
         //
     }
+    
+    @IBAction func aboutGame(_ sender: Any) {
+        guard let boardNode = boardNodeTemplate else { return }
+        let text = "GameAbout".localized
+        var textArr:[String] = []
+        if text.contains("。") { //中文
+            let lineNumber = 16 //每行文字数
+            for i in (0..<text.count).filter({ i in i % lineNumber == 0}) {
+                let index1 = text.index(text.startIndex, offsetBy: i)
+                let offsetNum = text.count - i >= lineNumber ? lineNumber - 1 : (text.count - 1) - i
+                let index2 = text.index(text.startIndex, offsetBy: i + offsetNum)
+                let sub = text[index1...index2]
+                textArr.append(String(sub))
+            }
+        } else {
+            
+        }
+        boardNode.showTextFall(arr: textArr)
+    }
+    
 }

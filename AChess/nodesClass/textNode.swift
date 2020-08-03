@@ -50,6 +50,9 @@ class TextNode: SCNNode {
     }
 
     
+    func setColor(color: UIColor) {
+           geometry?.firstMaterial?.diffuse.contents = color
+    }
     
     
     required init?(coder aDecoder: NSCoder) {
@@ -67,6 +70,8 @@ class TextNode: SCNNode {
             textGeometry.containerFrame = CGRect(x: 0.0, y: 0.0, width: width, height: height)
         }
     }
+    
+   
     
     //        textGeometry.containerFrame = CGRect(origin: .zero, size: CGSize(width: 1.0, height: 1.0))
         }
