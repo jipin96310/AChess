@@ -13,6 +13,8 @@ import PromiseKit
 import MultipeerConnectivity
 import os.log
 
+
+
 class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SCNPhysicsContactDelegate {
 
     @IBOutlet var sceneView: ARSCNView!
@@ -104,8 +106,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
           let bounds = sceneView.bounds
           return CGPoint(x: bounds.midX, y: bounds.midY)
     }
-    
-    
+    //hand detect parameter
+    var currentBuffer: CVPixelBuffer?
+    var previewView = UIImageView()
+    let handDetector = HandDetector()
+    var curHandGesture = HandGestureCategory.openFist
     
     let totalUpdateTime:Double = 1 //刷新时间
     var curUpgradeCoin = 5 {
@@ -444,6 +449,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         sceneView.scene.rootNode.addChildNode(playerBoardNode)
         
         initHandNode()
+        
+        
+        if gameConfigStr.enableHandDetect {
+            sceneView.addSubview(previewView)
+            previewView.translatesAutoresizingMaskIntoConstraints = false
+            previewView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+            previewView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        }
         // Create a new scene
         //let scene = SCNScene(named: "art.scnassets/ship.scn")!
         
@@ -754,10 +767,19 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
 */
     func session(_ session: ARSession, didUpdate frame: ARFrame) {
-         if !isPlayerBoardinited {
-                   updatePrePlane(frame: frame)
+        if !isPlayerBoardinited {
+            updatePrePlane(frame: frame)
+        } else {
+            if gameConfigStr.enableHandDetect {
+                guard currentBuffer == nil, case .normal = frame.camera.trackingState else {
+                    return
+                }
+                
+                // Retain the image buffer for Vision processing.
+                currentBuffer = frame.capturedImage
+                startDetection()
             }
-               
+        }
     }
     func session(_ session: ARSession, didFailWithError error: Error) {
         // Present an error message to the user

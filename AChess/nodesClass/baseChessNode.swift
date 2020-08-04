@@ -124,8 +124,10 @@ public class baseChessNode: SCNNode {
         super.init()
         let curNode = createChess()
         
-        //bitmask
-        curNode.categoryBitMask = BitMaskCategoty.baseChess.rawValue
+      
+        //curNode.categoryBitMask = BitMaskCategoty.baseChess.rawValue
+        //curNode.contactTestBitMask = BitMaskCategoty.hand.rawValue
+        
         
         self.addChildNode(curNode)
         
@@ -158,6 +160,16 @@ public class baseChessNode: SCNNode {
             priceLabelNode.addChildNode(self.priceTextNode)
         }
         if let sideNode = curNode.childNode(withName: "side", recursively: true) {
+            //bitmask
+            let shape = SCNPhysicsShape(geometry: sideNode.geometry!, options: nil)
+            let physicsBody = SCNPhysicsBody(type: SCNPhysicsBodyType.static, shape: shape)
+            physicsBody.isAffectedByGravity = false
+            curNode.physicsBody = physicsBody
+            curNode.physicsBody?.categoryBitMask = BitMaskCategoty.baseChess.rawValue
+            curNode.physicsBody?.contactTestBitMask = BitMaskCategoty.baseChess.rawValue
+    
+            
+            
             sideNode.geometry?.firstMaterial?.diffuse.contents = chessColorRarity[self.chessRarity] //control chess color
             self.nameTextNode.geometry?.firstMaterial?.diffuse.contents = labelColorRarity[self.chessRarity]
             self.damgeTextNode.position = SCNVector3(0, 0.5 , 0)

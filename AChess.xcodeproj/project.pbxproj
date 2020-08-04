@@ -12,8 +12,10 @@
 		C709C50823DD86D100944C01 /* utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = C709C50723DD86D100944C01 /* utils.swift */; };
 		C709C50A23DD86EF00944C01 /* enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = C709C50923DD86EF00944C01 /* enums.swift */; };
 		C70C152324420F530086C259 /* playerStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70C152224420F530086C259 /* playerStruct.swift */; };
+		C70D5EF824D1D0AD00642ACE /* Sounds in Resources */ = {isa = PBXBuildFile; fileRef = C70D5EF724D1D0AD00642ACE /* Sounds */; };
 		C70E60C624B37A7D00E0540F /* ViewController+Gestures.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70E60C524B37A7D00E0540F /* ViewController+Gestures.swift */; };
 		C710DCF824B617B500E829EB /* CustomPinchGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C710DCF724B617B500E829EB /* CustomPinchGestureRecognizer.swift */; };
+		C71F897224D324E0001C1201 /* SoundNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C71F897124D324E0001C1201 /* SoundNode.swift */; };
 		C721D24924B770E7007B0B52 /* CustomPanGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C721D24824B770E7007B0B52 /* CustomPanGestureRecognizer.swift */; };
 		C72C2FE22478D10F005AE2F7 /* settingStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72C2FE12478D10F005AE2F7 /* settingStruct.swift */; };
 		C72D0EC623DFF8F800CC0EFB /* textNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72D0EC523DFF8F800CC0EFB /* textNode.swift */; };
@@ -33,6 +35,8 @@
 		C751227423F518D7002CC4B4 /* dummyAI.swift in Sources */ = {isa = PBXBuildFile; fileRef = C751227323F518D7002CC4B4 /* dummyAI.swift */; };
 		C757833923F26A5300B0DCE3 /* chessStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = C757833823F26A5300B0DCE3 /* chessStruct.swift */; };
 		C75E6A8D240272F3000B01BD /* ComScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = C75E6A8C240272F3000B01BD /* ComScript.swift */; };
+		C7648ED124D50C8D00381FCD /* musicCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7648ED024D50C8D00381FCD /* musicCoordinator.swift */; };
+		C7648ED524D596FF00381FCD /* RootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7648ED424D596FF00381FCD /* RootViewController.swift */; };
 		C766178A23FD7EF700D11EBF /* nodeColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C766178923FD7EF700D11EBF /* nodeColor.swift */; };
 		C771AFF523E80CC5007C99F0 /* extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C771AFF423E80CC5007C99F0 /* extensions.swift */; };
 		C7744A1524B4C781003ADE4C /* CustomRotateGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7744A1424B4C781003ADE4C /* CustomRotateGestureRecognizer.swift */; };
@@ -42,6 +46,10 @@
 		C7B4D71D24838AB6008F3B1F /* codblePlayerStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B4D71C24838AB6008F3B1F /* codblePlayerStruct.swift */; };
 		C7B99F7524CC420100D62B55 /* boardChessesStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B99F7424CC420100D62B55 /* boardChessesStruct.swift */; };
 		C7BE385924B200BB00DCAA16 /* PrePlane.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7BE385824B200BB00DCAA16 /* PrePlane.swift */; };
+		C7DADE0F24D932CA00AB55F4 /* hand.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = C7DADE0D24D932CA00AB55F4 /* hand.mlmodel */; };
+		C7DADE1024D932CA00AB55F4 /* HandModel.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = C7DADE0E24D932CA00AB55F4 /* HandModel.mlmodel */; };
+		C7DADE1324D932FB00AB55F4 /* HandDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DADE1224D932FA00AB55F4 /* HandDetector.swift */; };
+		C7DADE1524D9335300AB55F4 /* CVPixelBufferHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DADE1424D9335300AB55F4 /* CVPixelBufferHelper.swift */; };
 		C7DB34BB23FEC88200DBE512 /* abilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DB34BA23FEC88200DBE512 /* abilities.swift */; };
 		C7DD950823DE9ACE0096CE0C /* actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7DD950723DE9ACE0096CE0C /* actions.swift */; };
 		C7DD950E23DEB8F80096CE0C /* particals.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = C7DD950D23DEB8F80096CE0C /* particals.scnassets */; };
@@ -53,6 +61,7 @@
 		C7F4819D240A5DE1002EBEED /* Localization.strings in Resources */ = {isa = PBXBuildFile; fileRef = C7F4819F240A5DE1002EBEED /* Localization.strings */; };
 		C7F481A2240A5EF8002EBEED /* LocalizationTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F481A1240A5EF8002EBEED /* LocalizationTool.swift */; };
 		C7F988B524C2E29D0007702A /* ChessBoardNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F988B424C2E29D0007702A /* ChessBoardNode.swift */; };
+		C7FC304024D969BE008EB89F /* ViewController+Detection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7FC303F24D969BE008EB89F /* ViewController+Detection.swift */; };
 		F08EDF3AF44CF1C7283DC2B3 /* libPods-AChess.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4210E76BC58F7D7B5B6391F0 /* libPods-AChess.a */; };
 /* End PBXBuildFile section */
 
@@ -95,8 +104,10 @@
 		C709C50723DD86D100944C01 /* utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = utils.swift; sourceTree = "<group>"; };
 		C709C50923DD86EF00944C01 /* enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = enums.swift; sourceTree = "<group>"; };
 		C70C152224420F530086C259 /* playerStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = playerStruct.swift; sourceTree = "<group>"; };
+		C70D5EF724D1D0AD00642ACE /* Sounds */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Sounds; sourceTree = "<group>"; };
 		C70E60C524B37A7D00E0540F /* ViewController+Gestures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ViewController+Gestures.swift"; sourceTree = "<group>"; };
 		C710DCF724B617B500E829EB /* CustomPinchGestureRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomPinchGestureRecognizer.swift; sourceTree = "<group>"; };
+		C71F897124D324E0001C1201 /* SoundNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundNode.swift; sourceTree = "<group>"; };
 		C721D24824B770E7007B0B52 /* CustomPanGestureRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomPanGestureRecognizer.swift; sourceTree = "<group>"; };
 		C72C2FE12478D10F005AE2F7 /* settingStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = settingStruct.swift; sourceTree = "<group>"; };
 		C72D0EC523DFF8F800CC0EFB /* textNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = textNode.swift; sourceTree = "<group>"; };
@@ -123,6 +134,8 @@
 		C751227323F518D7002CC4B4 /* dummyAI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = dummyAI.swift; sourceTree = "<group>"; };
 		C757833823F26A5300B0DCE3 /* chessStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = chessStruct.swift; sourceTree = "<group>"; };
 		C75E6A8C240272F3000B01BD /* ComScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComScript.swift; sourceTree = "<group>"; };
+		C7648ED024D50C8D00381FCD /* musicCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = musicCoordinator.swift; sourceTree = "<group>"; };
+		C7648ED424D596FF00381FCD /* RootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewController.swift; sourceTree = "<group>"; };
 		C766178923FD7EF700D11EBF /* nodeColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = nodeColor.swift; sourceTree = "<group>"; };
 		C771AFF423E80CC5007C99F0 /* extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = extensions.swift; sourceTree = "<group>"; };
 		C7744A1424B4C781003ADE4C /* CustomRotateGestureRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomRotateGestureRecognizer.swift; sourceTree = "<group>"; };
@@ -132,6 +145,10 @@
 		C7B4D71C24838AB6008F3B1F /* codblePlayerStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = codblePlayerStruct.swift; sourceTree = "<group>"; };
 		C7B99F7424CC420100D62B55 /* boardChessesStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = boardChessesStruct.swift; sourceTree = "<group>"; };
 		C7BE385824B200BB00DCAA16 /* PrePlane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrePlane.swift; sourceTree = "<group>"; };
+		C7DADE0D24D932CA00AB55F4 /* hand.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = hand.mlmodel; sourceTree = "<group>"; };
+		C7DADE0E24D932CA00AB55F4 /* HandModel.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = HandModel.mlmodel; sourceTree = "<group>"; };
+		C7DADE1224D932FA00AB55F4 /* HandDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandDetector.swift; sourceTree = "<group>"; };
+		C7DADE1424D9335300AB55F4 /* CVPixelBufferHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CVPixelBufferHelper.swift; sourceTree = "<group>"; };
 		C7DB34BA23FEC88200DBE512 /* abilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = abilities.swift; sourceTree = "<group>"; };
 		C7DD950723DE9ACE0096CE0C /* actions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = actions.swift; sourceTree = "<group>"; };
 		C7DD950D23DEB8F80096CE0C /* particals.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = particals.scnassets; sourceTree = "<group>"; };
@@ -146,6 +163,7 @@
 		C7F481A0240A5DE3002EBEED /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localization.strings"; sourceTree = "<group>"; };
 		C7F481A1240A5EF8002EBEED /* LocalizationTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationTool.swift; sourceTree = "<group>"; };
 		C7F988B424C2E29D0007702A /* ChessBoardNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessBoardNode.swift; sourceTree = "<group>"; };
+		C7FC303F24D969BE008EB89F /* ViewController+Detection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ViewController+Detection.swift"; sourceTree = "<group>"; };
 		C8190D39A07A58C13C9987AD /* libPods-AChessTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-AChessTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C958387DE5F93F17C6EA051C /* Pods-AChess.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AChess.debug.xcconfig"; path = "Target Support Files/Pods-AChess/Pods-AChess.debug.xcconfig"; sourceTree = "<group>"; };
 		FE236FCB68789C2173E820BE /* Pods-AChess.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AChess.release.xcconfig"; path = "Target Support Files/Pods-AChess/Pods-AChess.release.xcconfig"; sourceTree = "<group>"; };
@@ -203,6 +221,16 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		C70D5EF424D1D01100642ACE /* resources */ = {
+			isa = PBXGroup;
+			children = (
+				C7DADE0D24D932CA00AB55F4 /* hand.mlmodel */,
+				C7DADE0E24D932CA00AB55F4 /* HandModel.mlmodel */,
+				C70D5EF724D1D0AD00642ACE /* Sounds */,
+			);
+			path = resources;
+			sourceTree = "<group>";
+		};
 		C72E92F423F195DD008F890F /* Datas */ = {
 			isa = PBXGroup;
 			children = (
@@ -215,6 +243,8 @@
 				C72C2FE12478D10F005AE2F7 /* settingStruct.swift */,
 				C7E6E13824BB13FE00C930E0 /* UserDefaults.swift */,
 				C7B99F7424CC420100D62B55 /* boardChessesStruct.swift */,
+				C71F897124D324E0001C1201 /* SoundNode.swift */,
+				C7648ED024D50C8D00381FCD /* musicCoordinator.swift */,
 			);
 			path = Datas;
 			sourceTree = "<group>";
@@ -252,6 +282,7 @@
 		C73426A023D9E338003B7697 /* AChess */ = {
 			isa = PBXGroup;
 			children = (
+				C7DADE1124D932D300AB55F4 /* HandDetector */,
 				C7744A1324B4C758003ADE4C /* Gestures */,
 				C72EF22B2470F46B0002C54A /* MultiUser */,
 				C7F481A3240A6131002EBEED /* Localization */,
@@ -261,12 +292,15 @@
 				C73426A123D9E338003B7697 /* AppDelegate.swift */,
 				C73426A323D9E338003B7697 /* art.scnassets */,
 				C73426A523D9E338003B7697 /* ViewController.swift */,
+				C7FC303F24D969BE008EB89F /* ViewController+Detection.swift */,
+				C7648ED424D596FF00381FCD /* RootViewController.swift */,
 				C70E60C524B37A7D00E0540F /* ViewController+Gestures.swift */,
 				C7EC4EE024B985FB005A326E /* ViewController+ARSCNViewDelegate.swift */,
 				C72ED6E8246FF0CD00BECBB4 /* MainController.swift */,
 				C72ED6EA24703DA700BECBB4 /* ConfigGameController.swift */,
 				C73426A723D9E338003B7697 /* Main.storyboard */,
 				C73426AA23D9E33B003B7697 /* Assets.xcassets */,
+				C70D5EF424D1D01100642ACE /* resources */,
 				C73426AC23D9E33B003B7697 /* LaunchScreen.storyboard */,
 				C73426AF23D9E33B003B7697 /* Info.plist */,
 				C7DD950D23DEB8F80096CE0C /* particals.scnassets */,
@@ -330,6 +364,15 @@
 				C7F988B424C2E29D0007702A /* ChessBoardNode.swift */,
 			);
 			path = nodesClass;
+			sourceTree = "<group>";
+		};
+		C7DADE1124D932D300AB55F4 /* HandDetector */ = {
+			isa = PBXGroup;
+			children = (
+				C7DADE1224D932FA00AB55F4 /* HandDetector.swift */,
+				C7DADE1424D9335300AB55F4 /* CVPixelBufferHelper.swift */,
+			);
+			path = HandDetector;
 			sourceTree = "<group>";
 		};
 		C7F481A3240A6131002EBEED /* Localization */ = {
@@ -452,6 +495,7 @@
 			files = (
 				C73426A423D9E338003B7697 /* art.scnassets in Resources */,
 				C7F4819D240A5DE1002EBEED /* Localization.strings in Resources */,
+				C70D5EF824D1D0AD00642ACE /* Sounds in Resources */,
 				C73426AE23D9E33B003B7697 /* LaunchScreen.storyboard in Resources */,
 				C73426AB23D9E33B003B7697 /* Assets.xcassets in Resources */,
 				C73426A923D9E338003B7697 /* Main.storyboard in Resources */,
@@ -551,10 +595,12 @@
 			files = (
 				C7B4D71B24837FDD008F3B1F /* codebleChessStruct.swift in Sources */,
 				C7F481A2240A5EF8002EBEED /* LocalizationTool.swift in Sources */,
+				C7FC304024D969BE008EB89F /* ViewController+Detection.swift in Sources */,
 				C72C2FE22478D10F005AE2F7 /* settingStruct.swift in Sources */,
 				C710DCF824B617B500E829EB /* CustomPinchGestureRecognizer.swift in Sources */,
 				C721D24924B770E7007B0B52 /* CustomPanGestureRecognizer.swift in Sources */,
 				C72ED6EB24703DA700BECBB4 /* ConfigGameController.swift in Sources */,
+				C71F897224D324E0001C1201 /* SoundNode.swift in Sources */,
 				C709C50823DD86D100944C01 /* utils.swift in Sources */,
 				C73B2D6C24B960B000763FE7 /* CustomAnchor.swift in Sources */,
 				C7DD950823DE9ACE0096CE0C /* actions.swift in Sources */,
@@ -563,11 +609,15 @@
 				C7E6E13624BAC61100C930E0 /* GameObject.swift in Sources */,
 				C72EF22D2470F4890002C54A /* mulitiUserSession.swift in Sources */,
 				C7DB34BB23FEC88200DBE512 /* abilities.swift in Sources */,
+				C7DADE0F24D932CA00AB55F4 /* hand.mlmodel in Sources */,
 				C792198623F66978008B6950 /* protocol.swift in Sources */,
+				C7DADE1524D9335300AB55F4 /* CVPixelBufferHelper.swift in Sources */,
 				C709C50A23DD86EF00944C01 /* enums.swift in Sources */,
+				C7648ED524D596FF00381FCD /* RootViewController.swift in Sources */,
 				C72ED6E9246FF0CD00BECBB4 /* MainController.swift in Sources */,
 				C7AFB4FC23EAF8B400B21E09 /* customPlanenode.swift in Sources */,
 				C70E60C624B37A7D00E0540F /* ViewController+Gestures.swift in Sources */,
+				C7648ED124D50C8D00381FCD /* musicCoordinator.swift in Sources */,
 				C7DD951323DF06590096CE0C /* baseChessNode.swift in Sources */,
 				C72D0EC623DFF8F800CC0EFB /* textNode.swift in Sources */,
 				C757833923F26A5300B0DCE3 /* chessStruct.swift in Sources */,
@@ -579,11 +629,13 @@
 				C766178A23FD7EF700D11EBF /* nodeColor.swift in Sources */,
 				C751227423F518D7002CC4B4 /* dummyAI.swift in Sources */,
 				C70C152324420F530086C259 /* playerStruct.swift in Sources */,
+				C7DADE1324D932FB00AB55F4 /* HandDetector.swift in Sources */,
 				C7BE385924B200BB00DCAA16 /* PrePlane.swift in Sources */,
 				C7E6E13424BAC55F00C930E0 /* GameLight.swift in Sources */,
 				C75E6A8D240272F3000B01BD /* ComScript.swift in Sources */,
 				C7B4D71D24838AB6008F3B1F /* codblePlayerStruct.swift in Sources */,
 				C73426A223D9E338003B7697 /* AppDelegate.swift in Sources */,
+				C7DADE1024D932CA00AB55F4 /* HandModel.mlmodel in Sources */,
 				C7F988B524C2E29D0007702A /* ChessBoardNode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
