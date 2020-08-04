@@ -133,7 +133,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     //以下数据需要保存
     var boardPool : [String : Int] = ["" : 0] //卡池
     var freezedChessNodes: [baseChessNode] = []
-    var gameConfigStr = settingStruct(isShareBoard: true, playerNumber: 2, isMaster: false)
+    var gameConfigStr = settingStruct(isShareBoard: true, playerNumber: 2, isMaster: false, enableHandDetect: true)
     var curMasterID: MCPeerID? //如果是从机会获取到主机的id
     var currentSlaveId: [playerStruct] = []//如果是主机会获取到所有的从机id  index 0 是主机id
     

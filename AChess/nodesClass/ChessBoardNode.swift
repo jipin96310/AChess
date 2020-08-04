@@ -26,6 +26,8 @@ class ChessBoardNode: SCNNode {
     var curDragPoint: baseChessNode? = nil
     var updatePromise:Resolver<Double>? = nil
     var playerID:MCPeerID? = nil
+    var isScrolling = false
+    
     
     var showStrageBoard = true {
         didSet {
@@ -713,9 +715,11 @@ class ChessBoardNode: SCNNode {
              }
          }
     
-    func showTextFall(arr: [String]) {
+    func showTextScroll(arr: [String]) {
         guard let boardNode = boardNodeTemplate else { return}
-        titleTextNode.isHidden = true //隐藏标题
+        if isScrolling {return} else {isScrolling = true}
+        
+        titleTextNode.runAction(SCNAction.fadeOut(duration: 0)) //隐藏标题
         
         if let saleStageDisplay = boardNode.childNode(withName: EnumNodeName.saleStage.rawValue, recursively: true) {
             for i in 0 ..< arr.count {
@@ -734,6 +738,11 @@ class ChessBoardNode: SCNNode {
                             newLine.removeFromParentNode()
                         })
                     ]))
+                    if i == arr.count - 1 {
+                        self.titleTextNode.runAction(SCNAction.sequence([SCNAction.wait(duration: 10),SCNAction.fadeIn(duration: 1),SCNAction.customAction(duration: 0, action: {_,_ in
+                            self.isScrolling = false
+                        })]))
+                    }
                     
                 })
                 

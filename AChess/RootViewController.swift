@@ -108,19 +108,29 @@ class RootViewController: UIViewController, SCNSceneRendererDelegate {
         guard let boardNode = boardNodeTemplate else { return }
         let text = "GameAbout".localized
         var textArr:[String] = []
+        var lineNumber = 16
         if text.contains("。") { //中文
-            let lineNumber = 16 //每行文字数
-            for i in (0..<text.count).filter({ i in i % lineNumber == 0}) {
-                let index1 = text.index(text.startIndex, offsetBy: i)
-                let offsetNum = text.count - i >= lineNumber ? lineNumber - 1 : (text.count - 1) - i
-                let index2 = text.index(text.startIndex, offsetBy: i + offsetNum)
-                let sub = text[index1...index2]
-                textArr.append(String(sub))
-            }
-        } else {
+            
+        } else { //eng
+            lineNumber = 32
+            //            let subArr = text.split(separator: " ") //每行固定单词数
+            //            let arrayStrings: [String] = subArr.compactMap { "\($0)" }
+            //            let lineNumber = 5 //每行文字数
+            //            for i in (0..<subArr.count).filter({ i in i % lineNumber == 0}) {
+            //                let offsetNum = subArr.count - i >= lineNumber ? lineNumber - 1 : (subArr.count - 1) - i
+            //                let joinArr = arrayStrings[i...(i + offsetNum)]
+            //                let joinStr = joinArr.joined(separator: " ")
+            //                textArr.append(joinStr)
+            //            }
             
         }
-        boardNode.showTextFall(arr: textArr)
+        for i in (0..<text.count).filter({ i in i % lineNumber == 0}) { //每行固定字符数
+            let index1 = text.index(text.startIndex, offsetBy: i)
+            let offsetNum = text.count - i >= lineNumber ? lineNumber - 1 : (text.count - 1) - i
+            let index2 = text.index(text.startIndex, offsetBy: i + offsetNum)
+            let sub = text[index1...index2]
+            textArr.append(String(sub))
+        }
+        boardNode.showTextScroll(arr: textArr)
     }
-    
 }

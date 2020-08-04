@@ -14,7 +14,7 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
     
     var masterServerID: MCPeerID?
     
-    var gameConfig = settingStruct(isShareBoard: true, playerNumber: 2, isMaster: false)
+    var gameConfig = settingStruct(isShareBoard: true, playerNumber: 2, isMaster: false, enableHandDetect: true)
     var currentSlaveId:[playerStruct] = [playerStruct(playerName: UIDevice.current.name, curCoin: 3, curLevel: 1, curBlood: GlobalCommonNumber.maxBlood, curChesses: [], curAura: [], isComputer: false, playerID: MCPeerID(displayName: UIDevice.current.name)),
         playerStruct(playerName: "动保", curCoin: 3, curLevel: 1, curBlood: GlobalCommonNumber.maxBlood, curChesses: [], curAura: [], isComputer: true, playerID: nil)
     ]
@@ -24,6 +24,11 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
     @IBOutlet weak var shareBoardSwitch: UISwitch!
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var settingTableView: UITableView!
+    
+    @IBOutlet weak var handDetectSwitch: UISwitch!
+    
+    
+    
     var multipeerSession: multiUserSession!
     var timer : Timer? //定时刷新在线玩家
     let computerPlayer = [
@@ -43,7 +48,7 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableView == settingTableView {
-            return 3
+            return 5
         } else {
             return gameConfig.playerNumber
         }
@@ -61,6 +66,7 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
         
         //监听设置组件
         shareBoardSwitch.addTarget(self, action: #selector(switchChange), for: .valueChanged)
+        handDetectSwitch.addTarget(self, action: #selector(handChange), for: .valueChanged)
         playerNumberStepper.addTarget(self, action: #selector(stepperChanged), for: .valueChanged)
         
         multipeerSession = multiUserSession(receivedDataHandler: receivedData)
@@ -92,6 +98,9 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
         }
     }
     
+    @objc func handChange() { //是否启用手势识别
+        gameConfig.enableHandDetect = handDetectSwitch.isOn
+    }
     @objc func switchChange() { //是否共享棋盘
         gameConfig.isShareBoard = shareBoardSwitch.isOn
     }
