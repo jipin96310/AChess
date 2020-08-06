@@ -129,6 +129,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var handPoint = SCNNode() // use for mode1 with hand
     var referencePoint = SCNNode() // use for mode0 with touching on screen
     var tempTransParentNode = baseChessNode()
+    var overDistanceCount = 0
+//    let tempNode1 = SCNNode(geometry: SCNSphere(radius: 0.001))
+//    let tempNode2 = SCNNode(geometry: SCNSphere(radius: 0.001))
     
     var curDragPoint: baseChessNode? = nil
     var curChoosePoint: baseChessNode? = nil
@@ -138,7 +141,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     //以下数据需要保存
     var boardPool : [String : Int] = ["" : 0] //卡池
     var freezedChessNodes: [baseChessNode] = []
-    var gameConfigStr = settingStruct(isShareBoard: true, playerNumber: 2, isMaster: false, enableHandDetect: true)
+    var gameConfigStr = settingStruct(isShareBoard: true, playerNumber: 2, isMaster: false, enableHandTracking: true, enableGestureRecognizer: true)
     var curMasterID: MCPeerID? //如果是从机会获取到主机的id
     var currentSlaveId: [playerStruct] = []//如果是主机会获取到所有的从机id  index 0 是主机id
     
@@ -199,7 +202,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     if oldSubChessIndex.count > 0 {//说明有棋子合成
                         //移除旧的棋子。todo!!!!! 写的方法可以优化
                         var tempIndex = -1
-                        var newAllyBoard:[baseChessNode] = [] //新期盼
+                        var newAllyBoard:[baseChessNode] = [] //新棋盘
                         newAllyBoard = boardNode[BoardSide.allySide.rawValue].filter{(item) in
                             tempIndex += 1
                             return !oldSubChessIndex.contains(tempIndex)
@@ -425,6 +428,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     
     @IBOutlet weak var trackingStateLabel: UILabel!
     
+    @IBOutlet weak var gestureInstructionLabel: UILabel!
+    
     @IBOutlet var rotateGestureRecognizer: CustomRotateGestureRecognizer!
     
     @IBOutlet var pinchGestureRecognizer: CustomPinchGestureRecognizer!
@@ -451,12 +456,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         initHandNode()
         
         
-        if gameConfigStr.enableHandDetect {
+        if gameConfigStr.enableHandTracking {
             sceneView.addSubview(previewView)
             previewView.translatesAutoresizingMaskIntoConstraints = false
             previewView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
             previewView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         }
+        
         // Create a new scene
         //let scene = SCNScene(named: "art.scnassets/ship.scn")!
         
@@ -568,8 +574,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         } else {
             instructionLabel.isHidden = true
         }
+        if sessionState == .gameProcessing {
+            if gameConfigStr.enableGestureRecognizer {
+                           gestureInstructionLabel.isHidden = false
+            }
+        } else {
+            gestureInstructionLabel.isHidden = true
+        }
 
-     
     }
 
     func configureSession() {
@@ -770,7 +782,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         if !isPlayerBoardinited {
             updatePrePlane(frame: frame)
         } else {
-            if gameConfigStr.enableHandDetect {
+            if gameConfigStr.enableHandTracking {
                 guard currentBuffer == nil, case .normal = frame.camera.trackingState else {
                     return
                 }
@@ -3354,7 +3366,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
    
     
     func initHandNode() {
-        let newNode = SCNNode(geometry: SCNCylinder(radius: 0.05, height: 0.005))
+        let newNode = SCNNode(geometry: SCNCylinder(radius: 0.03, height: 0.005))
         newNode.name = ContactCategory.hand.rawValue
          //newNode.simdTransform = hitTestResult.worldTransform
          newNode.position.x = 0
@@ -3362,7 +3374,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
          newNode.position.z = 0
          newNode.geometry?.firstMaterial?.diffuse.contents = UIColor.blue
          //hands physics body
-        let body = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(geometry: SCNCylinder(radius: 0.05, height: 0.005), options: [SCNPhysicsShape.Option.keepAsCompound : true]))
+        let body = SCNPhysicsBody(type: .kinematic, shape: SCNPhysicsShape(geometry: SCNCylinder(radius: 0.05, height: 0.005), options: [SCNPhysicsShape.Option.keepAsCompound : true]))
           newNode.physicsBody = body
 
           newNode.physicsBody?.categoryBitMask = BitMaskCategoty.hand.rawValue
@@ -3370,7 +3382,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
           
          newNode.isHidden = true
          handPoint = newNode
-         self.sceneView.scene.rootNode.addChildNode(handPoint)
+         playerBoardNode.addChildNode(handPoint)
     }
     func initReferenceNode() {
         let newNode = SCNNode(geometry: SCNSphere(radius: 0.01))

@@ -25,6 +25,11 @@ enum HandGestureCategory:Int {
     case closeFist = 0
     case openFist = 1
 }
+enum EnumsHandGesture: String {
+    case closedFist = "closedFist"
+    case openFist = "openFist"
+    case none = "none"
+}
 
 enum EnumsGameStage: Int {
     case exchangeStage = 0

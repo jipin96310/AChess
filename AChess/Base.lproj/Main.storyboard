@@ -163,14 +163,28 @@
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <subviews>
                                                         <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" alignment="center" id="LKj-PX-LW7" userLabel="shareView">
-                                                            <rect key="frame" x="0.0" y="0.0" width="300" height="50"/>
+                                                            <rect key="frame" x="0.0" y="0.0" width="300" height="37.666666666666664"/>
                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                             <subviews>
                                                                 <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4Jc-S3-BnP">
-                                                                    <rect key="frame" x="0.0" y="9.6666666666666643" width="152" height="31"/>
+                                                                    <rect key="frame" x="0.0" y="3.3333333333333321" width="152" height="30.999999999999996"/>
                                                                 </switch>
                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="共享棋盘" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YZG-qA-q0k">
-                                                                    <rect key="frame" x="150" y="14.999999999999998" width="150" height="20.333333333333329"/>
+                                                                    <rect key="frame" x="150" y="8.6666666666666661" width="150" height="20.333333333333336"/>
+                                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                                    <nil key="textColor"/>
+                                                                    <nil key="highlightedColor"/>
+                                                                </label>
+                                                            </subviews>
+                                                        </stackView>
+                                                        <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="62u-4n-n5g" userLabel="gestureView">
+                                                            <rect key="frame" x="0.0" y="37.666666666666671" width="300" height="37.666666666666671"/>
+                                                            <subviews>
+                                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mVv-ud-tpm" userLabel="gestureSwitch">
+                                                                    <rect key="frame" x="0.0" y="3.3333333333333357" width="152" height="31"/>
+                                                                </switch>
+                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="手势识别" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XsN-zH-Xuf" userLabel="gestureLabel">
+                                                                    <rect key="frame" x="150" y="8.6666666666666696" width="150" height="20.333333333333329"/>
                                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                                     <nil key="textColor"/>
                                                                     <nil key="highlightedColor"/>
@@ -178,13 +192,13 @@
                                                             </subviews>
                                                         </stackView>
                                                         <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="6zb-td-KR9" userLabel="handView">
-                                                            <rect key="frame" x="0.0" y="50" width="300" height="50"/>
+                                                            <rect key="frame" x="0.0" y="75.333333333333329" width="300" height="37.666666666666671"/>
                                                             <subviews>
                                                                 <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LRk-hq-OUe" userLabel="handSwitch">
-                                                                    <rect key="frame" x="0.0" y="9.6666666666666643" width="152" height="31"/>
+                                                                    <rect key="frame" x="0.0" y="3.3333333333333428" width="152" height="31"/>
                                                                 </switch>
-                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="手势操作" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eJ9-Sn-3by" userLabel="handLabel">
-                                                                    <rect key="frame" x="150" y="14.999999999999998" width="150" height="20.333333333333329"/>
+                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="手部追踪" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eJ9-Sn-3by" userLabel="handLabel">
+                                                                    <rect key="frame" x="150" y="8.6666666666666696" width="150" height="20.333333333333329"/>
                                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                                     <nil key="textColor"/>
                                                                     <nil key="highlightedColor"/>
@@ -192,22 +206,22 @@
                                                             </subviews>
                                                         </stackView>
                                                         <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" id="aWI-Id-jcw" userLabel="personView">
-                                                            <rect key="frame" x="0.0" y="100" width="300" height="50"/>
+                                                            <rect key="frame" x="0.0" y="112.66666666666667" width="300" height="37.333333333333329"/>
                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                             <subviews>
                                                                 <stackView opaque="NO" contentMode="scaleToFill" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="Vs2-gf-pv9" userLabel="personViewFront">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="150" height="50"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="150" height="37.333333333333336"/>
                                                                     <subviews>
                                                                         <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="2" minimumValue="2" maximumValue="4" stepValue="2" translatesAutoresizingMaskIntoConstraints="NO" id="9ga-uL-FWu">
-                                                                            <rect key="frame" x="0.0" y="9" width="150" height="32"/>
+                                                                            <rect key="frame" x="0.0" y="2.6666666666666572" width="150" height="32"/>
                                                                         </stepper>
                                                                     </subviews>
                                                                 </stackView>
                                                                 <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="WJh-R3-np5" userLabel="personViewSub">
-                                                                    <rect key="frame" x="150" y="0.0" width="150" height="50"/>
+                                                                    <rect key="frame" x="150" y="0.0" width="150" height="37.333333333333336"/>
                                                                     <subviews>
                                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="玩家人数：" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Dek-Jr-GtI">
-                                                                            <rect key="frame" x="0.0" y="0.0" width="86.666666666666671" height="50"/>
+                                                                            <rect key="frame" x="0.0" y="0.0" width="86.666666666666671" height="37.333333333333336"/>
                                                                             <constraints>
                                                                                 <constraint firstAttribute="width" constant="86.666666666666671" id="FP4-wp-wIX"/>
                                                                             </constraints>
@@ -216,7 +230,7 @@
                                                                             <nil key="highlightedColor"/>
                                                                         </label>
                                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" restorationIdentifier="playerNumberLabel" text="2" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2WQ-Yo-0EX">
-                                                                            <rect key="frame" x="86.666666666666657" y="0.0" width="63.333333333333343" height="50"/>
+                                                                            <rect key="frame" x="86.666666666666657" y="0.0" width="63.333333333333343" height="37.333333333333336"/>
                                                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                                             <nil key="textColor"/>
                                                                             <nil key="highlightedColor"/>
@@ -315,6 +329,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="257-qJ-ZLt"/>
                     <connections>
+                        <outlet property="gestureSwitch" destination="mVv-ud-tpm" id="ZrQ-Ey-bCB"/>
                         <outlet property="handDetectSwitch" destination="LRk-hq-OUe" id="eBg-mP-wjc"/>
                         <outlet property="playerNumberLabel" destination="2WQ-Yo-0EX" id="7QO-bw-HO6"/>
                         <outlet property="playerNumberStepper" destination="9ga-uL-FWu" id="we9-Au-ZCd"/>
@@ -363,6 +378,17 @@
                                     <outletCollection property="gestureRecognizers" destination="E4R-h2-2Gc" appends="YES" id="Hk1-DG-x3h"/>
                                 </connections>
                             </arscnView>
+                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Gesture" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QPK-Ie-GtV" userLabel="GestureLabel">
+                                <rect key="frame" x="288" y="319" width="320" height="44"/>
+                                <color key="backgroundColor" systemColor="placeholderTextColor" red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.29999999999999999" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="320" id="a5d-Zi-t5h"/>
+                                    <constraint firstAttribute="height" constant="44" id="zZT-8w-rsW"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="waiting for instructions" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CYv-rh-nz3">
                                 <rect key="frame" x="288" y="319" width="320" height="44"/>
                                 <color key="backgroundColor" red="0.10980392160000001" green="0.10980392160000001" blue="0.10980392160000001" alpha="0.71999999999999997" colorSpace="calibratedRGB"/>
@@ -398,9 +424,11 @@
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="leading" secondItem="U0K-SW-4ec" secondAttribute="leading" id="6qO-mL-dfN"/>
                             <constraint firstItem="oCb-sJ-KgG" firstAttribute="centerX" secondItem="CYv-rh-nz3" secondAttribute="centerX" id="8RG-QP-z92"/>
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="bottom" secondItem="U0K-SW-4ec" secondAttribute="bottom" id="DMt-qD-4Zf"/>
+                            <constraint firstItem="fQZ-KI-GVf" firstAttribute="centerX" secondItem="QPK-Ie-GtV" secondAttribute="centerX" id="Ijw-IN-vqO"/>
                             <constraint firstItem="oCb-sJ-KgG" firstAttribute="top" secondItem="fQZ-KI-GVf" secondAttribute="top" constant="30" id="Tfw-Su-Whg"/>
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="centerX" secondItem="U0K-SW-4ec" secondAttribute="centerX" id="Wyd-zn-UJg"/>
                             <constraint firstItem="Gor-lg-Lbj" firstAttribute="top" secondItem="fQZ-KI-GVf" secondAttribute="top" constant="20" id="Zh4-iZ-Hlq"/>
+                            <constraint firstItem="fQZ-KI-GVf" firstAttribute="bottom" secondItem="QPK-Ie-GtV" secondAttribute="bottom" constant="30" id="cOj-6c-vWN"/>
                             <constraint firstItem="fQZ-KI-GVf" firstAttribute="centerX" secondItem="CYv-rh-nz3" secondAttribute="centerX" id="eca-Cp-OaX"/>
                             <constraint firstAttribute="trailing" secondItem="Gor-lg-Lbj" secondAttribute="trailing" constant="20" id="ptS-ZJ-Nws"/>
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="top" secondItem="U0K-SW-4ec" secondAttribute="top" id="rJc-2c-zQA"/>
@@ -410,6 +438,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="vnD-4k-KPt"/>
                     <connections>
+                        <outlet property="gestureInstructionLabel" destination="QPK-Ie-GtV" id="x2z-Z4-DLF"/>
                         <outlet property="instructionLabel" destination="CYv-rh-nz3" id="jiC-ye-MIr"/>
                         <outlet property="panGestureRecognizer" destination="E4R-h2-2Gc" id="f34-IO-mLB"/>
                         <outlet property="pinchGestureRecognizer" destination="S1J-Wa-9rA" id="Fah-Uv-1Bm"/>

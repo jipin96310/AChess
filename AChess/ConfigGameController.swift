@@ -14,7 +14,7 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
     
     var masterServerID: MCPeerID?
     
-    var gameConfig = settingStruct(isShareBoard: true, playerNumber: 2, isMaster: false, enableHandDetect: true)
+    var gameConfig = settingStruct(isShareBoard: true, playerNumber: 2, isMaster: false, enableHandTracking: true, enableGestureRecognizer: true)
     var currentSlaveId:[playerStruct] = [playerStruct(playerName: UIDevice.current.name, curCoin: 3, curLevel: 1, curBlood: GlobalCommonNumber.maxBlood, curChesses: [], curAura: [], isComputer: false, playerID: MCPeerID(displayName: UIDevice.current.name)),
         playerStruct(playerName: "动保", curCoin: 3, curLevel: 1, curBlood: GlobalCommonNumber.maxBlood, curChesses: [], curAura: [], isComputer: true, playerID: nil)
     ]
@@ -27,6 +27,7 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
     
     @IBOutlet weak var handDetectSwitch: UISwitch!
     
+    @IBOutlet weak var gestureSwitch: UISwitch!
     
     
     var multipeerSession: multiUserSession!
@@ -67,7 +68,9 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
         //监听设置组件
         shareBoardSwitch.addTarget(self, action: #selector(switchChange), for: .valueChanged)
         handDetectSwitch.addTarget(self, action: #selector(handChange), for: .valueChanged)
+        gestureSwitch.addTarget(self, action: #selector(gestureChange), for: .valueChanged)
         playerNumberStepper.addTarget(self, action: #selector(stepperChanged), for: .valueChanged)
+        
         
         multipeerSession = multiUserSession(receivedDataHandler: receivedData)
     }
@@ -98,8 +101,11 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
         }
     }
     
-    @objc func handChange() { //是否启用手势识别
-        gameConfig.enableHandDetect = handDetectSwitch.isOn
+    @objc func handChange() { //是否启用手部追踪
+        gameConfig.enableHandTracking = handDetectSwitch.isOn
+    }
+    @objc func gestureChange() { //是否启用手势识别
+        gameConfig.enableGestureRecognizer = gestureSwitch.isOn
     }
     @objc func switchChange() { //是否共享棋盘
         gameConfig.isShareBoard = shareBoardSwitch.isOn

@@ -239,6 +239,15 @@ func randomSplit<T>(arr: [T]) -> [[T]]?{ //用于将数组分成2个一组
     }
     return res
 }
+func multiDeleteArr<T>(index: [Int], arr: [T]) -> [T]{
+    var tempIndex = -1
+    var newArr:[T] = []
+    newArr = arr.filter{(item) in
+        tempIndex += 1
+        return !index.contains(tempIndex)
+    }
+    return newArr
+}
 func encodeCodable<T:Encodable>(ori: T) -> Data? { //将支持codable协议的类encode
     let encoder = JSONEncoder()
     let encoded = try? encoder.encode(ori)
@@ -277,6 +286,21 @@ func recyclePromise(taskArr: [() -> (Promise<Double>)], curIndex: Int) -> Promis
     }
   })
 }
+func distanceSCNVector3(from: SCNVector3, to: SCNVector3) -> Float{
+    let position = SCNVector3Make(from.x - to.x, from.y - to.y, from.z - to.z)
+    let result = sqrt(position.x * position.x + position.y * position.y + position.z * position.z)
+    return result
+}
+
+func calculateMedian(array: [Int]) -> Float {
+    let sorted = array.sorted()
+    if sorted.count % 2 == 0 {
+        return Float((sorted[(sorted.count / 2)] + sorted[(sorted.count / 2) - 1])) / 2
+    } else {
+        return Float(sorted[(sorted.count - 1) / 2])
+    }
+}
+
 
 
 
