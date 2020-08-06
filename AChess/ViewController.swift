@@ -782,7 +782,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         if !isPlayerBoardinited {
             updatePrePlane(frame: frame)
         } else {
-            if gameConfigStr.enableHandTracking {
+            if gameConfigStr.enableHandTracking || gameConfigStr.enableGestureRecognizer {
                 guard currentBuffer == nil, case .normal = frame.camera.trackingState else {
                     return
                 }
