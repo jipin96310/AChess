@@ -96,7 +96,10 @@ extension ViewController {
 //                        } else if index == tipPoint.count - 1 {
                         
                         if index == tipPoint.count / 2 {
-                            leftestPoint = firstVector
+                            let midX = firstVector.x > lastVector.x ? lastVector.x + (firstVector.x - lastVector.x) :
+                            firstVector.x + (lastVector.x - firstVector.x)
+                            let midPoint = SCNVector3(midX, firstVector.y, firstVector.z)
+                            leftestPoint = midPoint
                             midPointZ = firstVector.z
                         }
 //                            midPointZ = midPointZ > firstVector.z ? midPointZ - (midPointZ - firstVector.z) / 2 : firstVector.z - (firstVector.z - midPointZ) / 2

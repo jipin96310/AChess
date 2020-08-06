@@ -53,15 +53,19 @@ extension CVPixelBuffer {
                     if pixel > 0 && abovePixel > 0 && belowPixel > 0 && rightPixel > 0 && leftPixel > 0 {
                         
                         if finalPoints.count > 0 && finalPoints.last!.count > 0 {
-                            if abs(y - Int(finalPoints.last!.last!.y) * height) > 20 { //y轴超过50像素点
-                                print(height, y, finalPoints.last!.last!.y, finalPoints.first?.last?.y)
-                                if whitePixelsCount > 4 {
-                                    rawPoints.append(finalPoints)
-                                    whitePixelsCount = 0
+                            let curHeightStr = String(format: "%.4f", finalPoints.last!.last!.y)
+                            if let curHeight = Float(curHeightStr) {
+                                if abs(Float(y) - curHeight * Float(height)) > 20 { //y轴超过50像素点
+                                    print(height, curHeight)
+                                    if whitePixelsCount > 4 {
+                                        rawPoints.append(finalPoints)
+                                        whitePixelsCount = 0
+                                    }
+                                    
+                                    finalPoints = []
                                 }
-                                
-                                finalPoints = []
                             }
+                            
                         }
 //                        let newPoint = CGPoint(x: x, y: y)
 //                        // we return a normalized point (0-1)
@@ -155,6 +159,7 @@ extension CVPixelBuffer {
                 finalPoints = points
             }
         }
+        print(rawPoints.count)
         return finalPoints
     }
 }
