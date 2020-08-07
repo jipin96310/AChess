@@ -92,10 +92,6 @@ extension ViewController {
                             //let curLefter = firstVector.x < leftestPoint.x ? firstVector : leftestPoint
                             //leftestPoint = firstVector.x < leftestPoint.x ? firstVector : leftestPoint
                             //leftestPoint = lastVector.x < leftestPoint.x ? lastVector : leftestPoint
-                            //                        if index == 0 {
-                            //                            midPointZ = firstVector.z
-                            //                            //print("1", midPointZ)
-                            //                        } else if index == tipPoint.count - 1 {
                             
                             if index == tipPoint.count / 2 {
                                 let midX = firstVector.x > lastVector.x ? lastVector.x + (firstVector.x - lastVector.x) :
@@ -147,7 +143,7 @@ extension ViewController {
                                     if let childNode = midHitT.first?.node {
                                         if let rootBaseChess = findChessRootNode(childNode) {
                                             self.curDragPoint = rootBaseChess
-                                            if let rootNodePos = self.findChessPos(childNode) {
+                                            if let rootNodePos = self.findChessPos(rootBaseChess) {
                                                 self.curDragPos = [rootNodePos[0]] //当前只存棋盘不存index
                                                 if rootNodePos[0] < 2 {
                                                     self.boardNode[rootNodePos[0]].remove(at: rootNodePos[1])
@@ -159,29 +155,56 @@ extension ViewController {
                                             self.handPoint.addChildNode(self.curDragPoint!)
                                         }
                                     }
+                                } else {
+                                    if let curButtonMask = self.findVectorHitButton(midPointCG: midPointCG) { //确认当前是不是button
+                                        switch curButtonMask {
+                                        case BitMaskCategoty.upgradeButton.rawValue:
+                                            self.tapUpgradeAction()
+                                            break
+                                        case BitMaskCategoty.randomButton.rawValue:
+                                            self.tapRandomAction()
+                                            break
+                                        case BitMaskCategoty.freezeButton.rawValue:
+                                            self.tapFreezedButton()
+                                            break
+                                        case BitMaskCategoty.endRoundButton.rawValue:
+                                            self.tapEndButtonAction()
+                                            break
+                                        default:
+                                            break
+                                        }
+                                    }
+                                }
+                            } else { //持有了棋子 需要渲染颜色
+                                if let curPointCategory = self.findVectorHitPlace(midPointCG: midPointCG) {
+                                    self.setBoardColor(boardCate: curPointCategory)
                                 }
                             }
-                            
                             
                         } else if (handGesture == EnumsHandGesture.openFist.rawValue) {
                             self.curHandGesture = HandGestureCategory.openFist
                             if self.curDragPoint != nil { //持有了棋子
                                 var midHitT = self.sceneView.hitTest(midPointCG, options: [SCNHitTestOption.ignoreHiddenNodes: true, SCNHitTestOption.rootNode: self.playerBoardNode, SCNHitTestOption.categoryBitMask: BitMaskCategoty.enemySide.rawValue])
-                                if !midHitT.isEmpty { //敌人棋盘
+                                self.curDragPoint?.removeFromParentNode()
+                                self.playerBoardNode.addChildNode(self.curDragPoint!)
+                                if !midHitT.isEmpty && midHitT.first?.node.physicsBody?.categoryBitMask == BitMaskCategoty.enemySide.rawValue { //敌人棋盘
                                     print("enemy", midHitT)
+                                    self.endOnEnemyBoard(hitTestResult: hitTestResults3)
                                 } else {
                                    midHitT = self.sceneView.hitTest(midPointCG, options: [SCNHitTestOption.ignoreHiddenNodes: true, SCNHitTestOption.rootNode: self.playerBoardNode, SCNHitTestOption.categoryBitMask: BitMaskCategoty.allySide.rawValue])
-                                    if !midHitT.isEmpty { //友方棋盘
+                                    if !midHitT.isEmpty && midHitT.first?.node.physicsBody?.categoryBitMask == BitMaskCategoty.allySide.rawValue { //友方棋盘
                                         print("ally", midHitT)
                                         self.endOnAllyBoard(hitTestResult: hitTestResults3)
                                     } else {
                                         midHitT = self.sceneView.hitTest(midPointCG, options: [SCNHitTestOption.ignoreHiddenNodes: true, SCNHitTestOption.rootNode: self.playerBoardNode, SCNHitTestOption.categoryBitMask: BitMaskCategoty.saleScreen.rawValue])
-                                        if !midHitT.isEmpty { //出售板
+                                        if !midHitT.isEmpty && midHitT.first?.node.physicsBody?.categoryBitMask == BitMaskCategoty.saleScreen.rawValue { //出售板
                                             print("sale", midHitT)
+                                            self.sellChess(playerID: self.curPlayerId, curChess: self.curDragPoint!, curBoardSide: self.curDragPos[0])
                                         } else {
                                             midHitT = self.sceneView.hitTest(midPointCG, options: [SCNHitTestOption.ignoreHiddenNodes: true, SCNHitTestOption.rootNode: self.playerBoardNode, SCNHitTestOption.categoryBitMask: BitMaskCategoty.storageSide.rawValue])
-                                            if !midHitT.isEmpty { //储藏室
+                                            if !midHitT.isEmpty && midHitT.first?.node.physicsBody?.categoryBitMask == BitMaskCategoty.storageSide.rawValue { //储藏室
                                                 print("storage", midHitT)
+                                                self.endOnStorage(hitTestResult: hitTestResults3)
                                             } else {//送回老家
                                                 print("home", midHitT)
                                                 self.recoverNodeToBoard(dragPos: self.curDragPos)
@@ -191,9 +214,11 @@ extension ViewController {
                                     }
                                 }
                                 self.curDragPoint = nil
+                                self.curDragPos = []
+                                self.setBoardColor(boardCate: nil)
                             }
-                        } else {
-                            
+                        } else { //none gesture
+                            self.recoverBoardColor()
                         }
                     }
                     
@@ -209,6 +234,33 @@ extension ViewController {
             normalizedFingerTip = outBuffer.searchTopPoint(handGesture: handGesture)
             
         }
+    }
+    
+    
+    func findVectorHitButton(midPointCG: CGPoint) -> Int? {
+        let ButtonMasks = [BitMaskCategoty.randomButton.rawValue, BitMaskCategoty.upgradeButton.rawValue, BitMaskCategoty.endRoundButton.rawValue, BitMaskCategoty.freezeButton.rawValue]
+        for i in 0 ..<  ButtonMasks.count {
+            let midHitT = self.sceneView.hitTest(midPointCG, options: [SCNHitTestOption.ignoreHiddenNodes: true, SCNHitTestOption.rootNode: self.playerBoardNode, SCNHitTestOption.categoryBitMask: ButtonMasks[i]])
+            if !midHitT.isEmpty && midHitT.first?.node.physicsBody?.categoryBitMask == ButtonMasks[i] {
+                return ButtonMasks[i]
+            }
+        }
+        return nil
+    }
+    
+    
+    
+    
+    
+    func findVectorHitPlace(midPointCG: CGPoint) -> Int? {
+        let PlaceMasks = [BitMaskCategoty.enemySide.rawValue, BitMaskCategoty.allySide.rawValue, BitMaskCategoty.saleScreen.rawValue, BitMaskCategoty.storageSide.rawValue]
+        for i in 0 ..<  PlaceMasks.count {
+            let midHitT = self.sceneView.hitTest(midPointCG, options: [SCNHitTestOption.ignoreHiddenNodes: true, SCNHitTestOption.rootNode: self.playerBoardNode, SCNHitTestOption.categoryBitMask: PlaceMasks[i]])
+            if !midHitT.isEmpty && midHitT.first?.node.physicsBody?.categoryBitMask == PlaceMasks[i] {
+                return PlaceMasks[i]
+            }
+        }
+        return nil
     }
     
 }

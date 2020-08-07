@@ -16,6 +16,10 @@ enum BitMaskCategoty:Int {
     case allySide = 4
     case storageSide = 5
     case saleScreen = 6
+    case upgradeButton = 7
+    case randomButton = 8
+    case freezeButton = 9
+    case endRoundButton = 10
 }
 
 enum ContactCategory:String {

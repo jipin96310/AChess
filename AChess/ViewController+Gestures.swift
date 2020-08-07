@@ -89,75 +89,86 @@ extension ViewController: UIGestureRecognizerDelegate {
                         return
                     }
 
-                    if isNameButton(hitTestResult.first!.node, "randomButton") && !isRandoming {
-                        //点击以后randombutton下压
-                        isRandoming = true
-                        DispatchQueue.global().async {
-                            self.randomButtonTopNode.runAction(SCNAction.sequence([
-                                SCNAction.move(by: SCNVector3(0,-0.01,0), duration: 0.25),
-                                SCNAction.move(by: SCNVector3(0,0.01,0), duration: 0.25),
-                                SCNAction.customAction(duration: 0, action: { _,_ in
-                                    self.isRandoming = false
-                                })
-                            ]))  
-                        }
-                        if self.playerStatues[self.curPlayerId].curCoin > 0 && !self.isFreezed {
-                            self.playerStatues[self.curPlayerId].curCoin -= 1
-                            self.initBoardChess(initStage: EnumsGameStage.exchangeStage.rawValue)
-                        }
-                        
+                    if isNameButton(hitTestResult.first!.node, "randomButton") {
+                        tapRandomAction()
                     } else if isNameButton(hitTestResult.first!.node, "upgradeButton") {
-                        upgradeButtonTopNode.runAction(SCNAction.sequence([
-                            SCNAction.move(by: SCNVector3(0,-0.005,0), duration: 0.25),
-                            SCNAction.move(by: SCNVector3(0,0.005,0), duration: 0.25)
-                        ]))
-                        upgradePlayerLevel(curPlayerId)
-                    } else if isNameButton(hitTestResult.first!.node, "endButton") && !isWaiting {
-                        //TODO
-                        //                            endButtonTopNode.runAction(SCNAction.sequence([
-                        //                                SCNAction.move(by: SCNVector3(0,-0.005,0), duration: 0.25)
-                        //                            ]))
-                        //                            endButtonNode.geometry?.firstMaterial?.diffuse.contents = UIColor.gray //灰显图标
-                        //                            isWaiting = true
-                        //TODO
-                        //即将开始战斗 备份当前阵容
-                        self.playerStatues[0].curChesses = copyChessArr(curBoard: self.boardNode[BoardSide.allySide.rawValue])
-                        if(gameConfigStr.isMaster) {
-                            for i in 0 ..< currentSlaveId.count {
-                                if currentSlaveId[i].playerID === multipeerSession.getMyId() {
-                                    currentSlaveId[i].playerStatus = true //准备完成
-                                    break
-                                }
-                            }
-                            if checkIfAllReady() {
-                                masterArrangeBattles()
-                            }
-                        } else {
-                            if let desId = curMasterID {
-                                let readyStr = "readyBattle"
-                                guard let data = readyStr.data(using: String.Encoding.utf8)
-                                    else { fatalError("can't encode anchor") }
-                                multipeerSession.sendToPeer(data, [desId])
-                            }
-                            
-                        }
-                        
+                        tapUpgradeAction()
+                    } else if isNameButton(hitTestResult.first!.node, "endButton") {
+                        tapEndButtonAction()
                     } else if isNameButton(hitTestResult.first!.node, "freezeButton") {
-                        if isFreezed {
-                            freezeButtonTopNode.runAction(SCNAction.sequence([
-                                SCNAction.move(by: SCNVector3(0,0.005,0), duration: 0.25)
-                            ]))
-                        } else {
-                            freezeButtonTopNode.runAction(SCNAction.sequence([
-                                SCNAction.move(by: SCNVector3(0,-0.005,0), duration: 0.25)
-                            ]))
-                        }
-                        isFreezed = !isFreezed
+                        tapFreezedButton()
                     }
                 }
                 
             }
         }
+    }
+    
+    func tapRandomAction() {
+        if isRandoming { return }
+        isRandoming = true
+        DispatchQueue.global().async {
+            self.randomButtonTopNode.runAction(SCNAction.sequence([
+                SCNAction.move(by: SCNVector3(0,-0.01,0), duration: 0.25),
+                SCNAction.move(by: SCNVector3(0,0.01,0), duration: 0.25),
+                SCNAction.customAction(duration: 0, action: { _,_ in
+                    self.isRandoming = false
+                })
+            ]))
+        }
+        if self.playerStatues[self.curPlayerId].curCoin > 0 && !self.isFreezed {
+            self.playerStatues[self.curPlayerId].curCoin -= 1
+            self.initBoardChess(initStage: EnumsGameStage.exchangeStage.rawValue)
+        }
+    }
+    func tapUpgradeAction() {
+        upgradeButtonTopNode.runAction(SCNAction.sequence([
+            SCNAction.move(by: SCNVector3(0,-0.005,0), duration: 0.25),
+            SCNAction.move(by: SCNVector3(0,0.005,0), duration: 0.25)
+        ]))
+        upgradePlayerLevel(curPlayerId)
+    }
+    func tapEndButtonAction() {
+        if isWaiting {return}
+        endButtonTopNode.runAction(SCNAction.sequence([
+            SCNAction.move(by: SCNVector3(0,-0.005,0), duration: 0.25)
+        ]))
+        endButtonNode.geometry?.firstMaterial?.diffuse.contents = UIColor.gray //灰显图标
+        isWaiting = true
+        
+        self.playerStatues[0].curChesses = copyChessArr(curBoard: self.boardNode[BoardSide.allySide.rawValue])
+        if(gameConfigStr.isMaster) {
+            for i in 0 ..< currentSlaveId.count {
+                if currentSlaveId[i].playerID === multipeerSession.getMyId() {
+                    currentSlaveId[i].playerStatus = true //准备完成
+                    break
+                }
+            }
+            if checkIfAllReady() {
+                masterArrangeBattles()
+            }
+        } else {
+            if let desId = curMasterID {
+                let readyStr = "readyBattle"
+                guard let data = readyStr.data(using: String.Encoding.utf8)
+                    else { fatalError("can't encode anchor") }
+                multipeerSession.sendToPeer(data, [desId])
+            }
+            
+        }
+    }
+    
+    func tapFreezedButton() {
+        if isFreezed {
+            freezeButtonTopNode.runAction(SCNAction.sequence([
+                SCNAction.move(by: SCNVector3(0,0.005,0), duration: 0.25)
+            ]))
+        } else {
+            freezeButtonTopNode.runAction(SCNAction.sequence([
+                SCNAction.move(by: SCNVector3(0,-0.005,0), duration: 0.25)
+            ]))
+        }
+        isFreezed = !isFreezed
     }
     
 }

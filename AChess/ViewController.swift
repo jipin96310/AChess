@@ -92,6 +92,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var panOffset = SIMD3<Float>()
     var curPlaneNode:customPlaneNode? = nil
     let priceTagNode = TextNode(textScale: SCNVector3(0.3, 0.5, 0))
+    //buttonNode
     var randomButtonTopNode: SCNNode = SCNNode()
     var upgradeButtonTopNode: SCNNode = SCNNode()
     var endButtonTopNode: SCNNode = SCNNode()
@@ -100,6 +101,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var upgradeButtonNode: SCNNode = SCNNode()
     var freezeButtonNode: SCNNode = SCNNode()
     var endButtonNode: SCNNode = SCNNode()
+    //board side Node
+    var saleStageNode: SCNNode = SCNNode()
+    var storagePlaceNode: SCNNode = SCNNode()
+    var allyBoardNode: SCNNode = SCNNode()
+    var enemyBoardNode: SCNNode = SCNNode()
+    //
     //var allyBoardNode : SCNNode = SCNNode()
     var prePlaneNode = PrePlane()
     var screenCenter: CGPoint {
@@ -903,7 +910,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             if !hitTestResult.isEmpty && curDragPoint != nil {
                 let curPressNode = hitTestResult.first!.node
                 //if curDragPoint?.name?.first == "a" { //抓的是已经购买的牌
-                
                 if let curPressParent = findChessRootNode(curPressNode) { //按到棋子上了
                     insertChessPos(insertChess: curDragPoint!, insertTo: curPressParent)
                 } else { //按到空地或者棋盘上了
@@ -940,19 +946,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     } else if curPressNode.name == EnumNodeName.saleStage.rawValue && curDragPoint?.chessStatus == EnumsChessStage.owned.rawValue{//放置到贩卖点
                         sellChess(playerID: curPlayerId, curChess: curDragPoint!, curBoardSide: curDragPos[0])
                     } else if curPressNode.name == EnumNodeName.storagePlace.rawValue { //放置到储藏区
-                        if curDragPoint?.chessStatus == EnumsChessStage.forSale.rawValue { //未购买
-                            if buyChess(playerID: curPlayerId, chessPrice: curDragPoint!.chessPrice) == true { //buy success
-                                appendNewNodeToStorage(curChess: curDragPoint!)
-                            } else { //钱不够 购买时买
-
-                                    appendNewNodeToBoard(curBoardSide: BoardSide.enemySide.rawValue, curAddChesses: [curDragPoint!], curInsertIndex: nil)
-                                
-                            }
-                        } else if curDragPoint?.chessStatus == EnumsChessStage.owned.rawValue { //已购买
-
-                                    appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curAddChesses: [curDragPoint!], curInsertIndex: nil)
-                                
-                        }
+                        endOnStorage(hitTestResult: hitTestResult2)
                     } else if curPressNode.name == EnumNodeName.allyBoard.rawValue { //结束点在allyboard
                         if !hitTestResult2.isEmpty {
                             endOnAllyBoard(hitTestResult: hitTestResult2)
@@ -960,25 +954,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             recoverNodeToBoard(dragPos: curDragPos)
                         }
                     } else if curPressNode.name == EnumNodeName.enemyBoard.rawValue { //end point at enemy board
-                        if curDragPoint?.chessStatus == EnumsChessStage.forSale.rawValue { //未购买
-                            if curDragPoint != nil {
-                                if !hitTestResult2.isEmpty {
-                                let positionOfPress = hitTestResult2.first!.worldTransform.columns.3
-                                let curPressLocation = SCNVector3(positionOfPress.x, positionOfPress.y, positionOfPress.z)
-                                    let curInsertIndex = calInsertPos(curBoardSide: BoardSide.enemySide.rawValue, positionOfBoard: curPressLocation)
-                                    if curInsertIndex == -1 || curInsertIndex - (GlobalCommonNumber.chessNumber / 2) >= boardNode[BoardSide.enemySide.rawValue].count {
-                                        appendNewNodeToBoard(curBoardSide: BoardSide.enemySide.rawValue, curAddChesses: [curDragPoint!], curInsertIndex: nil)
-                                    } else {
-                                        appendNewNodeToBoard(curBoardSide: BoardSide.enemySide.rawValue, curAddChesses: [curDragPoint!], curInsertIndex: 0)
-                                    }
-                                    }
-                            }
-                            //updateWholeBoardPosition()
-                        } else if curDragPoint?.chessStatus == EnumsChessStage.owned.rawValue { //已购买放回原位
-                           backToPreviousPos()
-                            
-                        }
-                        
+                        endOnEnemyBoard(hitTestResult: hitTestResult2)
                     } else { //无需判断长度 因为之前的地方肯定有位置给它
                        backToPreviousPos()
                     }
@@ -1544,6 +1520,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         boardNode[curBoardSide] = []
     }
     func recoverNodeToBoard(dragPos: [Int]) {
+        if dragPos.count < 1 {
+            return
+        }
         if dragPos[0] == 0 {
             appendNewNodeToBoard(curBoardSide: BoardSide.enemySide.rawValue, curAddChesses: [curDragPoint!], curInsertIndex: nil)
         } else if dragPos[0] == 2{
@@ -1552,6 +1531,42 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
         }
     }
+    
+
+    func setBoardColor(boardCate: Int?) {
+           guard let category = boardCate else { return }
+           saleStageNode.geometry?.firstMaterial?.diffuse.contents = UIColor.black
+           storagePlaceNode.geometry?.firstMaterial?.diffuse.contents = UIColor.black
+           allyBoardNode.geometry?.firstMaterial?.diffuse.contents = UIColor.black
+           enemyBoardNode.geometry?.firstMaterial?.diffuse.contents = UIColor.black
+        
+//        if curPressNode.name == EnumNodeName.saleStage.rawValue {
+//            curPressNode.geometry?.firstMaterial?.diffuse.contents = UIColor.blue
+//        } else if curPressNode.name == EnumNodeName.storagePlace.rawValue {
+//            curPressNode.geometry?.firstMaterial?.diffuse.contents = UIColor.blue
+//        } else if curPressNode.name == EnumNodeName.allyBoard.rawValue {
+//            curPressNode.geometry?.firstMaterial?.diffuse.contents = UIColor.green
+//        } else if curPressNode.name == EnumNodeName.enemyBoard.rawValue {
+//            curPressNode.geometry?.firstMaterial?.diffuse.contents = UIColor.red
+//        }
+        switch category {
+        case BitMaskCategoty.enemySide.rawValue:
+            enemyBoardNode.geometry?.firstMaterial?.diffuse.contents = UIColor.red
+            break
+        case BitMaskCategoty.allySide.rawValue:
+            allyBoardNode.geometry?.firstMaterial?.diffuse.contents = UIColor.green
+            break
+        case BitMaskCategoty.storageSide.rawValue:
+            storagePlaceNode.geometry?.firstMaterial?.diffuse.contents = UIColor.blue
+            break
+        case BitMaskCategoty.saleScreen.rawValue:
+            saleStageNode.geometry?.firstMaterial?.diffuse.contents = UIColor.blue
+            break
+        default:
+            break
+        }
+    }
+    
     func recoverBoardColor() {
         
         if let transPos = findChessPos(tempTransParentNode) {
@@ -1562,18 +1577,18 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
         }
         
-        if let saleStage = playerBoardNode.childNode(withName: EnumNodeName.saleStage.rawValue, recursively: true) {
-            saleStage.geometry?.firstMaterial?.diffuse.contents = UIColor.black
-        }
-        if let storagePlace = playerBoardNode.childNode(withName: EnumNodeName.storagePlace.rawValue, recursively: true) {
-            storagePlace.geometry?.firstMaterial?.diffuse.contents = UIColor.black
-        }
-        if let allyBoard = playerBoardNode.childNode(withName: EnumNodeName.allyBoard.rawValue, recursively: true) {
-            allyBoard.geometry?.firstMaterial?.diffuse.contents = UIColor.black
-        }
-        if let enemyBoard = playerBoardNode.childNode(withName: EnumNodeName.enemyBoard.rawValue, recursively: true) {
-            enemyBoard.geometry?.firstMaterial?.diffuse.contents = UIColor.black
-        }
+        //if let saleStage = playerBoardNode.childNode(withName: EnumNodeName.saleStage.rawValue, recursively: true) {
+            saleStageNode.geometry?.firstMaterial?.diffuse.contents = UIColor.black
+        //}
+        //if let storagePlace = playerBoardNode.childNode(withName: EnumNodeName.storagePlace.rawValue, recursively: true) {
+            storagePlaceNode.geometry?.firstMaterial?.diffuse.contents = UIColor.black
+        //}
+        //if let allyBoard = playerBoardNode.childNode(withName: EnumNodeName.allyBoard.rawValue, recursively: true) {
+            allyBoardNode.geometry?.firstMaterial?.diffuse.contents = UIColor.black
+        //}
+        //if let enemyBoard = playerBoardNode.childNode(withName: EnumNodeName.enemyBoard.rawValue, recursively: true) {
+            enemyBoardNode.geometry?.firstMaterial?.diffuse.contents = UIColor.black
+        //}
     }
   
     func updateStorageBoardPosition() -> Double{
@@ -1933,7 +1948,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         if let storageNode = playerBoardNode.childNode(withName: "storageNode", recursively: true) {
             storageNode.fixCategoryMasks(mask: BitMaskCategoty.storageSide.rawValue)
         }
-        if let saleNode = playerBoardNode.childNode(withName: "saleStage", recursively: true) {
+        if let saleNode = playerBoardNode.childNode(withName: "display", recursively: true) {
            saleNode.fixCategoryMasks(mask: BitMaskCategoty.saleScreen.rawValue)
         }
     }
@@ -1974,6 +1989,43 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 //            self.playerBoardNodeRoot = curPlayerBoard
 //        }
     }
+    func endOnEnemyBoard(hitTestResult: [ARHitTestResult]) {
+        if curDragPoint?.chessStatus == EnumsChessStage.forSale.rawValue { //未购买
+            if curDragPoint != nil {
+                if !hitTestResult.isEmpty {
+                let positionOfPress = hitTestResult.first!.worldTransform.columns.3
+                let curPressLocation = SCNVector3(positionOfPress.x, positionOfPress.y, positionOfPress.z)
+                    let curInsertIndex = calInsertPos(curBoardSide: BoardSide.enemySide.rawValue, positionOfBoard: curPressLocation)
+                    if curInsertIndex == -1 || curInsertIndex - (GlobalCommonNumber.chessNumber / 2) >= boardNode[BoardSide.enemySide.rawValue].count {
+                        appendNewNodeToBoard(curBoardSide: BoardSide.enemySide.rawValue, curAddChesses: [curDragPoint!], curInsertIndex: nil)
+                    } else {
+                        appendNewNodeToBoard(curBoardSide: BoardSide.enemySide.rawValue, curAddChesses: [curDragPoint!], curInsertIndex: 0)
+                    }
+                    }
+            }
+            //updateWholeBoardPosition()
+        } else if curDragPoint?.chessStatus == EnumsChessStage.owned.rawValue { //已购买放回原位
+           backToPreviousPos()
+            
+        }
+    }
+    
+    func endOnStorage(hitTestResult: [ARHitTestResult]) {
+        if curDragPoint?.chessStatus == EnumsChessStage.forSale.rawValue { //未购买
+            if buyChess(playerID: curPlayerId, chessPrice: curDragPoint!.chessPrice) == true { //buy success
+                appendNewNodeToStorage(curChess: curDragPoint!)
+            } else { //钱不够 购买时买
+
+                    appendNewNodeToBoard(curBoardSide: BoardSide.enemySide.rawValue, curAddChesses: [curDragPoint!], curInsertIndex: nil)
+                
+            }
+        } else if curDragPoint?.chessStatus == EnumsChessStage.owned.rawValue { //已购买
+
+                    appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curAddChesses: [curDragPoint!], curInsertIndex: nil)
+                
+        }
+    }
+    
     
    func endOnAllyBoard(hitTestResult: [ARHitTestResult]) {
     let curTransPos = findChessPos(tempTransParentNode)
@@ -3177,6 +3229,21 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         self.sceneView.removeGestureRecognizer(tapGestureRecognizer)
     }
     
+    func initBoardSides() {
+        if let saleStage = playerBoardNode.childNode(withName: EnumNodeName.saleStage.rawValue, recursively: true) {
+            saleStageNode = saleStage
+        }
+        if let storagePlace = playerBoardNode.childNode(withName: EnumNodeName.storagePlace.rawValue, recursively: true) {
+            storagePlaceNode = storagePlace
+        }
+        if let allyBoard = playerBoardNode.childNode(withName: EnumNodeName.allyBoard.rawValue, recursively: true) {
+            allyBoardNode = allyBoard
+        }
+        if let enemyBoard = playerBoardNode.childNode(withName: EnumNodeName.enemyBoard.rawValue, recursively: true) {
+           enemyBoardNode = enemyBoard
+        }
+    }
+    
     func initButtons() {
         if let randomButtonTopTemp = playerBoardNode.childNode(withName: "randomButtonTop", recursively: true) {
             randomButtonTopNode = randomButtonTopTemp
@@ -3224,6 +3291,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         recoverChess(side: BoardSide.allySide.rawValue)
         initDisplay()
         initButtons()
+        initBoardSides()
         initGestures()
        }
     func initGestures() {
