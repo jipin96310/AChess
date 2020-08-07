@@ -602,8 +602,8 @@ class ChessBoardNode: SCNNode {
                 //
                 let body = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(node: curNode, options: [SCNPhysicsShape.Option.scale: SCNVector3(0.01, 0.01, 0.01)]))
                 curNode.physicsBody = body
-                curNode.physicsBody?.categoryBitMask = BitMaskCategoty.baseChessHolder.rawValue
-                curNode.physicsBody?.contactTestBitMask = BitMaskCategoty.hand.rawValue
+                //curNode.physicsBody?.categoryBitMask = BitMaskCategoty.baseChessHolder.rawValue
+                //curNode.physicsBody?.contactTestBitMask = BitMaskCategoty.hand.rawValue
                 //
                 boardRootNode[0].append(curNode)
             }
@@ -614,8 +614,8 @@ class ChessBoardNode: SCNNode {
                 //
                 let body = SCNPhysicsBody(type: .static, shape: SCNPhysicsShape(node: curNode, options: [SCNPhysicsShape.Option.scale: SCNVector3(0.01, 0.01, 0.01)]))
                 curNode.physicsBody = body
-                curNode.physicsBody?.categoryBitMask = BitMaskCategoty.baseChessHolder.rawValue
-                curNode.physicsBody?.contactTestBitMask = BitMaskCategoty.hand.rawValue
+                //curNode.physicsBody?.categoryBitMask = BitMaskCategoty.baseChessHolder.rawValue
+                //curNode.physicsBody?.contactTestBitMask = BitMaskCategoty.hand.rawValue
                 //
                 boardRootNode[1].append(curNode)
             }

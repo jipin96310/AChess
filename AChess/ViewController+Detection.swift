@@ -66,7 +66,7 @@ extension ViewController {
                         //calculate mid point
                         var midPointZ = Float(0)
                         var longestWidth:Float = 0
-                        var midPointVec:SCNVector3 = SCNVector3(0, 0 ,0)
+                        //var midPointVec:SCNVector3 = SCNVector3(0, 0 ,0)
                         var midPointCG:CGPoint = CGPoint(x: 0,y: 0)
                         for index in 0 ..< tipPoint.count {
                             let curRowPoints = tipPoint[index]
@@ -100,9 +100,11 @@ extension ViewController {
                             if index == tipPoint.count / 2 {
                                 let midX = firstVector.x > lastVector.x ? lastVector.x + (firstVector.x - lastVector.x) :
                                     firstVector.x + (lastVector.x - firstVector.x)
-                                let midPoint = SCNVector3(midX, firstVector.y, firstVector.z)
-                                midPointVec = midPoint
-                                midPointCG = CGPoint(x: CGFloat(midX), y: firstPoint.y)
+                                let midXCG = firstPoint.x > lastPoint.x ? lastPoint.x + (firstPoint.x - lastPoint.x) :
+                                firstPoint.x + (lastPoint.x - firstPoint.x)
+//                                let midPoint = SCNVector3(midX, firstVector.y, firstVector.z)
+//                                midPointVec = midPoint
+                                midPointCG = CGPoint(x: midXCG, y: firstPoint.y)
                                 midPointZ = firstVector.z
                             }
                          
@@ -112,9 +114,16 @@ extension ViewController {
                             })
                         }
                         
-                       
-                        if distanceSCNVector3(from: midPointVec, to: self.handPoint.position) < 0.03 || self.overDistanceCount >= 2 {
-                            self.handPoint.position = midPointVec
+                        
+                        //Mark: 不同手势对应操作
+                        let hitTestResults3 = self.sceneView.hitTest(midPointCG, types: .existingPlaneUsingExtent)
+                        guard let hitTestResult3 = hitTestResults3.first else { return }
+                        let tempNode3 = SCNNode(geometry: SCNSphere(radius: 0.001))
+                        tempNode3.geometry?.firstMaterial?.diffuse.contents = UIColor.red
+                        tempNode3.simdTransform = hitTestResult3.worldTransform
+                                
+                        if distanceSCNVector3(from: tempNode3.position, to: self.handPoint.position) < 0.03 || self.overDistanceCount >= 2 {
+                            self.handPoint.position = tempNode3.position
                             //self.handPoint.position.y += 0.01
                             self.overDistanceCount = 0
                         } else {
@@ -122,25 +131,66 @@ extension ViewController {
                         }
                         
                         self.handPoint.isHidden = false
+                        
+                        
+                        
                         if(handGesture == EnumsHandGesture.closedFist.rawValue) { //握拳
                             self.curHandGesture = HandGestureCategory.closeFist
                             ///let midHitTest = self.sceneView.hitTest(midPointCG, types: )
-                           
-                            let midHitT = self.sceneView.hitTest(midPointCG, options: [SCNHitTestOption.ignoreHiddenNodes: true, SCNHitTestOption.rootNode: self.playerBoardNode])
-                            if !midHitT.isEmpty {
-                                print(midHitT.first?.node)
+                            //self.sceneView.scene.rootNode.addChildNode(tempNode3)
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
+                                tempNode3.removeFromParentNode()
+                            })
+                            if !(self.curDragPoint != nil) { //没有持有棋子
+                                let midHitT = self.sceneView.hitTest(midPointCG, options: [SCNHitTestOption.ignoreHiddenNodes: true, SCNHitTestOption.rootNode: self.playerBoardNode, SCNHitTestOption.categoryBitMask: BitMaskCategoty.baseChess.rawValue])
+                                if !midHitT.isEmpty {
+                                    if let childNode = midHitT.first?.node {
+                                        if let rootBaseChess = findChessRootNode(childNode) {
+                                            self.curDragPoint = rootBaseChess
+                                            if let rootNodePos = self.findChessPos(childNode) {
+                                                self.curDragPos = [rootNodePos[0]] //当前只存棋盘不存index
+                                                if rootNodePos[0] < 2 {
+                                                    self.boardNode[rootNodePos[0]].remove(at: rootNodePos[1])
+                                                } else {
+                                                    self.storageNode.remove(at: rootNodePos[1])
+                                                }
+                                            }
+                                            self.curDragPoint!.position = SCNVector3(0,0.01,0)
+                                            self.handPoint.addChildNode(self.curDragPoint!)
+                                        }
+                                    }
+                                }
                             }
                             
                             
                         } else if (handGesture == EnumsHandGesture.openFist.rawValue) {
                             self.curHandGesture = HandGestureCategory.openFist
-                            if let curHoldingChess = self.handPoint.childNode(withName: "baseChess", recursively: true) {
-                                let tempNode = curHoldingChess
-                                curHoldingChess.removeFromParentNode()
-                                tempNode.position = self.handPoint.position
-                                self.sceneView.scene.rootNode.addChildNode(tempNode)
-                            } else {
-                                //not holding anything
+                            if self.curDragPoint != nil { //持有了棋子
+                                var midHitT = self.sceneView.hitTest(midPointCG, options: [SCNHitTestOption.ignoreHiddenNodes: true, SCNHitTestOption.rootNode: self.playerBoardNode, SCNHitTestOption.categoryBitMask: BitMaskCategoty.enemySide.rawValue])
+                                if !midHitT.isEmpty { //敌人棋盘
+                                    print("enemy", midHitT)
+                                } else {
+                                   midHitT = self.sceneView.hitTest(midPointCG, options: [SCNHitTestOption.ignoreHiddenNodes: true, SCNHitTestOption.rootNode: self.playerBoardNode, SCNHitTestOption.categoryBitMask: BitMaskCategoty.allySide.rawValue])
+                                    if !midHitT.isEmpty { //友方棋盘
+                                        print("ally", midHitT)
+                                        self.endOnAllyBoard(hitTestResult: hitTestResults3)
+                                    } else {
+                                        midHitT = self.sceneView.hitTest(midPointCG, options: [SCNHitTestOption.ignoreHiddenNodes: true, SCNHitTestOption.rootNode: self.playerBoardNode, SCNHitTestOption.categoryBitMask: BitMaskCategoty.saleScreen.rawValue])
+                                        if !midHitT.isEmpty { //出售板
+                                            print("sale", midHitT)
+                                        } else {
+                                            midHitT = self.sceneView.hitTest(midPointCG, options: [SCNHitTestOption.ignoreHiddenNodes: true, SCNHitTestOption.rootNode: self.playerBoardNode, SCNHitTestOption.categoryBitMask: BitMaskCategoty.storageSide.rawValue])
+                                            if !midHitT.isEmpty { //储藏室
+                                                print("storage", midHitT)
+                                            } else {//送回老家
+                                                print("home", midHitT)
+                                                self.recoverNodeToBoard(dragPos: self.curDragPos)
+                                                
+                                            }
+                                        }
+                                    }
+                                }
+                                self.curDragPoint = nil
                             }
                         } else {
                             

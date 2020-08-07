@@ -37,6 +37,25 @@ extension String {
     }
 }
 extension SCNNode {
+    
+    func fixCategoryMasks(mask: Int) {
+        self.categoryBitMask = mask
+        if let body = physicsBody {
+            body.categoryBitMask = mask
+        } else {
+            if let geo = geometry {
+                let shape = SCNPhysicsShape(geometry: geo, options: nil)
+                let body = SCNPhysicsBody(type: SCNPhysicsBodyType.static, shape: shape)
+                body.categoryBitMask = mask
+                physicsBody = body
+            }
+        }
+        for child in childNodes {
+            child.fixCategoryMasks(mask: mask)
+        }
+    }
+    
+    
     func fixMaterials() {
         // walk down the scenegraph and update all children
         fixNormalMaps()

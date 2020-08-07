@@ -161,12 +161,12 @@ public class baseChessNode: SCNNode {
         }
         if let sideNode = curNode.childNode(withName: "side", recursively: true) {
             //bitmask
-            let shape = SCNPhysicsShape(geometry: sideNode.geometry!, options: nil)
-            let physicsBody = SCNPhysicsBody(type: SCNPhysicsBodyType.static, shape: shape)
-            physicsBody.isAffectedByGravity = false
-            curNode.physicsBody = physicsBody
-            curNode.physicsBody?.categoryBitMask = BitMaskCategoty.baseChess.rawValue
-            curNode.physicsBody?.contactTestBitMask = BitMaskCategoty.baseChess.rawValue
+//            let shape = SCNPhysicsShape(geometry: sideNode.geometry!, options: nil)
+//            let physicsBody = SCNPhysicsBody(type: SCNPhysicsBodyType.static, shape: shape)
+//            physicsBody.isAffectedByGravity = false
+//            curNode.physicsBody = physicsBody
+//            curNode.physicsBody?.categoryBitMask = BitMaskCategoty.baseChess.rawValue
+//            curNode.physicsBody?.contactTestBitMask = BitMaskCategoty.hand.rawValue
     
             
             
@@ -181,6 +181,9 @@ public class baseChessNode: SCNNode {
             sideNode.addChildNode(self.abilitiesTriggerTextNode)
 
         }
+        //补齐bitmask
+        curNode.fixCategoryMasks(mask: BitMaskCategoty.baseChess.rawValue)
+        
         //最后计算棋子的描述
         self.chessDesc = self.formatChessDesc()
         self.descTextNode.string = self.chessDesc

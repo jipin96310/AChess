@@ -159,7 +159,7 @@ extension CVPixelBuffer {
                 finalPoints = points
             }
         }
-        print(rawPoints.count)
+        //print(rawPoints.count)
         return finalPoints
     }
 }

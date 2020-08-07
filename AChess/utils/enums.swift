@@ -12,8 +12,10 @@ enum BitMaskCategoty:Int {
     case playGround = 0
     case hand = 1
     case baseChess = 2
-    case baseChessHolder = 3
-    case saleScreen = 4
+    case enemySide = 3
+    case allySide = 4
+    case storageSide = 5
+    case saleScreen = 6
 }
 
 enum ContactCategory:String {
