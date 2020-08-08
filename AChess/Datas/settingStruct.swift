@@ -16,12 +16,14 @@ public struct settingStruct : Codable {
     var isMaster: Bool
     var enableHandTracking: Bool
     var enableGestureRecognizer: Bool
+    var enableButtonGestureControl: Bool
 
-    init(isShareBoard: Bool, playerNumber: Int, isMaster: Bool, enableHandTracking: Bool,enableGestureRecognizer: Bool ) {
+    init(isShareBoard: Bool, playerNumber: Int, isMaster: Bool, enableHandTracking: Bool,enableGestureRecognizer: Bool,enableButtonGestureControl: Bool ) {
         self.isShareBoard = isShareBoard
         self.playerNumber = playerNumber
         self.isMaster = isMaster
         self.enableHandTracking = enableHandTracking
         self.enableGestureRecognizer = enableGestureRecognizer
+        self.enableButtonGestureControl = enableButtonGestureControl
     }
 }
