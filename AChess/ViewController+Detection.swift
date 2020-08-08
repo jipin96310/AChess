@@ -128,8 +128,6 @@ extension ViewController {
                         
                         self.handPoint.isHidden = false
                         
-                        
-                        
                         if(handGesture == EnumsHandGesture.closedFist.rawValue) { //握拳
                             self.curHandGesture = HandGestureCategory.closeFist
                             ///let midHitTest = self.sceneView.hitTest(midPointCG, types: )
@@ -139,7 +137,7 @@ extension ViewController {
                             })
                             if !(self.curDragPoint != nil) { //没有持有棋子
                                 let midHitT = self.sceneView.hitTest(midPointCG, options: [SCNHitTestOption.ignoreHiddenNodes: true, SCNHitTestOption.rootNode: self.playerBoardNode, SCNHitTestOption.categoryBitMask: BitMaskCategoty.baseChess.rawValue])
-                                if !midHitT.isEmpty {
+                                if !midHitT.isEmpty && midHitT.first?.node.physicsBody?.categoryBitMask == BitMaskCategoty.baseChess.rawValue {
                                     if let childNode = midHitT.first?.node {
                                         if let rootBaseChess = findChessRootNode(childNode) {
                                             self.curDragPoint = rootBaseChess
@@ -157,6 +155,7 @@ extension ViewController {
                                     }
                                 } else {
                                     if let curButtonMask = self.findVectorHitButton(midPointCG: midPointCG) { //确认当前是不是button
+                                        print("button", curButtonMask)
                                         switch curButtonMask {
                                         case BitMaskCategoty.upgradeButton.rawValue:
                                             self.tapUpgradeAction()

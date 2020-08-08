@@ -261,14 +261,6 @@
                                                 </prototypes>
                                                 <sections/>
                                             </tableView>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="GJo-ti-yH7">
-                                                <rect key="frame" x="52" y="397" width="300" height="31"/>
-                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                <state key="normal" title="开始游戏"/>
-                                                <connections>
-                                                    <segue destination="BV1-FR-VrT" kind="show" identifier="StartGamtDetail" id="Sol-vQ-ZY5"/>
-                                                </connections>
-                                            </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="V0v-ip-Fzd">
                                                 <rect key="frame" x="50" y="25" width="50" height="50"/>
                                                 <constraints>
@@ -289,6 +281,14 @@
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="GJo-ti-yH7" userLabel="startButton">
+                                                <rect key="frame" x="42" y="427" width="120" height="66"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <state key="normal" backgroundImage="endRound"/>
+                                                <connections>
+                                                    <segue destination="BV1-FR-VrT" kind="show" identifier="StartGamtDetail" id="Sol-vQ-ZY5"/>
+                                                </connections>
+                                            </button>
                                         </subviews>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                                         <constraints>
@@ -300,6 +300,7 @@
                                             <constraint firstAttribute="trailing" secondItem="Mgv-oh-Iub" secondAttribute="trailing" constant="50" id="Kdm-u1-fdX"/>
                                             <constraint firstItem="wwD-F1-rbG" firstAttribute="top" secondItem="znL-bx-iTH" secondAttribute="top" id="Ocb-dI-7iE"/>
                                             <constraint firstItem="V0v-ip-Fzd" firstAttribute="top" secondItem="znL-bx-iTH" secondAttribute="top" constant="25" id="S4I-1I-NSm"/>
+                                            <constraint firstItem="GJo-ti-yH7" firstAttribute="top" secondItem="Mgv-oh-Iub" secondAttribute="bottom" constant="8" id="bfc-Ng-0GK"/>
                                             <constraint firstItem="wwD-F1-rbG" firstAttribute="leading" secondItem="V0v-ip-Fzd" secondAttribute="trailing" constant="20" id="gOE-Ve-ZGP"/>
                                             <constraint firstItem="7zt-q7-si0" firstAttribute="top" secondItem="wwD-F1-rbG" secondAttribute="bottom" constant="20" id="qkr-rK-DTZ"/>
                                         </constraints>
@@ -401,8 +402,12 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Gor-lg-Lbj">
-                                <rect key="frame" x="845" y="20" width="31" height="30"/>
-                                <state key="normal" title="重置"/>
+                                <rect key="frame" x="810" y="20" width="66" height="66"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="66" id="aHz-u3-0tM"/>
+                                    <constraint firstAttribute="width" constant="66" id="o3s-ht-Csp"/>
+                                </constraints>
+                                <state key="normal" backgroundImage="refreshButton"/>
                                 <connections>
                                     <action selector="resetPlayboard:" destination="BV1-FR-VrT" eventType="touchUpInside" id="a0d-5i-i61"/>
                                 </connections>
@@ -442,6 +447,7 @@
                         <outlet property="instructionLabel" destination="CYv-rh-nz3" id="jiC-ye-MIr"/>
                         <outlet property="panGestureRecognizer" destination="E4R-h2-2Gc" id="f34-IO-mLB"/>
                         <outlet property="pinchGestureRecognizer" destination="S1J-Wa-9rA" id="Fah-Uv-1Bm"/>
+                        <outlet property="resetButton" destination="Gor-lg-Lbj" id="7F9-TS-eot"/>
                         <outlet property="rotateGestureRecognizer" destination="9nm-TO-MhX" id="cU0-0l-gpr"/>
                         <outlet property="sceneView" destination="BrB-h1-WRS" id="5nT-qQ-ynl"/>
                         <outlet property="trackingStateLabel" destination="oCb-sJ-KgG" id="sQl-nB-L6u"/>
@@ -476,10 +482,12 @@
     <resources>
         <image name="aboutButton" width="711" height="711"/>
         <image name="backButton" width="711" height="711"/>
+        <image name="endRound" width="1224" height="711"/>
         <image name="mountainBg2" width="378" height="378"/>
         <image name="oceanBg" width="378" height="378"/>
         <image name="plainBg" width="384" height="384"/>
         <image name="playButton" width="711" height="711"/>
+        <image name="refreshButton" width="711" height="711"/>
         <image name="tutorialButton" width="711" height="711"/>
     </resources>
 </document>

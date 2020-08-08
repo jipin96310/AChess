@@ -55,8 +55,7 @@ extension CVPixelBuffer {
                         if finalPoints.count > 0 && finalPoints.last!.count > 0 {
                             let curHeightStr = String(format: "%.4f", finalPoints.last!.last!.y)
                             if let curHeight = Float(curHeightStr) {
-                                if abs(Float(y) - curHeight * Float(height)) > 20 { //y轴超过50像素点
-                                    print(height, curHeight)
+                                if abs(Float(y) - curHeight * Float(height)) > 20 { //y轴超过20像素点
                                     if whitePixelsCount > 4 {
                                         rawPoints.append(finalPoints)
                                         whitePixelsCount = 0

@@ -446,6 +446,18 @@ class ChessBoardNode: SCNNode {
         }
         
     }
+    func removeBoard() {
+        guard let boardNode = boardNodeTemplate else { return }
+        boardNode.removeFromParentNode()
+        placed = false
+        for i in 0 ..< boardChessess.count {
+            for j in 0 ..< boardChessess[i].count {
+                boardChessess[i][j].removeFromParentNode()
+            }
+        }
+        
+    }
+    
     func quickPlaceBoard(on node: SCNNode) {
         boardNodeTemplate = createPlayerBoard()
         node.addChildNode(boardNodeTemplate!)
@@ -679,13 +691,15 @@ class ChessBoardNode: SCNNode {
         
     }
     func initPreLoadChess() {
-           for i in 0 ..< boardChessess.count {
-               for _ in 0 ..< GlobalCommonNumber.chessNumber {
+        boardChessess = [[],[]]
+        
+        for i in 0 ..< boardChessess.count {
+            for _ in 0 ..< GlobalCommonNumber.chessNumber {
                 let newNode = baseChessNode()
                 newNode.isHidden = true
                 boardChessess[i].append(newNode)
-               }
-           }
+            }
+        }
     }
 
     func showDisPlayName() {

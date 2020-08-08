@@ -29,6 +29,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
           case waitingForPlane
           case localizingToPlane
           case gameProcessing
+          case gameOver
        
 
           var localizedInstruction: String? {
@@ -47,6 +48,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             case .localizingToPlane:
                 return "localizingToPlane".localized
             case .gameProcessing :
+                return nil
+            case .gameOver :
                 return nil
             case .setup:
                 return nil
@@ -80,7 +83,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
     
     // Music player
-    let musicCoordinator = MusicCoordinator()
+    //let musicCoordinator = MusicCoordinator()
     
     //以下数据为实时记录数据 无需保存
     var rootNodeDefalutColor = [UIColor.red, UIColor.green]
@@ -431,6 +434,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action:  #selector(onLongPress))
     var tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onTap))
 
+    @IBOutlet weak var resetButton: UIButton!
+    
     @IBOutlet weak var instructionLabel: UILabel!
     
     @IBOutlet weak var trackingStateLabel: UILabel!
@@ -492,7 +497,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         }
         
         
-        musicCoordinator.playMusic(name: "music_win", fadeIn: 0.0)
+        //musicCoordinator.playMusic(name: "music_win", fadeIn: 0.0)
         
     }
     
@@ -622,6 +627,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             return
         case .gameProcessing:
             // The game is in progress, no change to the running session
+            return
+        case .gameOver:
+            resetButton.setBackgroundImage(UIImage(named: "closeButton"), for: .normal)
             return
         }
         
@@ -788,7 +796,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     func session(_ session: ARSession, didUpdate frame: ARFrame) {
         if !isPlayerBoardinited {
             updatePrePlane(frame: frame)
-        } else {
+        } else if sessionState != .gameOver {
             if gameConfigStr.enableHandTracking || gameConfigStr.enableGestureRecognizer {
                 guard currentBuffer == nil, case .normal = frame.camera.trackingState else {
                     return
@@ -796,7 +804,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 
                 // Retain the image buffer for Vision processing.
                 currentBuffer = frame.capturedImage
-                startDetection()
+                if curStage != EnumsGameStage.battleStage.rawValue {
+                    startDetection()
+                } else {
+                    self.handPoint.isHidden = true
+                }
             }
         }
     }
@@ -1884,20 +1896,25 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
            var randomSide = Int.randomIntNumber(lower: 0, upper: 2)
            aRoundTaskAsyncTemp(randomSide, resolver, nil)
             })
-//            var beginIndex = 0
-//            aRoundTask(&beginIndex)
-       // }
     }
     
     @IBAction func resetPlayboard(_ sender: Any) { //清除底座
-        isPlayerBoardinited = false
-        sessionState = .placingPlane
-        if prePlaneNode.anchor != nil {
-            sceneView.session.remove(anchor: prePlaneNode.anchor!)
-            prePlaneNode.anchor = nil
+        if sessionState != .gameOver {
+            isPlayerBoardinited = false
+            sessionState = .placingPlane
+            if prePlaneNode.anchor != nil {
+                sceneView.session.remove(anchor: prePlaneNode.anchor!)
+                prePlaneNode.anchor = nil
+            }
+            for i in 0 ..< boardNode.count {
+                for j in 0 ..< boardNode[i].count {
+                    boardNode[i][j].removeFromParentNode()
+                }
+            }
+            playerBoardNode.removeBoard()
+        } else {
+            navigationController?.popViewController(animated: true)
         }
-        playerBoardNode.removeFromParentNode()
-    
     }
     func updatePrePlane(frame: ARFrame) {
         
@@ -2317,7 +2334,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                                     self.switchGameStage()
                                                 } else {
                                                     //棋盘爆炸
-                                                    let removeSequence : [SCNAction] = [SCNAction.fadeOut(duration: 0.5), SCNAction.removeFromParentNode()]
+                                                    self.sessionState = .gameOver
+                                                    let removeSequence : [SCNAction] = [SCNAction.fadeOut(duration: 0.5)]
                                                     addExplosion(self.playerBoardNode)
                                                     self.playerBoardNode.runAction(SCNAction.sequence(removeSequence))
                                                     let endtextNode = TextNode(textScale: SCNVector3(0.1,0.1,0.01))
@@ -3260,9 +3278,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
  
         if let randomButtonTemp = playerBoardNode.childNode(withName: "randomButton", recursively: true) {
             randomButtonNode = randomButtonTemp
+            randomButtonNode.fixCategoryMasks(mask: BitMaskCategoty.randomButton.rawValue)
         }
         if let upgradeButtonTemp = playerBoardNode.childNode(withName: "upgradeButton", recursively: true) {
             upgradeButtonNode = upgradeButtonTemp
+            upgradeButtonNode.fixCategoryMasks(mask: BitMaskCategoty.upgradeButton.rawValue)
             if let upgradePriceNode = upgradeButtonTemp.childNode(withName: "upgradePriceNode", recursively: true) {
                 priceTagNode.position = SCNVector3(-0.1,-0.5,0)
                 priceTagNode.string = String(curUpgradeCoin)
@@ -3271,9 +3291,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         }
         if let endButtonTemp = playerBoardNode.childNode(withName: "endButton", recursively: true) {
             endButtonNode = endButtonTemp
+            endButtonNode.fixCategoryMasks(mask: BitMaskCategoty.endRoundButton.rawValue)
         }
         if let freezeButtonTemp = playerBoardNode.childNode(withName: "freezeButton", recursively: true) {
             freezeButtonNode = freezeButtonTemp
+            freezeButtonNode.fixCategoryMasks(mask: BitMaskCategoty.freezeButton.rawValue)
         }
     }
     
