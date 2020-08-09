@@ -2972,7 +2972,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         if let explosion = SCNParticleSystem(named: practicleName, inDirectory: nil) {
             //explosion.emissionDuration = CGFloat(1)
             explosion.emitterShape = SCNSphere(radius: 0.003)
-            
             newTrackPoint.addParticleSystem(explosion)
            
         }

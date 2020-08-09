@@ -12,11 +12,13 @@ public class baseChessNode: SCNNode {
     // MARK: - Lifecycle
     //var atk = 0
     //var def = 1
-    private let nameTextNode = TextNode(textScale: SCNVector3(0.006, 0.006, 0.005))
+    private let nameTextNode = TextNode(textScale: SCNVector3(0.1, 0.2, 0.05))
     private let descTextNode = TextNode(textScale: SCNVector3(0.1, 0.1, 0.1))
     private let atkTextNode = TextNode()
     private let defTextNode = TextNode()
     private let priceTextNode = TextNode()
+    
+    private var particlePoison: SCNParticleSystem? = nil
 
     private let damgeTextNode = TextNode(textScale: SCNVector3(0.5, 0.5, 0.01))
     private let abilitiesTriggerTextNode = TextNode(textScale: SCNVector3(0.5, 0.5, 0.01))
@@ -26,6 +28,7 @@ public class baseChessNode: SCNNode {
     
     var chessName: String = "" {
         didSet {
+            print(chessName.localized)
             nameTextNode.string = chessName.localized
         }
     }
@@ -106,6 +109,7 @@ public class baseChessNode: SCNNode {
     var abilities: [String] = [] {
         didSet {
             setBait()
+            setPoison()
             if abilities.contains(EnumAbilities.rapid.rawValue) {
                 rstAttackTimes = 2
             }
@@ -135,7 +139,8 @@ public class baseChessNode: SCNNode {
         defNum = 0
 
         if let nameLabelNode = curNode.childNode(withName: "nameLabel", recursively: true) {
-            self.nameTextNode.position = SCNVector3(-0.006, -0.03 , -0.08)
+            self.nameTextNode.eulerAngles = SCNVector3(-90.degreesToRadius, 0 , 0)
+            self.nameTextNode.position = SCNVector3(-0.1, 0 , 0.6)
             nameLabelNode.addChildNode(self.nameTextNode)
         }
         if let descLabelNode = curNode.childNode(withName: "descLabel", recursively: true) {
@@ -262,7 +267,7 @@ public class baseChessNode: SCNNode {
     func loadWithStruct(statusNum: Int, chessInfo: chessStruct) {
         chessStatus = statusNum
         chessName = chessInfo.name!
-        nameTextNode.string = chessName.localized
+        //nameTextNode.string = chessName.localized
         //chessDesc = chessInfo.desc!
         //descTextNode.string = chessDesc
         atkNum = chessInfo.atkNum
@@ -316,6 +321,8 @@ public class baseChessNode: SCNNode {
             }
         }
         if let nameLabelNode = self.childNode(withName: "nameLabel", recursively: true) {
+            print(self.nameTextNode)
+            print(self.nameTextNode.parent)
             if chessStatus == EnumsChessStage.forSale.rawValue {
                 nameLabelNode.isHidden = false
             } else {
@@ -456,6 +463,18 @@ public class baseChessNode: SCNNode {
                 baitNode.isHidden = false
             } else {
                 baitNode.isHidden = true
+            }
+        }
+    }
+    
+    func setPoison() {
+        if abilities.contains(EnumAbilities.poison.rawValue) {
+            particlePoison = addParticleSystem(particleName: "particals.scnassets/poison.scnp")
+        } else {
+            if let curPar = particlePoison {
+                if let particleNode = self.childNode(withName: "particleNode", recursively: true) {
+                    particleNode.removeParticleSystem(curPar)
+                }
             }
         }
     }
@@ -709,7 +728,16 @@ public class baseChessNode: SCNNode {
         }
     }
     
-    
+    func addParticleSystem(particleName: String) -> SCNParticleSystem? {
+        if let particleNode = self.childNode(withName: "particleNode", recursively: true) {
+            if let particle = SCNParticleSystem(named: particleName, inDirectory: nil) {
+                particle.emitterShape = SCNSphere(radius: 0.01)
+                particleNode.addParticleSystem(particle)
+                return particle
+            }
+        }
+        return nil
+    }
    
     
     required init?(coder: NSCoder) {
