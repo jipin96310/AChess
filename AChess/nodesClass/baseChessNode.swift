@@ -19,10 +19,13 @@ public class baseChessNode: SCNNode {
     private let priceTextNode = TextNode()
     
     private var particlePoison: SCNParticleSystem? = nil
-
+    private var particleRapid: SCNParticleSystem? = nil
+    private var particleFurious: SCNParticleSystem? = nil
+    private var particleSpin: SCNParticleSystem? = nil
+    private var particleAcute: SCNParticleSystem? = nil
     private let damgeTextNode = TextNode(textScale: SCNVector3(0.5, 0.5, 0.01))
     private let abilitiesTriggerTextNode = TextNode(textScale: SCNVector3(0.5, 0.5, 0.01))
-    
+    private let originEuler = SCNVector3(90.degreesToRadius, 72.degreesToRadius, 90.degreesToRadius)
     var isActive = false
     var rstAttackTimes = 1 //剩余攻击次数
     
@@ -110,6 +113,10 @@ public class baseChessNode: SCNNode {
         didSet {
             setBait()
             setPoison()
+            setRapid()
+            setFurious()
+            setSpin()
+            setAcute()
             if abilities.contains(EnumAbilities.rapid.rawValue) {
                 rstAttackTimes = 2
             }
@@ -311,7 +318,7 @@ public class baseChessNode: SCNNode {
             }
         }
         
-        setBait() //诱饵
+        //setBait() //诱饵
         
         if let priceLabelNode = self.childNode(withName: "priceLabel", recursively: true) {
             if chessStatus == EnumsChessStage.forSale.rawValue {
@@ -469,7 +476,7 @@ public class baseChessNode: SCNNode {
     
     func setPoison() {
         if abilities.contains(EnumAbilities.poison.rawValue) {
-            particlePoison = addParticleSystem(particleName: "particals.scnassets/poison.scnp")
+            particlePoison = addParticleSystem(particleName: "particals.scnassets/poison.scnp", emitterShape: SCNSphere(radius: 0.01), particlePos: SCNVector3(0,0.18,-0.1))
         } else {
             if let curPar = particlePoison {
                 if let particleNode = self.childNode(withName: "particleNode", recursively: true) {
@@ -477,6 +484,56 @@ public class baseChessNode: SCNNode {
                 }
             }
         }
+    }
+    func setRapid() {
+        if abilities.contains(EnumAbilities.rapid.rawValue) {
+            particleRapid = addParticleSystem(particleName: "particals.scnassets/rapid.scnp", emitterShape: SCNSphere(radius: 0.001), particlePos: SCNVector3(0,0,-0.1))
+        } else {
+            if let curPar = particleRapid {
+                if let particleNode = self.childNode(withName: "particleNode", recursively: true) {
+                    particleNode.removeParticleSystem(curPar)
+                }
+            }
+        }
+    }
+    
+    func setFurious() {
+           if abilities.contains(EnumAbilities.furious.rawValue) {
+               particleFurious = addParticleSystem(particleName: "particals.scnassets/furious.scnp", emitterShape: SCNSphere(radius: 0.001), particlePos: SCNVector3(0,0,-0.1))
+           } else {
+               if let curPar = particleFurious {
+                   if let particleNode = self.childNode(withName: "particleNode", recursively: true) {
+                       particleNode.removeParticleSystem(curPar)
+                   }
+               }
+           }
+       }
+    func setSpin() {
+              if abilities.contains(EnumAbilities.spine.rawValue) {
+                  particleSpin = addParticleSystem(particleName: "particals.scnassets/spin.scnp", emitterShape: SCNSphere(radius: 0.0001), particlePos: SCNVector3(0,0,-0.1))
+              } else {
+                  if let curPar = particleSpin {
+                      if let particleNode = self.childNode(withName: "particleNode", recursively: true) {
+                          particleNode.removeParticleSystem(curPar)
+                      }
+                  }
+              }
+    }
+    func setAcute() {
+        if let aniPic = self.childNode(withName: "animalpic", recursively: true) {
+            if abilities.contains(EnumAbilities.acute.rawValue) {
+                let acuteAction = SCNAction.repeatForever(SCNAction.sequence([
+                    SCNAction.rotateTo(x: CGFloat(145.degreesToRadius), y: CGFloat(57.degreesToRadius), z: CGFloat(150.degreesToRadius), duration: 1),
+                    SCNAction.rotateTo(x: CGFloat(originEuler.x), y: CGFloat(originEuler.y), z: CGFloat(originEuler.z), duration: 1), SCNAction.rotateTo(x: CGFloat(30.degreesToRadius), y: CGFloat(51.degreesToRadius), z: CGFloat(24.degreesToRadius), duration: 1),
+                     SCNAction.rotateTo(x: CGFloat(originEuler.x), y: CGFloat(originEuler.y), z: CGFloat(originEuler.z), duration: 1)]))
+                aniPic.runAction(acuteAction, forKey: "acute")
+            } else {
+                aniPic.removeAction(forKey: "acute")
+                aniPic.eulerAngles = originEuler
+            }
+        }
+        //aniPic.runAction()
+        
     }
     
     
@@ -553,7 +610,8 @@ public class baseChessNode: SCNNode {
             if case let curRattleNum as Int = inheritFunc[EnumKeyName.summonNum.rawValue] {
                 abilityDesc = abilityDesc.replacingOccurrences(of: "<num>", with: (String(curRattleNum)))
             }
-   
+            
+            
             //部分特殊技能
             if curAbi == EnumAbilities.summonChessAddMountainBuff.rawValue {
                 abilityDesc = abilityDesc.replacingOccurrences(of: "<att>", with: String(1 * chessLevel))
@@ -561,10 +619,13 @@ public class baseChessNode: SCNNode {
             } else if curAbi == EnumAbilities.summonChessAddBuff.rawValue {
                 abilityDesc = abilityDesc.replacingOccurrences(of: "<att>", with: String(1 * chessLevel))
                 abilityDesc = abilityDesc.replacingOccurrences(of: "<def>", with: String(1 * chessLevel))
-            } else if curAbi == EnumAbilities.acute.rawValue {
-                abilityDesc = abilityDesc.replacingOccurrences(of: "<def>", with: String(20 * chessLevel) + "%")
-            } else if curAbi == EnumAbilities.liveInGroup.rawValue {
-                abilityDesc = abilityDesc.replacingOccurrences(of: "<def>", with: String(20 * chessLevel) + "%")
+            }
+            
+            if curAbi == EnumAbilities.acute.rawValue {
+                abilityDesc = abilityDesc.replacingOccurrences(of: "<percent>", with: String(chessLevel * 20))
+            }
+            if curAbi == EnumAbilities.liveInGroup.rawValue {
+                abilityDesc = abilityDesc.replacingOccurrences(of: "<percent>", with: String(chessLevel * 20))
             }
             
       
@@ -728,10 +789,13 @@ public class baseChessNode: SCNNode {
         }
     }
     
-    func addParticleSystem(particleName: String) -> SCNParticleSystem? {
+    func addParticleSystem(particleName: String, emitterShape: SCNGeometry?, particlePos: SCNVector3) -> SCNParticleSystem? {
         if let particleNode = self.childNode(withName: "particleNode", recursively: true) {
             if let particle = SCNParticleSystem(named: particleName, inDirectory: nil) {
-                particle.emitterShape = SCNSphere(radius: 0.01)
+                if let shape = emitterShape {
+                    particle.emitterShape = shape
+                }
+                particleNode.position = particlePos
                 particleNode.addParticleSystem(particle)
                 return particle
             }

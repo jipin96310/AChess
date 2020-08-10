@@ -17,7 +17,7 @@
 "Shell"         = "硬壳";  //硬壳
 "bait"          = "诱饵"; //诱饵
 "IgnoreBait"    = "无视诱饵"; //无视诱饵
-"spine"         = "尖刺";  //尖刺
+"Spine"         = "尖刺";  //尖刺
 "Sputtering" = "攻击会对目标相邻棋子造成伤害."; //溅射
 "ImmunePoison"   = "免疫剧毒"; //免疫剧毒
 "InheritAddBuff" = "传承: 获得+1/+1"; // Inherit: add buff

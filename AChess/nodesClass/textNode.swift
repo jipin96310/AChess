@@ -26,6 +26,7 @@ class TextNode: SCNNode {
         textGeometry.isWrapped = true
         textGeometry.alignmentMode = CATextLayerAlignmentMode.left.rawValue
         textGeometry.font = UIFont.systemFont(ofSize: 1)
+        textGeometry.firstMaterial?.lightingModel = .constant
         scale = SCNVector3(0.01, 0.01, 0.01)
        
         let whiteMaterial = SCNMaterial()
