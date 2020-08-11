@@ -153,9 +153,8 @@ extension ViewController {
                                             self.handPoint.addChildNode(self.curDragPoint!)
                                         }
                                     }
-                                } else {
+                                } else if self.gameConfigStr.enableButtonGestureControl {
                                     if let curButtonMask = self.findVectorHitButton(midPointCG: midPointCG) { //确认当前是不是button
-                                        print("button", curButtonMask)
                                         switch curButtonMask {
                                         case BitMaskCategoty.upgradeButton.rawValue:
                                             self.tapUpgradeAction()

@@ -117,6 +117,8 @@ public class baseChessNode: SCNNode {
             setFurious()
             setSpin()
             setAcute()
+            setLiveInGroup()
+            setFly()
             if abilities.contains(EnumAbilities.rapid.rawValue) {
                 rstAttackTimes = 2
             }
@@ -300,6 +302,9 @@ public class baseChessNode: SCNNode {
         
         if let aniPicNode = self.childNode(withName: "animalpic", recursively: true) {
             aniPicNode.geometry?.firstMaterial?.diffuse.contents = UIImage(named: chessName)
+            if let aniPicNode2 = self.childNode(withName: "animalpic2", recursively: true) {
+                aniPicNode2.geometry?.firstMaterial?.diffuse.contents = UIImage(named: chessName)
+            }
         }
         
         if let sideNode = self.childNode(withName: "side", recursively: true) { //control the side color/image
@@ -534,6 +539,30 @@ public class baseChessNode: SCNNode {
         }
         //aniPic.runAction()
         
+    }
+    func setLiveInGroup() {
+        if let aniPic = self.childNode(withName: "animalpic2", recursively: true) {
+            if abilities.contains(EnumAbilities.liveInGroup.rawValue) {
+                aniPic.isHidden = false
+                let liveAction = SCNAction.repeatForever(SCNAction.sequence([SCNAction.fadeIn(duration: 1), SCNAction.fadeOut(duration: 2)]))
+                aniPic.runAction(liveAction, forKey: "liveInGroup")
+            } else {
+                aniPic.removeAction(forKey: "liveInGroup")
+                aniPic.isHidden = true
+            }
+        }
+    }
+    
+    func setFly() {
+        if let aniPic = self.childNode(withName: "animalpic", recursively: true) {
+            if abilities.contains(EnumAbilities.fly.rawValue) {
+                let flyAction = SCNAction.repeatForever(SCNAction.sequence([SCNAction.move(by: SCNVector3(0,-0.01,0), duration: 1), SCNAction.move(by: SCNVector3(0,0.02,0), duration: 2), SCNAction.move(by: SCNVector3(0,-0.01,0), duration: 1)]))
+                aniPic.runAction(flyAction, forKey: "fly")
+            } else {
+                aniPic.removeAction(forKey: "fly")
+                aniPic.position = SCNVector3(0,0.05,-0.001)
+            }
+        }
     }
     
     

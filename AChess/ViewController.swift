@@ -2372,6 +2372,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 let lastChesses = copyChessArr(curBoard: self.playerStatues[self.curPlayerId].curChesses) //拷贝上轮阵容 防止切换模式清空
                 self.recoverButtons()
                 self.curStage = EnumsGameStage.exchangeStage.rawValue
+                //
                 self.boardNode[1].forEach{(curChess) in
                     curChess.removeFromParentNode()
                 }
@@ -2379,15 +2380,18 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 lastChesses.forEach{(curChess) in
                     self.boardNode[1].append(curChess.copyable())
                 }
-                
+                //
                 self.initDisplay()
-                self.toggleEnemies(isHidden: true) //展示敌人
+                DispatchQueue.main.async {
+                    self.toggleEnemies(isHidden: true) //展示敌人
+                }
+                
                 if !self.isFreezed {
                    self.initBoardChess(initStage: EnumsGameStage.exchangeStage.rawValue)
                 } else {
-                    self.boardNode[0] = []
+                    self.boardNode[BoardSide.enemySide.rawValue] = []
                     self.freezedChessNodes.forEach{(curChess) in
-                        self.boardNode[0].append(curChess.copyable())
+                        self.boardNode[BoardSide.enemySide.rawValue].append(curChess.copyable())
                     }
                 }
                 
@@ -2910,35 +2914,53 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     
     /*初始化大屏幕*/
     func initDisplay() {
-       let curPlayer = playerStatues[curPlayerId]
+        let curPlayer = playerStatues[curPlayerId]
         switch curStage {
         case EnumsGameStage.exchangeStage.rawValue:
             if let battleStageDisplay = playerBoardNode.childNode(withName: "battleStage", recursively: true) {
-                battleStageDisplay.isHidden = true
+                battleStageDisplay.opacity = 0
             }
             if let saleStageDisplay = playerBoardNode.childNode(withName: EnumNodeName.saleStage.rawValue, recursively: true) {
-                saleStageDisplay.isHidden = false
+                saleStageDisplay.opacity = 1
+                if levelTextNode.parent != nil {
+                    
+                }else {
+                    levelTextNode.position = SCNVector3(-0.1, -0.5, 0.1)
+                    saleStageDisplay.addChildNode(levelTextNode)
+                    levelTextNode.string = String(curPlayer.curLevel)
+                }
+                if moneyTextNode.parent != nil {
+                    
+                }else {
+                    moneyTextNode.position = SCNVector3(-0.4, -0.5, 0.1)
+                    saleStageDisplay.addChildNode(moneyTextNode)
+                    moneyTextNode.string = String(curPlayer.curCoin)
+                }
                 
-                levelTextNode.position = SCNVector3(-0.1, -0.5, 0.1)
-                saleStageDisplay.addChildNode(levelTextNode)
-                levelTextNode.string = String(curPlayer.curLevel)
-                moneyTextNode.position = SCNVector3(-0.4, -0.5, 0.1)
-                saleStageDisplay.addChildNode(moneyTextNode)
-                moneyTextNode.string = String(curPlayer.curCoin)
+                
             }
             return
         case EnumsGameStage.battleStage.rawValue:
             if let saleStageDisplay = playerBoardNode.childNode(withName: EnumNodeName.saleStage.rawValue, recursively: true) {
-                saleStageDisplay.isHidden = true
+                saleStageDisplay.opacity = 0
             }
             if let battleStageDisplay = playerBoardNode.childNode(withName: "battleStage", recursively: true) {
-                battleStageDisplay.isHidden = false
-                enemyBloodTextNode.position = SCNVector3(-0.3, -0.5, 0.1)
-                battleStageDisplay.addChildNode(enemyBloodTextNode)
-                enemyBloodTextNode.string = String(playerStatues[curEnemyId].curBlood)
-                playerBloodTextNode.position = SCNVector3(0.3, -0.5, 0.1)
-                battleStageDisplay.addChildNode(playerBloodTextNode)
-                playerBloodTextNode.string = String(curPlayer.curBlood)
+                battleStageDisplay.opacity = 1
+                
+                if enemyBloodTextNode.parent != nil {
+                    
+                }else {
+                    enemyBloodTextNode.position = SCNVector3(-0.3, -0.5, 0.1)
+                    battleStageDisplay.addChildNode(enemyBloodTextNode)
+                    enemyBloodTextNode.string = String(playerStatues[curEnemyId].curBlood)
+                }
+                if playerBloodTextNode.parent != nil {
+                    
+                }else {
+                    playerBloodTextNode.position = SCNVector3(0.3, -0.5, 0.1)
+                    battleStageDisplay.addChildNode(playerBloodTextNode)
+                    playerBloodTextNode.string = String(curPlayer.curBlood)
+                }
             }
             return
         default:
@@ -3229,8 +3251,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         
     }
     func toggleEnemies(isHidden: Bool){
+        let opacity:CGFloat = isHidden ? 0 : 1
         enemyPlayerBoardNodes.forEach{ board in
-            board.isHidden = isHidden
+            board.opacity = opacity
         }
     }
     func recoverGestureRecoginzer() {

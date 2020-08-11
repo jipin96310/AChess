@@ -13,7 +13,7 @@ public let GlobalCommonNumber = (
     chessNumber : 7,
     maxLevel : 5,
     maxStars: 3,
-    maxBlood: 5
+    maxBlood: 30
 )
 public let EvolveAbilities = [
     EnumAbilities.furious.rawValue,
