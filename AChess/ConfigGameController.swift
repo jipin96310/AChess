@@ -194,14 +194,22 @@ class ConfigGameController: UIViewController, UITableViewDelegate, UITableViewDa
             
             
         } else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "cellID", for: indexPath)
-            var curPlayerName = ""
+            //var cell = tableView.dequeueReusableCell(withIdentifier: "cellID", for: indexPath) as UITableViewCell
             
+            let cell = UITableViewCell(style: UITableViewCell.CellStyle.subtitle,reuseIdentifier: "cellID")
+            
+            var curPlayerName = ""
+            var curPlayerType = ""
             if indexPath.row < currentSlaveId.count {
                 curPlayerName = currentSlaveId[indexPath.row].playerName
+                curPlayerType = currentSlaveId[indexPath.row].isComputer ? "AI".localized : "Player".localized
             }
             
             cell.textLabel?.text="\(curPlayerName)"
+            cell.detailTextLabel?.text = "\(curPlayerType)"
+            
+           
+            
             return cell
         }
     }

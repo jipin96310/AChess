@@ -94,7 +94,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var enemyPlayerBoardNodes: [ChessBoardNode] = [] //敌人棋盘节点
     var panOffset = SIMD3<Float>()
     var curPlaneNode:customPlaneNode? = nil
-    let priceTagNode = TextNode(textScale: SCNVector3(0.3, 0.5, 0))
+    let priceTagNode = TextNode(textScale: SCNVector3(0.6, 1, 0))
+    let randomTextNode = TextNode(textScale: SCNVector3(0.03, 0.03, 0))
     //buttonNode
     var randomButtonTopNode: SCNNode = SCNNode()
     var upgradeButtonTopNode: SCNNode = SCNNode()
@@ -125,7 +126,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     let totalUpdateTime:Double = 1 //刷新时间
     var curUpgradeCoin = 5 {
         didSet(oldV) {//升级费用
-            print(curUpgradeCoin)
            priceTagNode.string = String(curUpgradeCoin)
         }
     }
@@ -415,10 +415,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     //var backupBoardNode:[[baseChessNode]] = [[],[]]
     var playerStatues: [playerStruct] = [playerStruct(playerName: "player1", curCoin: GlobalNumberSettings.roundBaseCoin.rawValue + 50, curLevel: 1, curBlood: GlobalCommonNumber.maxBlood, curChesses: [], curAura: [], isComputer: false, playerID: MCPeerID(displayName: "player1")), playerStruct(playerName: "player2", curCoin: 40, curLevel: 1, curBlood: GlobalCommonNumber.maxBlood, curChesses: [baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[2][17]), baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[2][17]), baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[2][17])], curAura: [], isComputer: false,  playerID: MCPeerID(displayName: "player2"))] {
         didSet {
-            moneyTextNode.string = String(playerStatues[curPlayerId].curCoin)
-            levelTextNode.string = String(playerStatues[curPlayerId].curLevel)
-            enemyBloodTextNode.string = String(playerStatues[curEnemyId].curBlood)
-            playerBloodTextNode.string = String(playerStatues[curPlayerId].curBlood)
+            moneyTextNode.string = "Gold".localized + String(playerStatues[curPlayerId].curCoin)
+            levelTextNode.string = "Level".localized + String(playerStatues[curPlayerId].curLevel)
+            enemyBloodTextNode.string = "EnemySide".localized + String(playerStatues[curEnemyId].curBlood)
+            playerBloodTextNode.string = "AllySide".localized + String(playerStatues[curPlayerId].curBlood)
         }
     } //当前玩家状态数据 单人模式默认取id = 1
     var curPlayerId = 0
@@ -430,6 +430,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
      var levelTextNode = TextNode(textScale: SCNVector3(0.1, 0.3, 1))
      var enemyBloodTextNode = TextNode(textScale: SCNVector3(0.1, 0.3, 1))
      var playerBloodTextNode = TextNode(textScale: SCNVector3(0.1, 0.3, 1))
+    
     //gesutre reoginzer
     var longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action:  #selector(onLongPress))
     var tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onTap))
@@ -2925,16 +2926,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 if levelTextNode.parent != nil {
                     
                 }else {
-                    levelTextNode.position = SCNVector3(-0.1, -0.5, 0.1)
+                    levelTextNode.position = SCNVector3(-0.45, -0.55, 0.1)
                     saleStageDisplay.addChildNode(levelTextNode)
-                    levelTextNode.string = String(curPlayer.curLevel)
+                    levelTextNode.string = "Level".localized + String(curPlayer.curLevel)
                 }
                 if moneyTextNode.parent != nil {
                     
                 }else {
-                    moneyTextNode.position = SCNVector3(-0.4, -0.5, 0.1)
+                    moneyTextNode.position = SCNVector3(0.1, -0.55, 0.1)
                     saleStageDisplay.addChildNode(moneyTextNode)
-                    moneyTextNode.string = String(curPlayer.curCoin)
+                    moneyTextNode.string = "Gold".localized + String(curPlayer.curCoin)
                 }
                 
                 
@@ -2950,16 +2951,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 if enemyBloodTextNode.parent != nil {
                     
                 }else {
-                    enemyBloodTextNode.position = SCNVector3(-0.3, -0.5, 0.1)
+                    enemyBloodTextNode.position = SCNVector3(-0.45, -0.55, 0.1)
                     battleStageDisplay.addChildNode(enemyBloodTextNode)
-                    enemyBloodTextNode.string = String(playerStatues[curEnemyId].curBlood)
+                    enemyBloodTextNode.string = "EnemySide".localized + String(playerStatues[curEnemyId].curBlood)
                 }
                 if playerBloodTextNode.parent != nil {
                     
                 }else {
-                    playerBloodTextNode.position = SCNVector3(0.3, -0.5, 0.1)
+                    playerBloodTextNode.position = SCNVector3(0.1, -0.55, 0.1)
                     battleStageDisplay.addChildNode(playerBloodTextNode)
-                    playerBloodTextNode.string = String(curPlayer.curBlood)
+                    playerBloodTextNode.string = "AllySide".localized + String(curPlayer.curBlood)
                 }
             }
             return
@@ -3300,13 +3301,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
  
         if let randomButtonTemp = playerBoardNode.childNode(withName: "randomButton", recursively: true) {
             randomButtonNode = randomButtonTemp
+            randomTextNode.position = SCNVector3(-0.01,-0.029,0.03)
+            randomTextNode.string = "1"
+            randomButtonTemp.addChildNode(randomTextNode)
             randomButtonNode.fixCategoryMasks(mask: BitMaskCategoty.randomButton.rawValue)
         }
         if let upgradeButtonTemp = playerBoardNode.childNode(withName: "upgradeButton", recursively: true) {
             upgradeButtonNode = upgradeButtonTemp
             upgradeButtonNode.fixCategoryMasks(mask: BitMaskCategoty.upgradeButton.rawValue)
             if let upgradePriceNode = upgradeButtonTemp.childNode(withName: "upgradePriceNode", recursively: true) {
-                priceTagNode.position = SCNVector3(-0.1,-0.5,0)
+                priceTagNode.position = SCNVector3(-0.1,-1.25,0)
                 priceTagNode.string = String(curUpgradeCoin)
                 upgradePriceNode.addChildNode(priceTagNode)
             }
