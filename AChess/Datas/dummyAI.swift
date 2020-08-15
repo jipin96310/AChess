@@ -10,9 +10,9 @@ import Foundation
 
 public let dummyAICrew = [
     [
-    chessCollectionsLevel[1][1],
-    chessCollectionsLevel[1][1],
-    chessCollectionsLevel[1][1]
+    chessCollectionsLevel[4][2],
+    chessCollectionsLevel[4][2],
+    chessCollectionsLevel[4][2]
     ],
     [
     chessCollectionsLevel[1][1],

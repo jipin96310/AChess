@@ -13,7 +13,7 @@ class PrePlane: SCNNode {
 
     
         /// The minimum size of the board in meters
-        static let minimumScale: Float = 0.1
+        static let minimumScale: Float = 0.3
         
         /// The maximum size of the board in meters
         static let maximumScale: Float = 10.0 // 15x27m @ 10, 1.5m x 2.7m @ 1
@@ -72,15 +72,15 @@ class PrePlane: SCNNode {
            simdScale = SIMD3<Float>(repeating: PrePlane.minimumScale)
            
            // Create all border segments
-           Corner.allCases.forEach { corner in
-               Alignment.allCases.forEach { alignment in
-                   let borderSize = CGSize(width: 1, height: CGFloat(aspectRatio))
-                   let borderSegment = BorderSegment(corner: corner, alignment: alignment, borderSize: borderSize)
-                   
-                   borderSegments.append(borderSegment)
-                   borderNode.addChildNode(borderSegment)
-               }
-           }
+//           Corner.allCases.forEach { corner in
+//               Alignment.allCases.forEach { alignment in
+//                   let borderSize = CGSize(width: 1, height: CGFloat(aspectRatio))
+//                   //let borderSegment = BorderSegment(corner: corner, alignment: alignment, borderSize: borderSize)
+//
+//                   //borderSegments.append(borderSegment)
+//                   //borderNode.addChildNode(borderSegment)
+//               }
+//           }
            
            // Create fill plane
            borderNode.addChildNode(fillPlane)
@@ -121,7 +121,7 @@ class PrePlane: SCNNode {
            if isBorderHidden {
                unhideBorder()
            }
-           
+
 //           if let planeAnchor = hitTestResult.anchor as? ARPlaneAnchor {
 //               performCloseAnimation(flash: !anchorsOfVisitedPlanes.contains(planeAnchor))
 //               anchorsOfVisitedPlanes.insert(planeAnchor)
@@ -285,9 +285,9 @@ class PrePlane: SCNNode {
            if let plane = fillPlane.geometry as? SCNPlane {
                let length = 1 - 2 * BorderSegment.thickness
                plane.height = length * CGFloat(aspectRatio)
-//               let textureScale = float4x4(scale: SIMD3<Float>(40, 40 * aspectRatio, 1))
-//               plane.firstMaterial?.diffuse.simdContentsTransform = textureScale
-//               plane.firstMaterial?.emission.simdContentsTransform = textureScale
+               let textureScale = float4x4(scale: SIMD3<Float>(40, 40 * aspectRatio, 1))
+               plane.firstMaterial?.diffuse.simdContentsTransform = textureScale
+               plane.firstMaterial?.emission.simdContentsTransform = textureScale
            }
            isBorderOpen = false
        }

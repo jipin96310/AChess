@@ -32,7 +32,7 @@ class TextNode: SCNNode {
         let whiteMaterial = SCNMaterial()
         whiteMaterial.diffuse.contents = UIColor.white
         whiteMaterial.locksAmbientWithDiffuse = false
-        whiteMaterial.lightingModel = .physicallyBased
+        whiteMaterial.lightingModel = .constant
         textGeometry.materials = [whiteMaterial]
 
         geometry = textGeometry

@@ -22,6 +22,7 @@
 "ImmunePoison"   = "Immune To Poison"; //免疫剧毒
 "InheritAddBuff" = "Inheritance: Gain +1/+1."; // Inherit: add buff
 "InheritDamage" = "Inheritance: Deal <dam> damage to <num> Enemies.";
+"InheritSummonSth" = "Inheritance: Summon [chesses].";
 "EndRoundAddBuff" = "Chess will give [kind] +<att>/+<def> at the end of sale stage.";
 ///////战吼
 "InstantAddBuff" = "Instant: choose a [kind] chess to gain +<att>/+<def>.";
@@ -32,6 +33,7 @@
 "InstantRandomAddBuff"      = "Instant: Give <num> [kind] random allies +<att>/+<def>";
 "InstantSummonSth" = "Instant：Summon [chesses].";
 "InstantReduceBuff" = "Instant: This chess gains -1/-1 for each of your other chesses.";
+"InstantAddAbility" = "Instant：Give 1 [cKind] chess [aKind].";
 "ChooseAnChess" = "Please choose an chess.";
 "ChooseAnOption" = "Please choose an option.";
 //summon
@@ -146,6 +148,13 @@
 "Noraml" = "Normal";
 "Limited" = "Limited";
 
+"Player" = "Player";
+"AI" = "AI";
+"Level" = "Level:";
+"Gold" = "Gold:";
+"AllySide" = "Ally";
+"EnemySide" = "Enemy";
+"Random" = "Random";
 
 //TIP
 "seekingSurfaveTip" = "Find a flat surface to place the game board.";

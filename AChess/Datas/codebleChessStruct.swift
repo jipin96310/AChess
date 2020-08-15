@@ -11,11 +11,11 @@ import Foundation
 import Foundation
 
 public struct codableChessStruct: Codable {
-    var chessRarityIndex: Int? //当前稀有度的序号
-    var atkNum: Int?
-    var defNum: Int?
+    var chessRarityIndex: Int //当前稀有度的序号
+    var atkNum: Int
+    var defNum: Int
     var chessRarity: Int? //棋子稀有度
-    var chessLevel:Int? //棋子等级
+    var chessLevel:Int //棋子等级
     var chessKind: String //棋子类型
     var abilities: [String]
     var temporaryBuff: [String]
@@ -29,5 +29,23 @@ public struct codableChessStruct: Codable {
         self.chessKind = chessKind
         self.abilities = abilities
         self.temporaryBuff = temporaryBuff
+    }
+    
+    func decode() -> chessStruct {
+        let curIndex = chessRarityIndex
+        let curRaity = chessRarity ?? 1
+        var curChessStruct:chessStruct
+        if chessRarity != nil {
+            curChessStruct = chessCollectionsLevel[curRaity - 1][curIndex] //普通怪
+        } else {
+            curChessStruct = chessDerivateCollections[curIndex] //衍生物
+        }
+        curChessStruct.atkNum = atkNum
+        curChessStruct.defNum = defNum
+        curChessStruct.chessLevel = chessLevel
+        curChessStruct.chessKind = chessKind
+        curChessStruct.abilities = abilities
+        curChessStruct.temporaryBuff = temporaryBuff
+        return curChessStruct
     }
 }

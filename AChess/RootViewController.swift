@@ -96,8 +96,7 @@ class RootViewController: UIViewController, SCNSceneRendererDelegate {
     
     @IBAction func refreshChess(_ sender: Any) {
         guard let boardNode = boardNodeTemplate else { return }
-        let chess = baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: generateRandomChessStruct())
-        boardNode.setBoard(chessess: [[chess], []])
+        boardNode.setBoard(chessess: [[generateRandomChessStruct()], []])
     }
     
     @IBAction func close(segue:UIStoryboardSegue){

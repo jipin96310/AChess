@@ -7,7 +7,7 @@
 */
 "BattleStage" = "战斗回合"; //战斗回合
 "ExchangeStage" = "交易回合";
-"Poison"        = "剧毒";  //剧毒
+"Poison"        = "毒液";  //剧毒
 "LiveInGroup"   = "群居(<percent>% 攻击后创建一个白板镜像)";//群居
 "Furious"       = "凶猛"; //凶猛
 "Rapid"         = "迅捷(<percent>% 攻击两次)";  // 迅捷
@@ -19,9 +19,10 @@
 "IgnoreBait"    = "无视诱饵"; //无视诱饵
 "Spine"         = "尖刺";  //尖刺
 "Sputtering" = "攻击会对目标相邻棋子造成伤害."; //溅射
-"ImmunePoison"   = "免疫剧毒"; //免疫剧毒
+"ImmunePoison"   = "免疫毒液"; //免疫剧毒
 "InheritAddBuff" = "传承: 获得+1/+1"; // Inherit: add buff
 "InheritDamage" = "传承: 向 <num> 敌人造成 <dam> 伤害.";
+"InheritSummonSth" = "传承: 召唤 [chesses].";
 "EndRoundAddBuff" = "给<kind>棋子 +<att>/+<def>在每个交易回合结束时.";
 ///////战吼
 "InstantAddBuff" = "瞬发: 选择一个<kind>棋子获得 +<att>/+<def>.";
@@ -34,6 +35,7 @@
 "ChooseAnOption" = "请选择一个选项.";
 "InstantRandomAddBuff"      = "瞬发: 给予 <num> [kind] 随机队友 +<att>/+<def>";
 "InstantReduceBuff" = "瞬发: 每拥有一个其他友方棋子，使得这个棋子获得 -1/-1 .";
+"InstantAddAbility" = "瞬发：给予一个[cKind]棋子[aKind]。";
 //summon
 "SummonChessAddMountainBuff" = "在你召唤一个具有诱饵的棋子后，给予所有山川棋子 +<att>/ +<def>.";
 "SummonChessAddSelfBuff" = "获得 +<att>/+<def> 在你召唤一个 <kind> 棋子后.";
@@ -91,7 +93,7 @@
 "CyaneaNozakii" = "霞水母"; //霞水母
 "Abalone" = "鲍鱼"; //鲍鱼
 "Tuna"  =  "金枪鱼"; //金枪鱼
-"SpiderCrab"  =  "蜘蛛"; //蜘蛛蟹
+"SpiderCrab"  =  "蜘蛛蟹"; //蜘蛛蟹
 "Carp" = "鲑鱼"; //鲑鱼
 "Dragonfish" = "深海龙鱼"; //深海龙鱼
 "Prawn" = "明虾"; //明虾
@@ -142,8 +144,16 @@
 "Inheritance" = "传承";
 "waste" = "您已被淘汰！";
 "win" = "您获得了胜利！";
-"Noraml" = "正常";
+"Normal" = "正常";
 "Limited" = "有限";
+
+"Player" = "玩家";
+"AI" = "AI";
+"Level" = "等级:";
+"Gold" = "金币:";
+"AllySide" = "我方";
+"EnemySide" = "敌方";
+"Random" = "任意";
 
 //TIP
 "seekingSurfaveTip" = "寻找一个平面放置游戏棋盘.";
@@ -151,7 +161,8 @@
 "adjustingPlaneTip" = "调整并轻点以继续.";
 "waitingForPlane" = "同步世界地图中…";
 "localizingToPlane" = "请将摄像头指向桌面以定位.";
-"closed" = "闭合";
+"closed" = "握拳";
+
 
 
 "GameTitle" = "野兽战棋 AR";

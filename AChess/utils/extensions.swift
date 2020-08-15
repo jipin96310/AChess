@@ -296,6 +296,26 @@ public func clamp<T>(_ value: T, _ minValue: T, _ maxValue: T) -> T where T: Com
     }
 }
 
+extension SCNMaterial {
+    convenience init(diffuse: Any?) {
+        self.init()
+        self.diffuse.contents = diffuse
+        isDoubleSided = true
+        lightingModel = .physicallyBased
+    }
+}
+
+extension SCNMaterialProperty {
+    var simdContentsTransform: float4x4 {
+        get {
+            return float4x4(contentsTransform)
+        }
+        set(newValue) {
+            contentsTransform = SCNMatrix4(newValue)
+        }
+    }
+}
+
 
 
 

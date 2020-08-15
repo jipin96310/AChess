@@ -308,6 +308,7 @@ class ChessBoardNode: SCNNode {
     var targetSize: CGSize = defaultSize
     
     private(set) var placed = false
+    private(set) var loaded = false
     
     private var scene: SCNScene?
     private var boardNodeTemplate: SCNNode?
@@ -353,8 +354,9 @@ class ChessBoardNode: SCNNode {
             //
             initSubNodes()
             initBoardRootNode()
-            initPreLoadChess()
-       
+            DispatchQueue.main.async {
+                self.initPreLoadChess()
+            }
            
         } catch {
             fatalError("Could not load board: \(error.localizedDescription)")
@@ -431,10 +433,7 @@ class ChessBoardNode: SCNNode {
         node.addChildNode(boardNode)
         
         placed = true
-        
-        // the lod system doesn't honor the scaled camera,
-        // so have to fix this manually in fixLevelsOfDetail with inverse scale
-        // applied to the screenSpaceRadius
+        showDisPlayName()
  
         //multipeer
         if let curSession = multiSession {
@@ -578,7 +577,7 @@ class ChessBoardNode: SCNNode {
         for index in 0 ..< boardChessess.count {
             var curBoardSide = boardChessess[index]
             for i in 0 ..< curBoardSide.count{
-                if  curBoardSide[i].isHidden == true {
+                if  curBoardSide[i].opacity == 0 {
                     curBoardSide = Array(curBoardSide[0 ..< i])
                     break
                 }
@@ -664,7 +663,8 @@ class ChessBoardNode: SCNNode {
         return 1
     }
     
-    public func setBoard(chessess: [[baseChessNode]]) {
+    public func setBoard(chessess: [[chessStruct]]) {
+        if !loaded { return }
         if chessess.count != 2 { return }
         if boardChessess[0].count < GlobalCommonNumber.chessNumber || boardChessess[1].count < GlobalCommonNumber.chessNumber {
             return
@@ -675,31 +675,36 @@ class ChessBoardNode: SCNNode {
         if chessess[0].count > GlobalCommonNumber.chessNumber || chessess[1].count > GlobalCommonNumber.chessNumber {
             return
         }
-        for i in 0 ..< boardChessess.count {
-            for j in 0 ..< boardChessess[i].count {
-                if j <= chessess[i].count - 1 { //load chess with struct
-                    let statusNum = i == 0 ? EnumsChessStage.enemySide.rawValue : EnumsChessStage.owned.rawValue
-                    boardChessess[i][j].loadWithStruct(statusNum: statusNum, chessInfo: chessess[i][j].exportStruct())
-                    boardChessess[i][j].isHidden = false
-                } else { // hide chess
-                    boardChessess[i][j].isHidden = true
+        
+        
+        DispatchQueue.main.async {
+            for i in 0 ..< self.boardChessess.count {
+                for j in 0 ..< self.boardChessess[i].count {
+                    if j <= chessess[i].count - 1 { //load chess with struct
+                        let statusNum = i == 0 ? EnumsChessStage.enemySide.rawValue : EnumsChessStage.owned.rawValue
+                        self.boardChessess[i][j].loadWithStruct(statusNum: statusNum, chessInfo: chessess[i][j])
+                        self.boardChessess[i][j].opacity = 1
+                    } else { // hide chess
+                        self.boardChessess[i][j].opacity = 0
+                    }
                 }
             }
+            self.updateWholeBoardPosition()
         }
-        
-       updateWholeBoardPosition()
         
     }
     func initPreLoadChess() {
         boardChessess = [[],[]]
-        
+        var tempChessess:[[baseChessNode]] = [[],[]]
         for i in 0 ..< boardChessess.count {
             for _ in 0 ..< GlobalCommonNumber.chessNumber {
                 let newNode = baseChessNode()
-                newNode.isHidden = true
-                boardChessess[i].append(newNode)
+                newNode.opacity = 0
+                tempChessess[i].append(newNode)
             }
         }
+        boardChessess = tempChessess
+        loaded = true
     }
 
     func showDisPlayName() {
@@ -707,7 +712,7 @@ class ChessBoardNode: SCNNode {
             guard let boardNode = boardNodeTemplate else { return}
             if let saleStageDisplay = boardNode.childNode(withName: EnumNodeName.saleStage.rawValue, recursively: true) {
                 if let userId = playerID {
-                    saleStageDisplay.isHidden = false
+                    saleStageDisplay.opacity = 1
                     nameTextNode.position = SCNVector3(-0.3, -0.5, 0.1)
                     nameTextNode.string = userId.displayName
                     saleStageDisplay.addChildNode(nameTextNode)

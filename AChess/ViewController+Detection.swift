@@ -197,24 +197,25 @@ extension ViewController {
                                         midHitT = self.sceneView.hitTest(midPointCG, options: [SCNHitTestOption.ignoreHiddenNodes: true, SCNHitTestOption.rootNode: self.playerBoardNode, SCNHitTestOption.categoryBitMask: BitMaskCategoty.saleScreen.rawValue])
                                         if !midHitT.isEmpty && midHitT.first?.node.physicsBody?.categoryBitMask == BitMaskCategoty.saleScreen.rawValue { //出售板
                                             print("sale", midHitT)
-                                            self.sellChess(playerID: self.curPlayerId, curChess: self.curDragPoint!, curBoardSide: self.curDragPos[0])
+                                            self.sellChess(playerID: self.curPlayerId, curChess: self.curDragPoint!)
                                         } else {
                                             midHitT = self.sceneView.hitTest(midPointCG, options: [SCNHitTestOption.ignoreHiddenNodes: true, SCNHitTestOption.rootNode: self.playerBoardNode, SCNHitTestOption.categoryBitMask: BitMaskCategoty.storageSide.rawValue])
                                             if !midHitT.isEmpty && midHitT.first?.node.physicsBody?.categoryBitMask == BitMaskCategoty.storageSide.rawValue { //储藏室
-                                                print("storage", midHitT)
+                                                //print("storage", midHitT)
                                                 self.endOnStorage(hitTestResult: hitTestResults3)
                                             } else {//送回老家
-                                                print("home", midHitT)
+                                                //print("home", midHitT)
                                                 self.recoverNodeToBoard(dragPos: self.curDragPos)
                                                 
                                             }
                                         }
                                     }
                                 }
-                                self.curDragPoint = nil
-                                self.curDragPos = []
+                                //self.curDragPoint = nil
+                                //self.curDragPos = []
                                 self.setBoardColor(boardCate: nil)
                             }
+                            
                         } else { //none gesture
                             self.recoverBoardColor()
                         }

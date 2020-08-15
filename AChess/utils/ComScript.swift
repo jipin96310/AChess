@@ -23,8 +23,8 @@ public let EvolveAbilities = [
 public let EvolveKind = [
     EnumChessKind.mountain.rawValue,
     EnumChessKind.ocean.rawValue,
-    EnumChessKind.plain.rawValue,
-    EnumChessKind.frost.rawValue,
-    EnumChessKind.desert.rawValue,
-    EnumChessKind.polar.rawValue
+    EnumChessKind.plain.rawValue
+//    EnumChessKind.frost.rawValue,
+//    EnumChessKind.desert.rawValue,
+//    EnumChessKind.polar.rawValue
 ]

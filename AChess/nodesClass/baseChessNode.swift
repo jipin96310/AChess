@@ -14,9 +14,9 @@ public class baseChessNode: SCNNode {
     //var def = 1
     private let nameTextNode = TextNode(textScale: SCNVector3(0.1, 0.2, 0.05))
     private let descTextNode = TextNode(textScale: SCNVector3(0.1, 0.1, 0.1))
-    private let atkTextNode = TextNode()
-    private let defTextNode = TextNode()
-    private let priceTextNode = TextNode()
+    private let atkTextNode = TextNode(textScale: SCNVector3(0.015,0.015,0.1))
+    private let defTextNode = TextNode(textScale: SCNVector3(0.015,0.015,0.1))
+    private let priceTextNode = TextNode(textScale: SCNVector3(0.015,0.015,0.1))
     
     private var particlePoison: SCNParticleSystem? = nil
     private var particleRapid: SCNParticleSystem? = nil
@@ -234,7 +234,7 @@ public class baseChessNode: SCNNode {
     convenience init(statusNum: Int, codeChessInfo: codableChessStruct) {
         self.init()
         chessStatus = statusNum
-        let curIndex = codeChessInfo.chessRarityIndex ?? 0
+        let curIndex = codeChessInfo.chessRarityIndex
         let curRaity = codeChessInfo.chessRarity ?? 1
         let curChessStruct:chessStruct
         if codeChessInfo.chessRarity != nil {
@@ -248,7 +248,7 @@ public class baseChessNode: SCNNode {
         defNum = codeChessInfo.defNum
         atkTextNode.string = String(atkNum!)
         defTextNode.string = String(defNum!)
-        chessLevel = codeChessInfo.chessLevel!
+        chessLevel = codeChessInfo.chessLevel
         changeStarLabel()
         chessKind = codeChessInfo.chessKind
         abilities = codeChessInfo.abilities
@@ -265,7 +265,7 @@ public class baseChessNode: SCNNode {
                    }
                }
                
-        setBait() //诱饵
+        //setBait() //诱饵
     }
     
     convenience init(statusNum: Int, chessInfo: chessStruct) {
@@ -301,9 +301,10 @@ public class baseChessNode: SCNNode {
         }
         
         if let aniPicNode = self.childNode(withName: "animalpic", recursively: true) {
-            aniPicNode.geometry?.firstMaterial?.diffuse.contents = UIImage(named: chessName)
+            let animalPic = UIImage(named: chessName) ?? UIImage(named: "aboutButton")
+            aniPicNode.geometry?.firstMaterial?.diffuse.contents = animalPic
             if let aniPicNode2 = self.childNode(withName: "animalpic2", recursively: true) {
-                aniPicNode2.geometry?.firstMaterial?.diffuse.contents = UIImage(named: chessName)
+                aniPicNode2.geometry?.firstMaterial?.diffuse.contents = animalPic
             }
         }
         
@@ -333,8 +334,6 @@ public class baseChessNode: SCNNode {
             }
         }
         if let nameLabelNode = self.childNode(withName: "nameLabel", recursively: true) {
-            print(self.nameTextNode)
-            print(self.nameTextNode.parent)
             if chessStatus == EnumsChessStage.forSale.rawValue {
                 nameLabelNode.isHidden = false
             } else {
@@ -364,7 +363,7 @@ public class baseChessNode: SCNNode {
       return baseChessNode(statusNum: chessStatus, chessInfo: chessStruct(name: chessName, desc: chessDesc, atkNum: atkNum!, defNum: defNum!, chessRarity: chessRarity, chessLevel: chessLevel,chessKind: chessKind, abilities: abilities, temporaryBuff: temporaryBuff, rattleFunc: rattleFunc, inheritFunc: inheritFunc))
   }
     func abilityTrigger(abilityEnum : String) {
-        abilitiesTriggerTextNode.string = abilityEnum //之后要改成多语言
+        abilitiesTriggerTextNode.string = abilityEnum.localized //之后要改成多语言
         abilitiesTriggerTextNode.runAction(SCNAction.sequence([
             SCNAction.fadeIn(duration: 0.1),
             SCNAction.wait(duration: 0.7),
@@ -429,7 +428,7 @@ public class baseChessNode: SCNNode {
                        }
                         
                         shellNode.runAction(SCNAction.sequence([
-                            SCNAction.fadeOpacity(to: 0.1, duration: 0.5),
+                            SCNAction.fadeOpacity(to: 0.8, duration: 0.5),
                           SCNAction.customAction(duration: 0, action: { _,_ in
                               shellNode.isHidden = false
                           })
@@ -486,6 +485,7 @@ public class baseChessNode: SCNNode {
             if let curPar = particlePoison {
                 if let particleNode = self.childNode(withName: "particleNode", recursively: true) {
                     particleNode.removeParticleSystem(curPar)
+                    particlePoison = nil
                 }
             }
         }
@@ -497,6 +497,7 @@ public class baseChessNode: SCNNode {
             if let curPar = particleRapid {
                 if let particleNode = self.childNode(withName: "particleNode", recursively: true) {
                     particleNode.removeParticleSystem(curPar)
+                    particleRapid = nil
                 }
             }
         }
@@ -509,6 +510,7 @@ public class baseChessNode: SCNNode {
                if let curPar = particleFurious {
                    if let particleNode = self.childNode(withName: "particleNode", recursively: true) {
                        particleNode.removeParticleSystem(curPar)
+                       particleFurious = nil
                    }
                }
            }
@@ -520,6 +522,7 @@ public class baseChessNode: SCNNode {
                   if let curPar = particleSpin {
                       if let particleNode = self.childNode(withName: "particleNode", recursively: true) {
                           particleNode.removeParticleSystem(curPar)
+                          particleSpin = nil
                       }
                   }
               }
@@ -580,11 +583,19 @@ public class baseChessNode: SCNNode {
             
             //kind
             if case let curInstantKind as [String] = rattleFunc[EnumKeyName.baseKind.rawValue] { //数组形式的basekind
-                abilityDesc = abilityDesc.replacingOccurrences(of: "[kind]", with: (curInstantKind).joined(separator: " "))
+                var locKind:[String] = []
+                curInstantKind.forEach { str in
+                   locKind.append(str.localized)
+                }
+                abilityDesc = abilityDesc.replacingOccurrences(of: "[kind]", with: (locKind).joined(separator: " "))
             }
             if case let curInstantKind as [String: Int] = rattleFunc[EnumKeyName.baseKind.rawValue] { //数组形式的basekind
                 let kinds = Array(curInstantKind.keys)
-                abilityDesc = abilityDesc.replacingOccurrences(of: "[kind]", with: (kinds).joined(separator: " "))
+                var locKind:[String] = []
+                kinds.forEach{ str in
+                    locKind.append(str.localized)
+                }
+                abilityDesc = abilityDesc.replacingOccurrences(of: "[kind]", with: (locKind).joined(separator: " "))
             }
             
            
@@ -599,6 +610,21 @@ public class baseChessNode: SCNNode {
                     curSummonName += ((curSummon.name ?? "") + " ")
                 }
                 abilityDesc = abilityDesc.replacingOccurrences(of: "[chesses]", with: curSummonName)
+            }
+            
+            if case let curInheritChess as [chessStruct] = inheritFunc[EnumKeyName.summonChess.rawValue] {
+                var curSummonName:String = ""
+                curInheritChess.forEach{ (curSummon) in
+                    curSummonName += ((curSummon.name ?? "") + " ")
+                }
+                abilityDesc = abilityDesc.replacingOccurrences(of: "[chesses]", with: curSummonName)
+            }
+            
+            if case let curInheritRarity as Int = inheritFunc[EnumKeyName.baseRarity.rawValue] {
+                if case let curInheritNum as Int = inheritFunc[EnumKeyName.summonNum.rawValue] {
+                    let mixNum = String(curInheritNum) + " " + "Level".localized + String(curInheritRarity) + "" + "Chess".localized
+                   abilityDesc = abilityDesc.replacingOccurrences(of: "[chesses]", with: mixNum)
+                }
             }
             
        
@@ -622,6 +648,10 @@ public class baseChessNode: SCNNode {
                     }
                 }
                 abilityDesc = abilityDesc.replacingOccurrences(of: "[aKind]", with: curAfterAbilityStr)
+            }
+            
+            if case let curAbility as String = rattleFunc[EnumKeyName.abilityKind.rawValue] {
+                abilityDesc = abilityDesc.replacingOccurrences(of: "[aKind]", with: curAbility.localized)
             }
             
          
@@ -650,15 +680,37 @@ public class baseChessNode: SCNNode {
                 abilityDesc = abilityDesc.replacingOccurrences(of: "<def>", with: String(1 * chessLevel))
             }
             
+            if curAbi == EnumAbilities.endRoundAddBuff.rawValue {
+                let curEndAtt = rattleFunc[EnumKeyName.baseAttack.rawValue] ?? 1
+                let curEndDef = rattleFunc[EnumKeyName.baseDef.rawValue] ?? 1
+                let curEndKindMap  = rattleFunc[EnumKeyName.baseKind.rawValue] ?? [:]
+                var tempKindString = ""
+                for (key, val) in curEndKindMap as! [String : Int] {
+                    tempKindString += (key.localized + ",")
+                }
+                tempKindString += "Chess".localized
+                if case let isSelf as Bool = rattleFunc[EnumKeyName.isSelf.rawValue]{
+                    if isSelf {
+                        tempKindString = "Self".localized
+                    }
+                }
+                
+                abilityDesc = abilityDesc.replacingOccurrences(of: "<att>", with: String(curEndAtt as! Int * chessLevel)).replacingOccurrences(of: "def", with: String(curEndDef as! Int * chessLevel)).replacingOccurrences(of: "<kind>", with: tempKindString)
+            }
+            
+            
             if curAbi == EnumAbilities.acute.rawValue {
                 abilityDesc = abilityDesc.replacingOccurrences(of: "<percent>", with: String(chessLevel * 20))
             }
             if curAbi == EnumAbilities.liveInGroup.rawValue {
                 abilityDesc = abilityDesc.replacingOccurrences(of: "<percent>", with: String(chessLevel * 20))
             }
+            if curAbi == EnumAbilities.rapid.rawValue {
+                abilityDesc = abilityDesc.replacingOccurrences(of: "<percent>", with: String(chessLevel * 20))
+            }
             
       
-            
+           abilityDesc = abilityDesc.replacingOccurrences(of: "[cKind]", with: "Random".localized)
            tempDescStr += abilityDesc
            tempDescStr += " "
             
