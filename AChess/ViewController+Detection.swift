@@ -186,17 +186,14 @@ extension ViewController {
                                 self.curDragPoint?.removeFromParentNode()
                                 self.playerBoardNode.addChildNode(self.curDragPoint!)
                                 if !midHitT.isEmpty && midHitT.first?.node.physicsBody?.categoryBitMask == BitMaskCategoty.enemySide.rawValue { //敌人棋盘
-                                    print("enemy", midHitT)
                                     self.endOnEnemyBoard(hitTestResult: hitTestResults3)
                                 } else {
                                    midHitT = self.sceneView.hitTest(midPointCG, options: [SCNHitTestOption.ignoreHiddenNodes: true, SCNHitTestOption.rootNode: self.playerBoardNode, SCNHitTestOption.categoryBitMask: BitMaskCategoty.allySide.rawValue])
                                     if !midHitT.isEmpty && midHitT.first?.node.physicsBody?.categoryBitMask == BitMaskCategoty.allySide.rawValue { //友方棋盘
-                                        print("ally", midHitT)
-                                        self.endOnAllyBoard(hitTestResult: hitTestResults3)
+                                        self.endOnAllyBoard(hitTestResult: hitTestResults3, curTransPos: nil)
                                     } else {
                                         midHitT = self.sceneView.hitTest(midPointCG, options: [SCNHitTestOption.ignoreHiddenNodes: true, SCNHitTestOption.rootNode: self.playerBoardNode, SCNHitTestOption.categoryBitMask: BitMaskCategoty.saleScreen.rawValue])
                                         if !midHitT.isEmpty && midHitT.first?.node.physicsBody?.categoryBitMask == BitMaskCategoty.saleScreen.rawValue { //出售板
-                                            print("sale", midHitT)
                                             self.sellChess(playerID: self.curPlayerId, curChess: self.curDragPoint!)
                                         } else {
                                             midHitT = self.sceneView.hitTest(midPointCG, options: [SCNHitTestOption.ignoreHiddenNodes: true, SCNHitTestOption.rootNode: self.playerBoardNode, SCNHitTestOption.categoryBitMask: BitMaskCategoty.storageSide.rawValue])

@@ -50,7 +50,7 @@ enum EnumsChessStage: Int { //棋子的状态
 enum GlobalNumberSettings: Int {
     case chessNumber = 7
     case maxLevel =  5
-    case roundBaseCoin = 2
+    case roundBaseCoin = 10
 }
 
 enum BoardSide: Int {

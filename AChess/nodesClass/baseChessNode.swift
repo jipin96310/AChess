@@ -31,7 +31,6 @@ public class baseChessNode: SCNNode {
     
     var chessName: String = "" {
         didSet {
-            print(chessName.localized)
             nameTextNode.string = chessName.localized
         }
     }
@@ -105,8 +104,10 @@ public class baseChessNode: SCNNode {
     var chessKind: String = EnumChessKind.mountain.rawValue {
         didSet {
             if let bgPicNode = self.childNode(withName: "bgpic", recursively: true) { //control the pic of bottom
-                       bgPicNode.geometry?.firstMaterial?.diffuse.contents = chessKindBgImage[chessKind]!
-                   }
+                if let url = Bundle.main.path(forResource: chessKindBgImage[chessKind]!, ofType: "png") {
+                   bgPicNode.geometry?.firstMaterial?.diffuse.contents = UIImage(contentsOfFile: url)
+                }
+            }
         }
     }
     var abilities: [String] = [] {
@@ -182,9 +183,10 @@ public class baseChessNode: SCNNode {
 //            curNode.physicsBody?.categoryBitMask = BitMaskCategoty.baseChess.rawValue
 //            curNode.physicsBody?.contactTestBitMask = BitMaskCategoty.hand.rawValue
     
+            if let url = Bundle.main.path(forResource: chessColorRarity[self.chessRarity], ofType: "png") {
+              sideNode.geometry?.firstMaterial?.diffuse.contents = UIImage(contentsOfFile: url)
+            }
             
-            
-            sideNode.geometry?.firstMaterial?.diffuse.contents = chessColorRarity[self.chessRarity] //control chess color
             self.nameTextNode.geometry?.firstMaterial?.diffuse.contents = labelColorRarity[self.chessRarity]
             self.damgeTextNode.position = SCNVector3(0, 0.5 , 0)
             self.damgeTextNode.eulerAngles = SCNVector3(-60.degreesToRadius, 0 , 0)
@@ -212,7 +214,6 @@ public class baseChessNode: SCNNode {
     
     
     func exportCodeableStruct() -> codableChessStruct? {
-        print("exportchessname", chessName)
         for i in 0 ..< chessCollectionsLevel[chessRarity - 1].count {
             if chessCollectionsLevel[chessRarity - 1][i].name == chessName {
                 return codableChessStruct(chessRarityIndex: i, atkNum: atkNum!, defNum: defNum!, chessRarity: chessRarity, chessLevel: chessLevel, chessKind: chessKind, abilities: abilities, temporaryBuff: temporaryBuff)
@@ -254,7 +255,9 @@ public class baseChessNode: SCNNode {
         abilities = codeChessInfo.abilities
         temporaryBuff = codeChessInfo.temporaryBuff
         if let bgPicNode = self.childNode(withName: "bgpic", recursively: true) { //control the pic of bottom
-                   bgPicNode.geometry?.firstMaterial?.diffuse.contents = chessKindBgImage[chessKind]!
+                   if let url = Bundle.main.path(forResource: chessKindBgImage[chessKind]!, ofType: "png") {
+                      bgPicNode.geometry?.firstMaterial?.diffuse.contents = UIImage(contentsOfFile: url)
+                   }
                }
                
                if let shellNode = self.childNode(withName: "shell", recursively: true) { //control the shield
@@ -274,6 +277,10 @@ public class baseChessNode: SCNNode {
         
     }
     func loadWithStruct(statusNum: Int, chessInfo: chessStruct) {
+        if let particleNode = self.childNode(withName: "particleNode", recursively: true) {
+            particleNode.removeAllParticleSystems()
+        }
+
         chessStatus = statusNum
         chessName = chessInfo.name!
         //nameTextNode.string = chessName.localized
@@ -301,19 +308,26 @@ public class baseChessNode: SCNNode {
         }
         
         if let aniPicNode = self.childNode(withName: "animalpic", recursively: true) {
-            let animalPic = UIImage(named: chessName) ?? UIImage(named: "aboutButton")
-            aniPicNode.geometry?.firstMaterial?.diffuse.contents = animalPic
-            if let aniPicNode2 = self.childNode(withName: "animalpic2", recursively: true) {
-                aniPicNode2.geometry?.firstMaterial?.diffuse.contents = animalPic
+            //let filePath = (fileBundle?.path(forResource: resource, ofType: "bundle"))! + "/" + fileName + "." + fileType
+            if let url = Bundle.main.path(forResource: chessName, ofType: "png") {
+                let animalPic = UIImage(contentsOfFile: url) ?? UIImage(named: "aboutButton")
+                aniPicNode.geometry?.firstMaterial?.diffuse.contents = animalPic
+                if let aniPicNode2 = self.childNode(withName: "animalpic2", recursively: true) {
+                    aniPicNode2.geometry?.firstMaterial?.diffuse.contents = animalPic
+                }
             }
         }
         
         if let sideNode = self.childNode(withName: "side", recursively: true) { //control the side color/image
-            sideNode.geometry?.firstMaterial?.diffuse.contents = chessColorRarity[chessRarity]!
+            if let url = Bundle.main.path(forResource: chessColorRarity[self.chessRarity], ofType: "png") {
+              sideNode.geometry?.firstMaterial?.diffuse.contents = UIImage(contentsOfFile: url)
+            }
             nameTextNode.geometry?.firstMaterial?.diffuse.contents = labelColorRarity[chessRarity]
         }
         if let bgPicNode = self.childNode(withName: "bgpic", recursively: true) { //control the pic of bottom
-            bgPicNode.geometry?.firstMaterial?.diffuse.contents = chessKindBgImage[chessKind]!
+            if let url = Bundle.main.path(forResource: chessKindBgImage[chessKind]!, ofType: "png") {
+               bgPicNode.geometry?.firstMaterial?.diffuse.contents = UIImage(contentsOfFile: url)
+            }
         }
         
         if let shellNode = self.childNode(withName: "shell", recursively: true) { //control the shield
@@ -348,11 +362,17 @@ public class baseChessNode: SCNNode {
     func changeStarLabel() {
         if let curStarLabel = self.childNode(withName: "starLabel", recursively: true) {
             if chessLevel == 1 {
-                 curStarLabel.geometry?.firstMaterial?.diffuse.contents = UIImage(named: "1star")
+                if let url = Bundle.main.path(forResource: "1star", ofType: "png") {
+                  curStarLabel.geometry?.firstMaterial?.diffuse.contents = UIImage(contentsOfFile: url)
+                }
             } else if chessLevel == 2 {
-                 curStarLabel.geometry?.firstMaterial?.diffuse.contents = UIImage(named: "2stars")
+                if let url = Bundle.main.path(forResource: "2stars", ofType: "png") {
+                  curStarLabel.geometry?.firstMaterial?.diffuse.contents = UIImage(contentsOfFile: url)
+                }
             } else if chessLevel == 3 {
-                 curStarLabel.geometry?.firstMaterial?.diffuse.contents = UIImage(named: "3stars")
+                if let url = Bundle.main.path(forResource: "3stars", ofType: "png") {
+                  curStarLabel.geometry?.firstMaterial?.diffuse.contents = UIImage(contentsOfFile: url)
+                }
             }
         }
     }
@@ -428,20 +448,14 @@ public class baseChessNode: SCNNode {
                        }
                         
                         shellNode.runAction(SCNAction.sequence([
-                            SCNAction.fadeOpacity(to: 0.8, duration: 0.5),
-                          SCNAction.customAction(duration: 0, action: { _,_ in
-                              shellNode.isHidden = false
-                          })
+                            SCNAction.fadeOpacity(to: 0.8, duration: 0.5)
                         ]))
                    } else {
                       if temporaryBuff.contains(EnumAbilities.shell.rawValue) {
                           temporaryBuff.remove(at: temporaryBuff.lastIndex(of: EnumAbilities.shell.rawValue)!) //已经判断必定能找到
                        }
                         shellNode.runAction(SCNAction.sequence([
-                          SCNAction.fadeOut(duration: 0.5),
-                          SCNAction.customAction(duration: 0, action: { _,_ in
-                              shellNode.isHidden = true
-                          })
+                          SCNAction.fadeOut(duration: 0.5)
                         ]))
                 }
         }
@@ -471,16 +485,22 @@ public class baseChessNode: SCNNode {
     func setBait() {
         if let baitNode = self.childNode(withName: "baitLine", recursively: true) { // contol the bait line
             if abilities.contains(EnumAbilities.bait.rawValue) {
-                baitNode.isHidden = false
+                baitNode.opacity = 1
             } else {
-                baitNode.isHidden = true
+                baitNode.opacity = 0
             }
         }
     }
     
     func setPoison() {
         if abilities.contains(EnumAbilities.poison.rawValue) {
-            particlePoison = addParticleSystem(particleName: "particals.scnassets/poison.scnp", emitterShape: SCNSphere(radius: 0.01), particlePos: SCNVector3(0,0.18,-0.1))
+            if let curPar = particlePoison {
+                if let particleNode = self.childNode(withName: "particleNode", recursively: true) {
+                    particleNode.addParticleSystem(curPar)
+                }
+            } else {
+                particlePoison = addParticleSystem(particleName: "particals.scnassets/poison.scnp", emitterShape: SCNSphere(radius: 0.01), particlePos: SCNVector3(0,0.18,-0.1))
+            }
         } else {
             if let curPar = particlePoison {
                 if let particleNode = self.childNode(withName: "particleNode", recursively: true) {
@@ -492,7 +512,14 @@ public class baseChessNode: SCNNode {
     }
     func setRapid() {
         if abilities.contains(EnumAbilities.rapid.rawValue) {
-            particleRapid = addParticleSystem(particleName: "particals.scnassets/rapid.scnp", emitterShape: SCNSphere(radius: 0.001), particlePos: SCNVector3(0,0,-0.1))
+            if let curPar = particleRapid {
+                if let particleNode = self.childNode(withName: "particleNode", recursively: true) {
+                    particleNode.addParticleSystem(curPar)
+                }
+            } else {
+                particleRapid = addParticleSystem(particleName: "particals.scnassets/rapid.scnp", emitterShape: SCNSphere(radius: 0.001), particlePos: SCNVector3(0,0,-0.1))
+            }
+            
         } else {
             if let curPar = particleRapid {
                 if let particleNode = self.childNode(withName: "particleNode", recursively: true) {
@@ -505,27 +532,39 @@ public class baseChessNode: SCNNode {
     
     func setFurious() {
            if abilities.contains(EnumAbilities.furious.rawValue) {
-               particleFurious = addParticleSystem(particleName: "particals.scnassets/furious.scnp", emitterShape: SCNSphere(radius: 0.001), particlePos: SCNVector3(0,0,-0.1))
+            if let curPar = particleFurious {
+                if let particleNode = self.childNode(withName: "particleNode", recursively: true) {
+                    particleNode.addParticleSystem(curPar)
+                }
+            } else {
+                particleFurious = addParticleSystem(particleName: "particals.scnassets/furious.scnp", emitterShape: SCNSphere(radius: 0.001), particlePos: SCNVector3(0,0,-0.1))
+            }
            } else {
-               if let curPar = particleFurious {
-                   if let particleNode = self.childNode(withName: "particleNode", recursively: true) {
-                       particleNode.removeParticleSystem(curPar)
-                       particleFurious = nil
-                   }
-               }
-           }
+            if let curPar = particleFurious {
+                if let particleNode = self.childNode(withName: "particleNode", recursively: true) {
+                    particleNode.removeParticleSystem(curPar)
+                    particleFurious = nil
+                }
+            }
+        }
        }
     func setSpin() {
-              if abilities.contains(EnumAbilities.spine.rawValue) {
-                  particleSpin = addParticleSystem(particleName: "particals.scnassets/spin.scnp", emitterShape: SCNSphere(radius: 0.0001), particlePos: SCNVector3(0,0,-0.1))
-              } else {
-                  if let curPar = particleSpin {
-                      if let particleNode = self.childNode(withName: "particleNode", recursively: true) {
-                          particleNode.removeParticleSystem(curPar)
-                          particleSpin = nil
-                      }
-                  }
-              }
+        if abilities.contains(EnumAbilities.spine.rawValue) {
+            if let curPar = particleSpin {
+                if let particleNode = self.childNode(withName: "particleNode", recursively: true) {
+                    particleNode.addParticleSystem(curPar)
+                }
+            } else {
+                particleSpin = addParticleSystem(particleName: "particals.scnassets/spin.scnp", emitterShape: SCNSphere(radius: 0.0001), particlePos: SCNVector3(0,0,-0.1))
+            }
+        } else {
+            if let curPar = particleSpin {
+                if let particleNode = self.childNode(withName: "particleNode", recursively: true) {
+                    particleNode.removeParticleSystem(curPar)
+                    particleSpin = nil
+                }
+            }
+        }
     }
     func setAcute() {
         if let aniPic = self.childNode(withName: "animalpic", recursively: true) {
@@ -838,7 +877,9 @@ public class baseChessNode: SCNNode {
     func cancelActive() {
       isActive = false
        if let sideNode = self.childNode(withName: "side", recursively: true) {
-           sideNode.geometry?.firstMaterial?.diffuse.contents = chessColorRarity[chessRarity]
+           if let url = Bundle.main.path(forResource: chessColorRarity[self.chessRarity], ofType: "png") {
+             sideNode.geometry?.firstMaterial?.diffuse.contents = UIImage(contentsOfFile: url)
+           }
         }
     }
     /*攻击频率相关方法*/

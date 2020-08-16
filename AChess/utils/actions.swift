@@ -21,7 +21,6 @@ func attackAction(_ attackerPos: SCNVector3, _ victimPos: SCNVector3) -> SCNActi
 }
 //attacking finished
 func backToAction(_ backNodePos: SCNVector3, _ attackerNode: baseChessNode, _ attackBoard: Int) -> SCNAction{
-    print(attackBoard)
     let adjustLens: Float = attackBoard == BoardSide.allySide.rawValue ? 0.03 : -0.03
     let firstPos = SCNVector3(backNodePos.x, backNodePos.y, backNodePos.z - adjustLens)
     let firstStep = SCNAction.move(to: firstPos, duration: 1.5)

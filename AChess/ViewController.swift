@@ -93,7 +93,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var playerBoardNode = ChessBoardNode(name: EnumBoardString.allyBoard.rawValue) //棋盘节点
     var enemyPlayerBoardNodes: [ChessBoardNode] = [] //敌人棋盘节点
     var panOffset = SIMD3<Float>()
-    var curPlaneNode:customPlaneNode? = nil
     let priceTagNode = TextNode(textScale: SCNVector3(0.5, 0.5, 1))
     let randomTextNode = TextNode(textScale: SCNVector3(0.03, 0.03, 0))
     //buttonNode
@@ -238,8 +237,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         }
                     }
                      /*棋子合成end*/
-                    if gameConfigStr.isShareBoard { //如果分享棋盘则发送当前信息给其他人
-                        let encodedData = encodeBoardChesses(boardChess: boardNode)
+                    if gameConfigStr.isShareBoard && !isWaiting && (oldBoard[BoardSide.allySide.rawValue].count !=  boardNode[BoardSide.allySide.rawValue].count) { //如果分享棋盘则发送当前信息给其他人
+                        let encodedData = encodeBoardChesses(boardChess: [[],boardNode[BoardSide.allySide.rawValue]])
                         multipeerSession.sendToAllPeers(encodedData)
                     }
                 }
@@ -419,7 +418,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var storageRootNode : [SCNNode] = []
    
     //var backupBoardNode:[[baseChessNode]] = [[],[]]
-    var playerStatues: [playerStruct] = [playerStruct(playerName: "player1", curCoin: GlobalNumberSettings.roundBaseCoin.rawValue + 999999, curLevel: 1, curBlood: GlobalCommonNumber.maxBlood, curChesses: [], curAura: [], isComputer: false, playerID: MCPeerID(displayName: "player1")), playerStruct(playerName: "player2", curCoin: 40, curLevel: 1, curBlood: GlobalCommonNumber.maxBlood, curChesses: [baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[2][17]), baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[2][17]), baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[2][17])], curAura: [], isComputer: false,  playerID: MCPeerID(displayName: "player2"))] {
+    var playerStatues: [playerStruct] = [playerStruct(playerName: "player1", curCoin: GlobalNumberSettings.roundBaseCoin.rawValue, curLevel: 1, curBlood: GlobalCommonNumber.maxBlood, curChesses: [], curAura: [], isComputer: false, playerID: MCPeerID(displayName: "player1")), playerStruct(playerName: "player2", curCoin: 40, curLevel: 1, curBlood: GlobalCommonNumber.maxBlood, curChesses: [baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[2][17]), baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[2][17]), baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[2][17])], curAura: [], isComputer: false,  playerID: MCPeerID(displayName: "player2"))] {
         didSet {
             moneyTextNode.string = "Gold".localized + String(playerStatues[curPlayerId].curCoin)
             levelTextNode.string = "Level".localized + String(playerStatues[curPlayerId].curLevel)
@@ -472,10 +471,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         sceneView.scene.rootNode.addChildNode(insertRoot)
         sceneView.scene.rootNode.addChildNode(playerBoardNode)
         
-        initHandNode()
         
         
         if gameConfigStr.enableHandTracking {
+            initHandNode()
             sceneView.addSubview(previewView)
             previewView.translatesAutoresizingMaskIntoConstraints = false
             previewView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
@@ -495,16 +494,17 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             self.initPreLoadChess()
             self.playerBoardNode.load()
             
-            for i in 0 ..< (self.gameConfigStr.playerNumber - 1) {
-                let tempEnemyNode = ChessBoardNode(name: EnumBoardString.enemyBoard.rawValue)
-                tempEnemyNode.load()
-                tempEnemyNode.showStrageBoard = false
-                self.enemyPlayerBoardNodes.append(tempEnemyNode)
+            if self.gameConfigStr.isShareBoard {
+                for _ in 0 ..< (self.gameConfigStr.playerNumber - 1) {
+                    let tempEnemyNode = ChessBoardNode(name: EnumBoardString.enemyBoard.rawValue)
+                    tempEnemyNode.load()
+                    tempEnemyNode.showStrageBoard = false
+                    self.enemyPlayerBoardNodes.append(tempEnemyNode)
+                }
             }
         }
         
         
-        //musicCoordinator.playMusic(name: "music_win", fadeIn: 0.0)
         
     }
     
@@ -688,10 +688,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                enemyPlayerBoard.boardChesses[BoardSide.allySide.rawValue].forEach{ chessStu in
                                 self.enemyBoardAlly.append(chessStu.decode())
                                 }
-                                enemyPlayerBoard.boardChesses[BoardSide.enemySide.rawValue].forEach{ chessStu in
-                                    self.enemyBoardEnemy.append(chessStu.decode())
-                                }
-                                board.setBoard(chessess: [self.enemyBoardAlly, self.enemyBoardEnemy])
+//                                enemyPlayerBoard.boardChesses[BoardSide.enemySide.rawValue].forEach{ chessStu in
+//                                    self.enemyBoardEnemy.append(chessStu.decode())
+//                                }
+                                board.setBoard(chessess: [[], self.enemyBoardAlly])
                             }
                         }
                     }
@@ -922,7 +922,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
         } else if sender.state == .ended
         {
-            //let curTransPos = findChessPos(tempTransParentNode) //记录之前透明球体位置
+            let curTransPos = findChessPos(tempTransParentNode) //记录之前透明球体位置
             //
             recoverBoardColor() //放置动作结束 恢复board颜色
             referencePoint.isHidden = true
@@ -932,7 +932,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             let hitTestResult2 = sceneView.hitTest(touchLocation, types: [.existingPlaneUsingExtent]) //用于检测触摸点的pos
             if !hitTestResult.isEmpty && curDragPoint != nil {
                 let curPressNode = hitTestResult.first!.node
-                //if curDragPoint?.name?.first == "a" { //抓的是已经购买的牌
                 if let curPressParent = findChessRootNode(curPressNode) { //按到棋子上了
                     insertChessPos(insertChess: curDragPoint!, insertTo: curPressParent)
                 } else { //按到空地或者棋盘上了
@@ -972,7 +971,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         endOnStorage(hitTestResult: hitTestResult2)
                     } else if curPressNode.name == EnumNodeName.allyBoard.rawValue { //结束点在allyboard
                         if !hitTestResult2.isEmpty {
-                            endOnAllyBoard(hitTestResult: hitTestResult2)
+                            endOnAllyBoard(hitTestResult: hitTestResult2, curTransPos: curTransPos)
                         } else { // hit test is empty
                             recoverNodeToBoard(dragPos: curDragPos)
                         }
@@ -1008,9 +1007,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 appendNewNodeToStorage(curChess: curDragPoint!)
             }
         }
-        print("???back", curDragPoint)
-        curDragPoint = nil
-        curDragPos = []
+        recoverDragNodes()
     }
     @objc func onChooseOptionTap(sender: UITapGestureRecognizer) { //用于战吼等选择option的操作的tap
         guard let sceneView = sender.view as? ARSCNView else {return}
@@ -1283,7 +1280,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 if curBoard.count > GlobalNumberSettings.chessNumber.rawValue {
                     return false
                 } else {
-                    //print("inserto", inserToPos[1])
                     boardNode[inserToPos[0]].insert(insertChess, at: inserToPos[1])
                 }
             } else {
@@ -1868,9 +1864,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 }
                 if winner == 1 { // you win
                     playerStatues[curEnemyId].curBlood -= curDamage
+                    playerStatues[curEnemyId].curCoin += GlobalNumberSettings.roundBaseCoin.rawValue
                     playerStatues[curPlayerId].curCoin += (curDamage + GlobalNumberSettings.roundBaseCoin.rawValue)
                 } else { // enemy win
                     playerStatues[curPlayerId].curBlood -= curDamage
+                    playerStatues[curPlayerId].curCoin += GlobalNumberSettings.roundBaseCoin.rawValue
                     playerStatues[curEnemyId].curCoin += (curDamage + GlobalNumberSettings.roundBaseCoin.rawValue)
                 }
             }
@@ -2075,8 +2073,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     }
     
     
-   func endOnAllyBoard(hitTestResult: [ARHitTestResult]) {
-    let curTransPos = findChessPos(tempTransParentNode)
+    func endOnAllyBoard(hitTestResult: [ARHitTestResult], curTransPos: [Int]?) {
+    //let curTransPos = findChessPos(tempTransParentNode)
     if boardNode[BoardSide.allySide.rawValue].count < GlobalCommonNumber.chessNumber { //小于棋子上限数量
         let positionOfPress = hitTestResult.first!.worldTransform.columns.3
         let curPressLocation = SCNVector3(positionOfPress.x, positionOfPress.y, positionOfPress.z)
@@ -2263,9 +2261,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 } else {
                     appendNewNodeToBoard(curBoardSide: BoardSide.allySide.rawValue, curAddChesses: [curDragPoint!], curInsertIndex: 0)
                 }
-                print("??????owned", self.curDragPoint)
-                self.curDragPoint = nil
-                self.curDragPos = []
+                self.recoverDragNodes()
             }
            
             //updateWholeBoardPosition()
@@ -2284,7 +2280,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         }
         if curStage == EnumsGameStage.exchangeStage.rawValue {  //交易转战斗
             disableButtons() //禁止buttons点击和手势事件
-            toggleEnemies(isHidden: false) //隐藏敌人
+            //toggleEnemies(isHidden: false) //隐藏敌人
             let delayTime = PlayerBoardTextAppear(TextContent: "BattleStage".localized, KeepAppear: false) //弹出切换回合提示
             delay(delayTime) {
                 var totalTime = 0.00
@@ -2396,7 +2392,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         } else if curStage == EnumsGameStage.battleStage.rawValue { //战斗转交易
             curUpgradeCoin -= 1 //升级费用减1
             //恢复结束按钮
-            isWaiting = false
             endButtonTopNode.geometry?.firstMaterial?.diffuse.contents = UIColor.black
             endButtonTopNode.runAction(SCNAction.sequence([
                 SCNAction.move(by: SCNVector3(0,0.005,0), duration: 0)
@@ -2416,9 +2411,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 }
                 //
                 self.initDisplay()
-                DispatchQueue.main.async {
-                    self.toggleEnemies(isHidden: true) //展示敌人
-                }
+                //DispatchQueue.main.async {
+                //self.toggleEnemies(isHidden: true) //展示敌人
+                //}
+                self.isWaiting = false
                 
                 if !self.isFreezed {
                    self.initBoardChess(initStage: EnumsGameStage.exchangeStage.rawValue)
@@ -3055,10 +3051,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         if let explosion = SCNParticleSystem(named: "particals.scnassets/attackCol.scnp", inDirectory: nil) {
             //explosion.emissionDuration = CGFloat(1)
             explosion.emitterShape = SCNSphere(radius: 0.003)
-            
             newTrackPoint.addParticleSystem(explosion)
            
         }
+        
         newTrackPoint.position = startVector
         newTrackPoint.position.y = 0.1
         playerBoardNode.addChildNode(newTrackPoint)

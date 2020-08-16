@@ -354,9 +354,9 @@ class ChessBoardNode: SCNNode {
             //
             initSubNodes()
             initBoardRootNode()
-            DispatchQueue.main.async {
-                self.initPreLoadChess()
-            }
+            //DispatchQueue.main.async {
+            self.initPreLoadChess()
+            //}
            
         } catch {
             fatalError("Could not load board: \(error.localizedDescription)")
