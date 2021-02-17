@@ -16,14 +16,14 @@ public struct playerStruct {
     var curCoin: Int
     var curLevel: Int
     var curBlood: Int
-    var curChesses: [baseChessNode] //棋子
+    var curChesses: [codableChessStruct] //棋子
     var curAura: [String]
     var isComputer: Bool
     var playerID: MCPeerID?
     var playerStatus: Bool = false //true 准备完成 false 准备未完成
    
 
-    init(playerName: String, curCoin: Int, curLevel: Int, curBlood: Int, curChesses: [baseChessNode], curAura: [String], isComputer: Bool, playerID: MCPeerID?) {
+    init(playerName: String, curCoin: Int, curLevel: Int, curBlood: Int, curChesses: [codableChessStruct], curAura: [String], isComputer: Bool, playerID: MCPeerID?) {
         self.playerName = playerName
         self.curCoin    = curCoin
         self.curLevel   = curLevel

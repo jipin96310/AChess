@@ -48,4 +48,13 @@ public struct codableChessStruct: Codable {
         curChessStruct.temporaryBuff = temporaryBuff
         return curChessStruct
     }
+    mutating func AddBilities(Abilities: [String]) {
+        var tempAbilities:[String] = []
+        Abilities.forEach{ (curAbi) in
+            if !abilities.contains(curAbi) {
+                tempAbilities.append(curAbi)
+            }
+        }
+        abilities += tempAbilities
+    }
 }

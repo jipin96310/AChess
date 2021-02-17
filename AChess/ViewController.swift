@@ -233,7 +233,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         //赋值更新
                         boardNode[BoardSide.allySide.rawValue] = newAllyBoard
                         if (curDragPoint != nil) {
-                            curDragPoint!.removeFromParentNode()
+                            curDragPoint!.removeAndClearFromParentNode()
                         }
                     }
                      /*棋子合成end*/
@@ -355,13 +355,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                             let randomChessStruct = randomDiffNumsFromArrs(outputNums: curRattleNum, inputArr: chessCollectionsLevel[curRattleRarity - 1])
                                             
                                             for index in 0 ..< randomChessStruct.count { //appendnewnode里会计算数量 多余的棋子会被砍掉
-                                                
-                                                if innerIndex <= self.boardNode[innerIndex].count {
                                                     self.appendNewNodeToBoard(curBoardSide: boardIndex, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: randomChessStruct[index])], curInsertIndex: innerIndex + index)
-                                                } else {
-                                                    self.appendNewNodeToBoard(curBoardSide: boardIndex, curAddChesses: [baseChessNode(statusNum: EnumsChessStage.owned.rawValue, chessInfo: randomChessStruct[index])], curInsertIndex: innerIndex + index)
-                                                }
-                                                
                                             }
                                             
                                         }
@@ -383,8 +377,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     let queue = DispatchQueue.global()
                     for i in 0 ..< needDeleteChesses.count {
                         queue.async(group: group, execute: {
-                            needDeleteChesses[i].removeFromParentNode()
-                        })
+                            needDeleteChesses[i].removeAndClearFromParentNode()
+                            })
                     }
                     group.notify(queue: queue) {
                         DispatchQueue.main.async {
@@ -418,7 +412,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     var storageRootNode : [SCNNode] = []
    
     //var backupBoardNode:[[baseChessNode]] = [[],[]]
-    var playerStatues: [playerStruct] = [playerStruct(playerName: "player1", curCoin: GlobalNumberSettings.roundBaseCoin.rawValue, curLevel: 1, curBlood: GlobalCommonNumber.maxBlood, curChesses: [], curAura: [], isComputer: false, playerID: MCPeerID(displayName: "player1")), playerStruct(playerName: "player2", curCoin: 40, curLevel: 1, curBlood: GlobalCommonNumber.maxBlood, curChesses: [baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[2][17]), baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[2][17]), baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: chessCollectionsLevel[2][17])], curAura: [], isComputer: false,  playerID: MCPeerID(displayName: "player2"))] {
+    var playerStatues: [playerStruct] = [playerStruct(playerName: "player1", curCoin: GlobalNumberSettings.roundBaseCoin.rawValue, curLevel: 1, curBlood: GlobalCommonNumber.maxBlood, curChesses: [], curAura: [], isComputer: false, playerID: MCPeerID(displayName: "player1")), playerStruct(playerName: "player2", curCoin: 40, curLevel: 1, curBlood: GlobalCommonNumber.maxBlood, curChesses: [chessCollectionsLevel[2][17].encode(), chessCollectionsLevel[2][17].encode(), chessCollectionsLevel[2][17].encode()] , curAura: [], isComputer: false,  playerID: MCPeerID(displayName: "player2"))] {
         didSet {
             moneyTextNode.string = "Gold".localized + String(playerStatues[curPlayerId].curCoin)
             levelTextNode.string = "Level".localized + String(playerStatues[curPlayerId].curLevel)
@@ -730,9 +724,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         if enemyPlayerStruct.encodePlayerID != nil && enemyPlayerStruct.curChesses != nil && curStage != EnumsGameStage.battleStage.rawValue {
                             /*更新敌人数据*/
                             playerStatues[1].playerID = decodeID
-                            var tempEnemybaseChess:[baseChessNode] = []
+                            var tempEnemybaseChess:[codableChessStruct] = []
                             enemyPlayerStruct.curChesses!.forEach{(encodeChess) in
-                                tempEnemybaseChess.append(baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, codeChessInfo: encodeChess))
+                                tempEnemybaseChess.append(encodeChess)
                             }
 
                             /*电脑玩家直接开战*/
@@ -846,7 +840,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         return
                     }
                     curDragPoint = rootNode
-                    rootNode.removeFromParentNode()
+                    rootNode.removeAndClearFromParentNode()
                     
                     if let rootNodePos = findChessPos(rootNode) {
                         curDragPos = [rootNodePos[0]] //当前只存棋盘不存index
@@ -1024,9 +1018,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                             if let curBaseChess = findChessRootNode(curNode!) {
                                 
                                 if curOptionPoint!.abilities.contains(EnumAbilities.instantAllGainAbilityForMountain.rawValue) {
-                                    self.playerStatues[self.curPlayerId].curChesses.forEach{(curChess) in
-                                        curChess.AddBilities(Abilities: curBaseChess.abilities)
+                                    for i in 0 ..< self.playerStatues[self.curPlayerId].curChesses.count {
+                                       self.playerStatues[self.curPlayerId].curChesses[i].AddBilities(Abilities: curBaseChess.abilities)
                                     }
+//                                    self.playerStatues[self.curPlayerId].curChesses.forEach{(curChess) in
+//                                        curChess.AddBilities(Abilities: curBaseChess.abilities)
+//                                    }
                                 } else if curOptionPoint!.abilities.contains(EnumAbilities.instantChooseAnAbility.rawValue) {
                                     curChoosePoint?.AddBilities(Abilities: curBaseChess.abilities)
                                 } else if curOptionPoint!.abilities.contains(EnumAbilities.chooseAKind.rawValue) {
@@ -1114,8 +1111,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                                     curChoosePoint = curBaseChess // 保存当前选择的需要进化的棋子
                                     self.playerStatues[self.curPlayerId].curChesses = [] //备份当前棋子
                                     self.boardNode[BoardSide.allySide.rawValue].forEach{(curChess) in
-                                        self.playerStatues[self.curPlayerId].curChesses.append(curChess)
-                                        curChess.removeFromParentNode()
+                                        self.playerStatues[self.curPlayerId].curChesses.append(curChess.exportCodeableStruct())
+                                        curChess.removeAndClearFromParentNode()
                                     }
                                     let randomAbiArr = randomDiffNumsFromArrs(outputNums: 3, inputArr: EvolveAbilities)
                                     self.boardNode[BoardSide.allySide.rawValue] = [] //为我方放置3种类型能力的棋子
@@ -1298,7 +1295,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         }
         return false
     }
-    /*出售棋子*/
+    /*出售棋子下笔打字你们也不知道我在打什么字*/
     func sellChess(playerID: Int, curChess: baseChessNode) {
         if curChess.abilities.contains(EnumAbilities.customSellValue.rawValue) {
             if case let curValue as Int = curChess.rattleFunc[EnumKeyName.customValue.rawValue]{
@@ -1309,7 +1306,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         } else {
             playerStatues[playerID].curCoin += 1
         }
-        curChess.removeFromParentNode()
+        curChess.removeAndClearFromParentNode()
     }
 
     
@@ -1853,7 +1850,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
     func dealWithDamage() -> Promise<Bool>{ //伤害清算
         return Promise<Bool>( resolver: { (resolver) in
             if boardNode[0].count > 0 || boardNode[1].count > 0 { //平局的话就不处理了 do nth if its a draw+
-                let curPlayer = playerStatues[curPlayerId]
+                //let curPlayer = playerStatues[curPlayerId]
                 var winner = 1  //you win
                 if boardNode[0].count > 0 {
                     winner = 0 //enemy win
@@ -1871,6 +1868,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     playerStatues[curPlayerId].curCoin += GlobalNumberSettings.roundBaseCoin.rawValue
                     playerStatues[curEnemyId].curCoin += (curDamage + GlobalNumberSettings.roundBaseCoin.rawValue)
                 }
+            } else {
+                playerStatues[curPlayerId].curCoin += GlobalNumberSettings.roundBaseCoin.rawValue
+                playerStatues[curEnemyId].curCoin += GlobalNumberSettings.roundBaseCoin.rawValue
             }
             if gameConfigStr.isMaster { //如果是主机
                 if currentSlaveId.count > 0 {
@@ -1935,7 +1935,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
             for i in 0 ..< boardNode.count {
                 for j in 0 ..< boardNode[i].count {
-                    boardNode[i][j].removeFromParentNode()
+                    boardNode[i][j].removeAndClearFromParentNode()
                 }
             }
             playerBoardNode.removeBoard()
@@ -1980,6 +1980,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 preLoadNode[i].append(baseChessNode())
             }
         }
+    }
+    func feedWithPreloadChess(chessSide: Int, status: Int, chessInfo: chessStruct) -> baseChessNode{
+        if let preChess = preLoadNode[chessSide].first {
+            preChess.loadWithStruct(statusNum: status, chessInfo: chessInfo)
+            preLoadNode[chessSide].remove(at: 0)
+            return preChess
+        }
+        return baseChessNode(statusNum: status, chessInfo: chessInfo)
     }
     
     func initBitMask() { //初始化敌人 友军 出售池的bitmask
@@ -2106,7 +2114,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 self.backUpNode[BoardSide.allySide.rawValue] = [] //备份当前棋子
                 self.boardNode[BoardSide.allySide.rawValue].forEach{(curChess) in
                     self.backUpNode[curPlayerId].append(curChess.copyable())
-                    //curChess.removeFromParentNode()
+                    //curChess.removeAndClearFromParentNode()
                 }
                 self.boardNode[BoardSide.allySide.rawValue] = [] //为我方放置3种类型能力的棋子
                 //
@@ -2174,8 +2182,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 //备份当前棋子
                 self.playerStatues[self.curPlayerId].curChesses = []
                 self.boardNode[BoardSide.allySide.rawValue].forEach{(curChess) in
-                    self.playerStatues[self.curPlayerId].curChesses.append(curChess)
-                    curChess.removeFromParentNode()
+                    self.playerStatues[self.curPlayerId].curChesses.append(curChess.exportCodeableStruct())
+                    curChess.removeAndClearFromParentNode()
                 }
                 //为我方放置3种类型能力的棋子
                 let randomAbiArr = randomDiffNumsFromArrs(outputNums: 3, inputArr: EvolveAbilities)
@@ -2279,6 +2287,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
            isSwitching = true
         }
         if curStage == EnumsGameStage.exchangeStage.rawValue {  //交易转战斗
+            curRound += 1
             disableButtons() //禁止buttons点击和手势事件
             //toggleEnemies(isHidden: false) //隐藏敌人
             let delayTime = PlayerBoardTextAppear(TextContent: "BattleStage".localized, KeepAppear: false) //弹出切换回合提示
@@ -2286,7 +2295,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 var totalTime = 0.00
                 //处理abilities beforeround事件
                 for index in 0 ..< self.boardNode[BoardSide.allySide.rawValue].count {
-                    //let curBoard = self.boardNode[BoardSide.allySide.rawValue]
+
                     let curChess = self.boardNode[BoardSide.allySide.rawValue][index]
                     if curChess.abilities.contains(EnumAbilities.endRoundAddBuff.rawValue) {
                         if case let curEndKindMap as [String : Int] = curChess.rattleFunc[EnumKeyName.baseKind.rawValue] {
@@ -2338,7 +2347,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                 //copy the backup data
                 self.playerStatues[self.curPlayerId].curChesses = []
                 self.boardNode[BoardSide.allySide.rawValue].forEach{(curChess) in
-                    self.playerStatues[self.curPlayerId].curChesses.append(curChess.copyable())
+                    self.playerStatues[self.curPlayerId].curChesses.append(curChess.exportCodeableStruct())
                 }
                 if self.isFreezed {
                     self.freezedChessNodes = []
@@ -2398,16 +2407,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             ]))
             let delayTime = PlayerBoardTextAppear(TextContent: "ExchangeStage".localized, KeepAppear: false) //弹出切换回合提示
             delay(delayTime){
-                let lastChesses = copyChessArr(curBoard: self.playerStatues[self.curPlayerId].curChesses) //拷贝上轮阵容 防止切换模式清空
+                //let lastChesses = copyChessArr(curBoard: self.playerStatues[self.curPlayerId].curChesses) //拷贝上轮阵容 防止切换模式清空
                 self.recoverButtons()
                 self.curStage = EnumsGameStage.exchangeStage.rawValue
                 //
                 self.boardNode[1].forEach{(curChess) in
-                    curChess.removeFromParentNode()
+                    curChess.removeAndClearFromParentNode()
                 }
                 self.boardNode[1] = []
-                lastChesses.forEach{(curChess) in
-                    self.boardNode[1].append(curChess.copyable())
+                self.playerStatues[self.curPlayerId].curChesses.forEach{(curChessStruct) in
+                    self.boardNode[1].append(baseChessNode(statusNum: EnumsChessStage.owned.rawValue, codeChessInfo: curChessStruct))
                 }
                 //
                 self.initDisplay()
@@ -2448,10 +2457,23 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         return true
     }
     func feedEnemies() {
-        var tempArr:[baseChessNode] = []
-        dummyAICrew[curRound].forEach{ curStr in
-            tempArr.append(baseChessNode(statusNum: EnumsChessStage.enemySide.rawValue, chessInfo: curStr))
+        var tempArr:[codableChessStruct] = []
+        let curValue = curRound * GlobalNumberSettings.roundBaseCoin.rawValue
+        let curChessNum = curValue > 15 ? 6 : 3
+        let singleValue = curValue / curChessNum
+        
+        for _ in 0 ..< curChessNum {
+            let randomLevel = Int.randomIntNumber(lower: 1, upper: 6)
+            let randomNum =  Int.randomIntNumber(lower: 0, upper: chessCollectionsLevel[randomLevel - 1].count)
+            let curChessInfo =  chessCollectionsLevel[randomLevel - 1][randomNum]
+            var codeChessInfo = curChessInfo.encode()
+            codeChessInfo.atkNum += singleValue
+            codeChessInfo.defNum += singleValue
+            tempArr.append(codeChessInfo)
         }
+//        dummyAICrew[curRound].forEach{ curStr in
+//            tempArr.append(curStr.encode())
+//        }
         playerStatues[1].curChesses = tempArr
     }
     func getRandomChessStructFromPool(_ curLevel : Int) -> chessStruct { //不可能出现所有都小于等于0的情况 出现了就直接用现有的
@@ -2472,7 +2494,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         switch initStage {
         case EnumsGameStage.exchangeStage.rawValue:
             boardNode[BoardSide.enemySide.rawValue].forEach{(boardNode) in
-                boardNode.removeFromParentNode()
+                boardNode.removeAndClearFromParentNode()
                 boardNode.position.y = 0
             }
             
@@ -2489,11 +2511,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                     tempChess.loadWithStruct(statusNum: EnumsChessStage.forSale.rawValue, chessInfo: randomStruct)
                     playerBoardNode.addChildNode(tempChess)
                 } else {
-                    if let preChess = preLoadNode[BoardSide.enemySide.rawValue].first {
-                        preChess.loadWithStruct(statusNum: EnumsChessStage.forSale.rawValue, chessInfo: randomStruct)
-                        tempArr.append(preChess)
-                        preLoadNode[BoardSide.enemySide.rawValue].remove(at: 0)
-                    }
+                    let preChess = feedWithPreloadChess(chessSide: BoardSide.enemySide.rawValue, status: EnumsChessStage.forSale.rawValue, chessInfo: randomStruct)
+                    tempArr.append(preChess)
                 }
                 
             }
@@ -2504,10 +2523,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             }
             return
         case EnumsGameStage.battleStage.rawValue:
-            boardNode[0] = []
+            boardNode[BoardSide.enemySide.rawValue] = []
             var enemies:[baseChessNode] = []
-            playerStatues[1].curChesses.forEach{(curChess) in
-                enemies.append(curChess.copyable())
+            playerStatues[1].curChesses.forEach{(curStr) in
+                let preChess = feedWithPreloadChess(chessSide: BoardSide.enemySide.rawValue, status: EnumsChessStage.enemySide.rawValue, chessInfo: curStr.decode())
+                enemies.append(preChess)
             }
              if enemies.count > GlobalNumberSettings.chessNumber.rawValue {
                 return
@@ -3010,7 +3030,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             SCNAction.wait(duration: 1),
 //            SCNAction.fadeOut(duration: 0.3),
             SCNAction.customAction(duration: 0, action: { _,_ in
-                abilitiesTriggerTextNode.removeFromParentNode()
+                abilitiesTriggerTextNode.removeAndClearFromParentNode()
             })
         ]))
     }
@@ -3033,7 +3053,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         let trackActionSequence = [
             SCNAction.move(to: boardNode[boardSide][boardNode[boardSide].count - 1].position, duration: 1),
             SCNAction.customAction(duration: 0, action: { _,_ in
-                newTrackPoint.removeFromParentNode()
+                newTrackPoint.removeAndClearFromParentNode()
             })
         ]
         totalTime += 1
@@ -3061,7 +3081,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
         let trackActionSequence = [
             SCNAction.move(to: endVector, duration: 1),
             SCNAction.customAction(duration: 0, action: { _,_ in
-                newTrackPoint.removeFromParentNode()
+                newTrackPoint.removeAndClearFromParentNode()
             })
         ]
         newTrackPoint.runAction(SCNAction.sequence(trackActionSequence))
@@ -3134,8 +3154,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
                         victim.abilityTrigger(abilityEnum: EnumAbilities.immunePoison.rawValue.localized)
                     }))
                 }
-                
-                //}
             }
             if victim.abilities.contains(EnumAbilities.poison.rawValue) { //如果vic有poison的话 直接秒杀
                 attackSequence.append(SCNAction.customAction(duration: 0.5, action: { _,_ in
@@ -3410,7 +3428,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
             newAllyBoard = checkArr.filter{(item) in
                 tempIndex += 1
                 if (oldSubChessIndex.contains(tempIndex)) {
-                    item.removeFromParentNode()
+                    item.removeAndClearFromParentNode()
                 }
                 return !oldSubChessIndex.contains(tempIndex)
             }
@@ -3727,7 +3745,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, SC
 //        } else { //从机
 //            if let anchorName = anchor.name, anchorName.hasPrefix("playerBoard") {
 //                self.initPlayerBoard(playerBoardPosition: node.position)
-//                node.removeFromParentNode()
+//                node.removeAndClearFromParentNode()
 //            }
 ////            else if let anchorName = anchor.name, anchorName.hasPrefix("customPlane") {
 ////                guard let planeAnchor = anchor as? ARPlaneAnchor,

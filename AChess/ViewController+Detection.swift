@@ -105,8 +105,8 @@ extension ViewController {
                             }
                          
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.03, execute: {
-                                tempNode1.removeFromParentNode()
-                                tempNode2.removeFromParentNode()
+                                tempNode1.removeAndClearFromParentNode()
+                                tempNode2.removeAndClearFromParentNode()
                             })
                         }
                         
@@ -133,7 +133,7 @@ extension ViewController {
                             ///let midHitTest = self.sceneView.hitTest(midPointCG, types: )
                             //self.sceneView.scene.rootNode.addChildNode(tempNode3)
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
-                                tempNode3.removeFromParentNode()
+                                tempNode3.removeAndClearFromParentNode()
                             })
                             if !(self.curDragPoint != nil) { //没有持有棋子
                                 let midHitT = self.sceneView.hitTest(midPointCG, options: [SCNHitTestOption.ignoreHiddenNodes: true, SCNHitTestOption.rootNode: self.playerBoardNode, SCNHitTestOption.categoryBitMask: BitMaskCategoty.baseChess.rawValue])
@@ -183,7 +183,7 @@ extension ViewController {
                             self.curHandGesture = HandGestureCategory.openFist
                             if self.curDragPoint != nil { //持有了棋子
                                 var midHitT = self.sceneView.hitTest(midPointCG, options: [SCNHitTestOption.ignoreHiddenNodes: true, SCNHitTestOption.rootNode: self.playerBoardNode, SCNHitTestOption.categoryBitMask: BitMaskCategoty.enemySide.rawValue])
-                                self.curDragPoint?.removeFromParentNode()
+                                self.curDragPoint?.removeAndClearFromParentNode()
                                 self.playerBoardNode.addChildNode(self.curDragPoint!)
                                 if !midHitT.isEmpty && midHitT.first?.node.physicsBody?.categoryBitMask == BitMaskCategoty.enemySide.rawValue { //敌人棋盘
                                     self.endOnEnemyBoard(hitTestResult: hitTestResults3)

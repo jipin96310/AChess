@@ -136,7 +136,8 @@ extension ViewController: UIGestureRecognizerDelegate {
         endButtonNode.geometry?.firstMaterial?.diffuse.contents = UIColor.gray //灰显图标
         isWaiting = true
         
-        self.playerStatues[0].curChesses = copyChessArr(curBoard: self.boardNode[BoardSide.allySide.rawValue])
+        self.playerStatues[0].curChesses = copyChessArrToCodeStruct(curBoard: self.boardNode[BoardSide.allySide.rawValue])
+        
         if(gameConfigStr.isMaster) {
             for i in 0 ..< currentSlaveId.count {
                 if currentSlaveId[i].playerID === multipeerSession.getMyId() {

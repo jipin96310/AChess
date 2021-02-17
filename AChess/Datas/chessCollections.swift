@@ -40,7 +40,7 @@ public var chessCollectionsLevel = [
         chessStruct(name: EnumChessName.dog.rawValue, desc: "", atkNum: 2, defNum: 3, chessRarity: 2, chessLevel: 1,chessKind: EnumChessKind.plain.rawValue, abilities: [EnumAbilities.customSellValue.rawValue], temporaryBuff:[], rattleFunc: [EnumKeyName.customValue.rawValue : 3], inheritFunc: [:]),
         chessStruct(name: EnumChessName.wildCat.rawValue, desc: "", atkNum: 5, defNum: 5, chessRarity: 2, chessLevel: 1,chessKind: EnumChessKind.plain.rawValue, abilities: [EnumAbilities.instantReduceBuff.rawValue], temporaryBuff:[], rattleFunc: [EnumKeyName.baseAttack.rawValue : -1, EnumKeyName.baseDef.rawValue : -1], inheritFunc: [:]),
     ],
-    [ //level3。 15个。   15
+    [ //level3。 15个。
         chessStruct(name: EnumChessName.yak.rawValue, desc: "", atkNum: 2, defNum: 5, chessRarity: 3, chessLevel: 1,chessKind: EnumChessKind.mountain.rawValue, abilities: [EnumAbilities.liveInGroup.rawValue], temporaryBuff:[], rattleFunc: [:], inheritFunc: [:]),
         chessStruct(name: EnumChessName.snowLeopard.rawValue, desc: "", atkNum: 4, defNum: 2, chessRarity: 3, chessLevel: 1,chessKind: EnumChessKind.mountain.rawValue, abilities: [EnumAbilities.rapid.rawValue, EnumAbilities.acute.rawValue], temporaryBuff:[], rattleFunc: [:], inheritFunc: [:]),
         chessStruct(name: EnumChessName.pangolin.rawValue, desc: "", atkNum: 2, defNum: 4, chessRarity: 3, chessLevel: 1,chessKind: EnumChessKind.mountain.rawValue, abilities: [EnumAbilities.bait.rawValue], temporaryBuff:[EnumAbilities.shell.rawValue], rattleFunc: [:], inheritFunc: [:]),

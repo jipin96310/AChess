@@ -25,13 +25,7 @@ func backToAction(_ backNodePos: SCNVector3, _ attackerNode: baseChessNode, _ at
     let firstPos = SCNVector3(backNodePos.x, backNodePos.y, backNodePos.z - adjustLens)
     let firstStep = SCNAction.move(to: firstPos, duration: 1.5)
     let secondStep = SCNAction.move(to: backNodePos, duration: 0.5)
-    var backSequence = [firstStep, secondStep]
-    // if the current node has been eliminated, add fade action
-//    if let curNodeBlood = attackerNode.defNum {
-//        if curNodeBlood <= 0 {
-//            backSequence += [SCNAction.fadeOut(duration: 0.3), SCNAction.removeFromParentNode()]
-//        }
-//    }
+    let backSequence = [firstStep, secondStep]
     return SCNAction.sequence(backSequence)
 }
 func bloodChangeAction(_ changeNodes: [baseChessNode], _ changeNums: [Int]) -> SCNAction { //最多支持两个node
@@ -41,7 +35,7 @@ func bloodChangeAction(_ changeNodes: [baseChessNode], _ changeNums: [Int]) -> S
         })
     }
     
-    let bloodSequence : [SCNAction] = [SCNAction.fadeOut(duration: 0.3), SCNAction.removeFromParentNode()]
+    //let _ : [SCNAction] = [SCNAction.fadeOut(duration: 0.3), SCNAction.removeFromParentNode()]
     return SCNAction.customAction(duration: 1, action: { _,_ in
         for index in 0 ..< changeNodes.count {
             let curNode = changeNodes[index]

@@ -122,7 +122,7 @@ class ChessBoardNode: SCNNode {
 //                            //赋值更新
 //                            boardChessess[BoardSide.allySide.rawValue] = newAllyBoard
 //                            if (curDragPoint != nil) {
-//                                curDragPoint!.removeFromParentNode()
+//                                curDragPoint!.removeAndClearFromParentNode()
 //                            }
 //                        }
 //                         /*棋子合成end*/
@@ -268,7 +268,7 @@ class ChessBoardNode: SCNNode {
                     //let queue = DispatchQueue.global()
 //                    for i in 0 ..< needDeleteChesses.count {
 //                        //queue.async(group: group, execute: {
-//                            needDeleteChesses[i].removeFromParentNode()
+//                            needDeleteChesses[i].removeAndClearFromParentNode()
 //                       // })
 //                    }
 //                    DispatchQueue.main.async {
@@ -284,7 +284,7 @@ class ChessBoardNode: SCNNode {
 //                        let queue = DispatchQueue.global()
 //                        for i in 0 ..< needDeleteChesses.count {
 //                            queue.async(group: group, execute: {
-//                                needDeleteChesses[i].removeFromParentNode()
+//                                needDeleteChesses[i].removeAndClearFromParentNode()
 //                            })
 //                        }
 //                        group.notify(queue: queue) {
@@ -417,7 +417,7 @@ class ChessBoardNode: SCNNode {
             SCNAction.wait(duration: 1),
             //            SCNAction.fadeOut(duration: 0.3),
             SCNAction.customAction(duration: 0, action: { _,_ in
-                abilitiesTriggerTextNode.removeFromParentNode()
+                abilitiesTriggerTextNode.removeAndClearFromParentNode()
             })
         ]))
     }
@@ -447,11 +447,11 @@ class ChessBoardNode: SCNNode {
     }
     func removeBoard() {
         guard let boardNode = boardNodeTemplate else { return }
-        boardNode.removeFromParentNode()
+        boardNode.removeAndClearFromParentNode()
         placed = false
         for i in 0 ..< boardChessess.count {
             for j in 0 ..< boardChessess[i].count {
-                boardChessess[i][j].removeFromParentNode()
+                boardChessess[i][j].removeAndClearFromParentNode()
             }
         }
         
@@ -656,7 +656,7 @@ class ChessBoardNode: SCNNode {
         let trackActionSequence = [
             SCNAction.move(to: endVector, duration: 1),
             SCNAction.customAction(duration: 0, action: { _,_ in
-                newTrackPoint.removeFromParentNode()
+                newTrackPoint.removeAndClearFromParentNode()
             })
         ]
         newTrackPoint.runAction(SCNAction.sequence(trackActionSequence))
@@ -754,7 +754,7 @@ class ChessBoardNode: SCNNode {
                         SCNAction.move(to: SCNVector3(-1.5, 10, 0.01), duration: 10),
                         SCNAction.fadeOut(duration: 0.1),
                         SCNAction.customAction(duration: 0, action: { _,_  in
-                            newLine.removeFromParentNode()
+                            newLine.removeAndClearFromParentNode()
                         })
                     ]))
                     if i == arr.count - 1 {

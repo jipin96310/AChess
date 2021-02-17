@@ -213,7 +213,7 @@ public class baseChessNode: SCNNode {
 //    }
     
     
-    func exportCodeableStruct() -> codableChessStruct? {
+    func exportCodeableStruct() -> codableChessStruct {
         for i in 0 ..< chessCollectionsLevel[chessRarity - 1].count {
             if chessCollectionsLevel[chessRarity - 1][i].name == chessName {
                 return codableChessStruct(chessRarityIndex: i, atkNum: atkNum!, defNum: defNum!, chessRarity: chessRarity, chessLevel: chessLevel, chessKind: chessKind, abilities: abilities, temporaryBuff: temporaryBuff)
@@ -224,7 +224,7 @@ public class baseChessNode: SCNNode {
                 return codableChessStruct(chessRarityIndex: i, atkNum: atkNum!, defNum: defNum!, chessRarity: nil, chessLevel: chessLevel, chessKind: chessKind, abilities: abilities, temporaryBuff: temporaryBuff)
             }
         }
-        return nil
+        return codableChessStruct(chessRarityIndex: 1, atkNum: atkNum!, defNum: defNum!, chessRarity: 1, chessLevel: chessLevel, chessKind: chessKind, abilities: abilities, temporaryBuff: temporaryBuff)
     }
     func exportStruct() -> chessStruct {
        
@@ -262,9 +262,9 @@ public class baseChessNode: SCNNode {
                
                if let shellNode = self.childNode(withName: "shell", recursively: true) { //control the shield
                    if temporaryBuff.contains(EnumAbilities.shell.rawValue) {
-                       shellNode.isHidden = false
+                       shellNode.opacity = 1
                    } else {
-                       shellNode.isHidden = true
+                       shellNode.opacity = 0
                    }
                }
                
@@ -332,9 +332,9 @@ public class baseChessNode: SCNNode {
         
         if let shellNode = self.childNode(withName: "shell", recursively: true) { //control the shield
             if temporaryBuff.contains(EnumAbilities.shell.rawValue) {
-                shellNode.isHidden = false
+                shellNode.opacity = 1
             } else {
-                shellNode.isHidden = true
+                shellNode.opacity = 0
             }
         }
         
@@ -442,22 +442,22 @@ public class baseChessNode: SCNNode {
     
     func toggleShell(status: Bool) { //control shell turn on/off
         if let shellNode = self.childNode(withName: "shell", recursively: true) {
-             if status == true {
-                       if !temporaryBuff.contains(EnumAbilities.shell.rawValue) {
-                          temporaryBuff.append(EnumAbilities.shell.rawValue)
-                       }
-                        
-                        shellNode.runAction(SCNAction.sequence([
-                            SCNAction.fadeOpacity(to: 0.8, duration: 0.5)
-                        ]))
-                   } else {
-                      if temporaryBuff.contains(EnumAbilities.shell.rawValue) {
-                          temporaryBuff.remove(at: temporaryBuff.lastIndex(of: EnumAbilities.shell.rawValue)!) //已经判断必定能找到
-                       }
-                        shellNode.runAction(SCNAction.sequence([
-                          SCNAction.fadeOut(duration: 0.5)
-                        ]))
+            if status == true {
+                if !temporaryBuff.contains(EnumAbilities.shell.rawValue) {
+                    temporaryBuff.append(EnumAbilities.shell.rawValue)
                 }
+                
+                shellNode.runAction(SCNAction.sequence([
+                    SCNAction.fadeOpacity(to: 0.8, duration: 0.5)
+                ]))
+            } else {
+                if temporaryBuff.contains(EnumAbilities.shell.rawValue) {
+                    temporaryBuff.remove(at: temporaryBuff.lastIndex(of: EnumAbilities.shell.rawValue)!) //已经判断必定能找到
+                }
+                shellNode.runAction(SCNAction.sequence([
+                    SCNAction.fadeOut(duration: 0.5)
+                ]))
+            }
         }
     }
     

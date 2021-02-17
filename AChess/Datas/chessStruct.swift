@@ -34,4 +34,30 @@ public struct chessStruct {
         self.rattleFunc = rattleFunc
         self.inheritFunc = inheritFunc
     }
+    func encode() -> codableChessStruct {
+        let level:Int = chessLevel ?? 1
+        if let rarity = chessRarity {
+            for i in 0 ..< chessCollectionsLevel[rarity - 1].count {
+                if chessCollectionsLevel[rarity - 1][i].name == name {
+                    return codableChessStruct(chessRarityIndex: i, atkNum: atkNum!, defNum: defNum!, chessRarity: chessRarity, chessLevel: level, chessKind: chessKind, abilities: abilities, temporaryBuff: temporaryBuff)
+                }
+            }
+        }
+        
+        for i in 0 ..< chessDerivateCollections.count {
+            if chessDerivateCollections[i].name == name { //稀有度为-1的是衍生物
+                return codableChessStruct(chessRarityIndex: i, atkNum: atkNum!, defNum: defNum!, chessRarity: nil, chessLevel: level, chessKind: chessKind, abilities: abilities, temporaryBuff: temporaryBuff)
+            }
+        }
+        return codableChessStruct(chessRarityIndex: 1, atkNum: 1, defNum: 1, chessRarity: 1, chessLevel: 1, chessKind: chessKind, abilities: abilities, temporaryBuff: temporaryBuff)
+    }
+    mutating func AddBilities(Abilities: [String]) {
+        var tempAbilities:[String] = []
+        Abilities.forEach{ (curAbi) in
+            if !abilities.contains(curAbi) {
+                tempAbilities.append(curAbi)
+            }
+        }
+        abilities += tempAbilities
+    }
 }

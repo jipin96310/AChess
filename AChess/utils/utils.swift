@@ -59,7 +59,7 @@ public func addExplosion(_ target: SCNNode) { //TODO the explosion effect doesnt
         target.addChildNode(confettiNode)
         delay(0.1, task: { () in
                 confettiNode.removeParticleSystem(explosion)
-                confettiNode.removeFromParentNode()
+                confettiNode.removeAndClearFromParentNode()
             })
     }
     
@@ -172,9 +172,7 @@ func encodeCodablePlayerStruct(playerID: MCPeerID, player: playerStruct) -> Data
     else { fatalError("can't encode!") }
     var tempCodeChesses:[codableChessStruct] = []
     player.curChesses.forEach{ curC in
-        if let enCurC = curC.exportCodeableStruct() {
-            tempCodeChesses.append(enCurC)
-        }
+        tempCodeChesses.append(curC)
     }
     let curPlayerStuct = codblePlayerStruct(playerName: player.playerName, curCoin: player.curCoin, curLevel: player.curLevel, curBlood: player.curBlood, curChesses: tempCodeChesses, curAura: player.curAura, isComputer: player.isComputer, encodePlayerID: idData)
     let encoder = JSONEncoder()
@@ -187,9 +185,7 @@ func encodeBoardChesses(boardChess:[[baseChessNode]]) -> Data{
     boardChess.forEach{chesses in
         var codeChesses:[codableChessStruct] = []
         chesses.forEach { curC in
-            if let enCurC = curC.exportCodeableStruct() {
-                codeChesses.append(enCurC)
-            }
+            codeChesses.append(curC.exportCodeableStruct())
         }
         tempBoard.append(codeChesses)
     }
@@ -207,6 +203,7 @@ func findIndexOfFirstAttack(curBoard: [baseChessNode]) -> Int {
     }
     return curBoard.count
 }
+
 func copyChessArr(curBoard: [baseChessNode]) -> [baseChessNode] {
     var tempArr:[baseChessNode] = []
     curBoard.forEach{ curC in
@@ -214,6 +211,15 @@ func copyChessArr(curBoard: [baseChessNode]) -> [baseChessNode] {
     }
     return tempArr
 }
+
+func copyChessArrToCodeStruct(curBoard: [baseChessNode]) -> [codableChessStruct]{
+    var tempArr:[codableChessStruct] = []
+    curBoard.forEach{ curC in
+        tempArr.append(curC.exportCodeableStruct())
+    }
+    return tempArr
+}
+
 func findSimiInstance<T: Equatable>(arr: [T], obj: T) -> T{ //用于寻找数组中半等的对象
     for i in 0 ..< arr.count {
         if arr[i] == obj {

@@ -37,7 +37,11 @@ extension String {
     }
 }
 extension SCNNode {
-    
+    func removeAndClearFromParentNode() {
+        self.geometry?.firstMaterial!.normal.contents = nil
+        self.geometry?.firstMaterial!.diffuse.contents = nil
+        self.removeFromParentNode()
+    }
     func fixCategoryMasks(mask: Int) {
         self.categoryBitMask = mask
         if let body = physicsBody {
