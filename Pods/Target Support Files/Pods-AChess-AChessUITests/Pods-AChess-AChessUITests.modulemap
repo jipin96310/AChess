@@ -1,0 +1,6 @@
+module Pods_AChess_AChessUITests {
+  umbrella header "Pods-AChess-AChessUITests-umbrella.h"
+
+  export *
+  module * { export * }
+}
